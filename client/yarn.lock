@@ -230,6 +230,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@quasar/extras@npm:^1.16.5":
+  version: 1.16.5
+  resolution: "@quasar/extras@npm:1.16.5"
+  checksum: 9980351568c049517727804a87ad27df35c8e1123615df434c0544ee5a518613583d0dd600a7d7242dcac1b153acc0c8bf2811ae0bb3d8bd8221e0f178591a64
+  languageName: node
+  linkType: hard
+
+"@quasar/vite-plugin@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "@quasar/vite-plugin@npm:1.4.1"
+  peerDependencies:
+    "@vitejs/plugin-vue": ^2.0.0 || ^3.0.0 || ^4.0.0
+    quasar: ^2.8.0
+    vite: ^2.0.0 || ^3.0.0 || ^4.0.0
+    vue: ^3.0.0
+  checksum: cca9245611244c3c27c2ff0de0593812f1d6d7e370ad062f3d22c24d28847a1a74a51a4ae72bbd97992eb244fcf11478353b21cdae6e643492efc2ad3f9c883b
+  languageName: node
+  linkType: hard
+
 "@tootallnate/once@npm:2":
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
@@ -560,18 +579,6 @@ __metadata:
   checksum: 2ac8cd2b2f5ec986a3c743935ec85b07bc174d5421a5efc8017e1f146a1cf5f781ae962618f416352103b32c9cd7e203276e8c28241bbe946160cab16149fb68
   languageName: node
   linkType: hard
-
-"client@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "client@workspace:."
-  dependencies:
-    "@vitejs/plugin-vue": ^4.2.3
-    typescript: ^5.0.2
-    vite: ^4.4.0
-    vue: ^3.3.4
-    vue-tsc: ^1.8.3
-  languageName: unknown
-  linkType: soft
 
 "color-convert@npm:^2.0.1":
   version: 2.0.1
@@ -1355,6 +1362,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"quasar@npm:^2.12.3":
+  version: 2.12.3
+  resolution: "quasar@npm:2.12.3"
+  checksum: 165136f4dd78ba6ca8097a2d64155bdd0af4bd9da182100643061ce32ae13fd57d49c311ad381d8779540ef2e6b28b7eaa8ac02bbf82edd0cfe694628bbc43d9
+  languageName: node
+  linkType: hard
+
 "readable-stream@npm:^3.6.0":
   version: 3.6.2
   resolution: "readable-stream@npm:3.6.2"
@@ -1503,6 +1517,21 @@ __metadata:
   checksum: fb14da9f8a72b04eab163eb13a9dda11d5962cd2317f85457c4e0b575e9a6e0e3a6a87b5bf122c75cb36565830cd5f263fb457571bf6f1587eb5f95d095d6165
   languageName: node
   linkType: hard
+
+"stc-ad-credit-client@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "stc-ad-credit-client@workspace:."
+  dependencies:
+    "@quasar/extras": ^1.16.5
+    "@quasar/vite-plugin": ^1.4.1
+    "@vitejs/plugin-vue": ^4.2.3
+    quasar: ^2.12.3
+    typescript: ^5.0.2
+    vite: ^4.4.0
+    vue: ^3.3.4
+    vue-tsc: ^1.8.3
+  languageName: unknown
+  linkType: soft
 
 "string-width-cjs@npm:string-width@^4.2.0, string-width@npm:^1.0.2 || 2 || 3 || 4, string-width@npm:^4.1.0, string-width@npm:^4.2.3":
   version: 4.2.3
