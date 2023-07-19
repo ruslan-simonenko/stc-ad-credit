@@ -1530,6 +1530,7 @@ __metadata:
     vite: ^4.4.0
     vue: ^3.3.4
     vue-tsc: ^1.8.3
+    vue3-google-login: ^2.0.18
   languageName: unknown
   linkType: soft
 
@@ -1710,6 +1711,15 @@ __metadata:
   bin:
     vue-tsc: bin/vue-tsc.js
   checksum: 20a7a9e62107423e1715159cc031302822fba6aa4053ae75fbfec27fb67bb9e629e2bf8a12a28115d3add5e21f384e8560751428f2858a308676463d4659ead5
+  languageName: node
+  linkType: hard
+
+"vue3-google-login@npm:^2.0.18":
+  version: 2.0.18
+  resolution: "vue3-google-login@npm:2.0.18"
+  peerDependencies:
+    vue: ^3.0.3
+  checksum: 99c0090946bee90802d67f3a9396825b7953f0e2169e1608b806b5316827a3c410be981bceb882cb7bc21e70f99cc3f386777ab304ec38c548f7e8721d58ffd3
   languageName: node
   linkType: hard
 

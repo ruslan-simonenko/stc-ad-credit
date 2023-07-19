@@ -7,11 +7,12 @@
     </q-header>
     <q-page-container>
       <q-page padding>
-        <div>Hello World!</div>
+        <LoginPage></LoginPage>
       </q-page>
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
+import LoginPage from "./auth/LoginPage.vue";
 </script>
