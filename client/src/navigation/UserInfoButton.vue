@@ -17,10 +17,19 @@
           <q-item-label>{{ userName }}<br>{{ userEmail }}</q-item-label>
         </q-item-section>
       </q-item>
-      <q-separator />
+      <q-separator/>
       <q-item>
         <q-item-section>
           <q-item-label>Role: Project Manager</q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-separator/>
+      <q-item clickable v-close-popup @click="authStore.logout">
+        <q-item-section side>
+          <q-icon name="logout"></q-icon>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>Logout</q-item-label>
         </q-item-section>
       </q-item>
     </q-list>
