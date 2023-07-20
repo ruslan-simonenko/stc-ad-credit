@@ -11,6 +11,7 @@
   "dependencies": {
     "@quasar/extras": "^1.16.5",
     "axios": "^1.4.0",
+    "pinia": "^2.1.4",
     "quasar": "^2.12.3",
     "vue": "^3.3.4",
     "vue3-google-login": "^2.0.18"
