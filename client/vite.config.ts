@@ -8,6 +8,15 @@ export default defineConfig({
         vue({
             template: {transformAssetUrls}
         }),
-        quasar()
-    ]
+        quasar(),
+    ],
+    server: {
+        proxy: {
+            '/api': {
+                target: "http://localhost:5000",
+                changeOrigin: false,
+                rewrite: path => path.replace(/^\/api/, '')
+            }
+        }
+    }
 })
