@@ -38,16 +38,20 @@ def login():
         return jsonify(LoginError(f'Invalid request: {str(e)}')), 400
     try:
         google_client_id = os.environ['GOOGLE_LOGIN_CLIENT_ID']
-    except KeyError:
-        return jsonify(LoginError('Invalid configuration: environment variable GOOGLE_LOGIN_CLIENT_ID is not set')), 500
+        project_manager_email = os.environ['PROJECT_MANAGER_EMAIL']
+    except KeyError as e:
+        return jsonify(LoginError(f'Invalid configuration: environment variable {e.args[0]} is not set')), 500
     try:
         id_info: Dict[str, any] = id_token.verify_oauth2_token(login_request.credential, requests.Request(),
                                                                google_client_id)
     except (GoogleAuthError, ValueError) as e:
         return jsonify(LoginError(f'Token verification failed: {str(e)}')), 400
     try:
+        email = id_info['email']
+        if email != project_manager_email:
+            return jsonify(LoginError(f'Not a known user: {email}')), 403
         return jsonify(LoginResponse(
-            id_info['email'],
+            email,
             id_info['name'],
             id_info['picture']
         ))
