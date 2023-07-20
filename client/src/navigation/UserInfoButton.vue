@@ -17,6 +17,12 @@
           <q-item-label>{{ userName }}<br>{{ userEmail }}</q-item-label>
         </q-item-section>
       </q-item>
+      <q-separator />
+      <q-item>
+        <q-item-section>
+          <q-item-label>Role: Project Manager</q-item-label>
+        </q-item-section>
+      </q-item>
     </q-list>
   </q-btn-dropdown>
 </template>
