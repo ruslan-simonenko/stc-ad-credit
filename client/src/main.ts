@@ -7,6 +7,7 @@ import {Quasar} from "quasar";
 import vue3GoogleLogin from 'vue3-google-login'
 import {ApiClientAxios} from "./api/api-client-axios.ts";
 import {createPinia} from "pinia";
+import {appRouter} from "./navigation/routing.ts";
 
 createApp(App)
     .use(Quasar, {})
@@ -15,4 +16,5 @@ createApp(App)
     })
     .use(ApiClientAxios)
     .use(createPinia())
+    .use(appRouter)
     .mount('#app')

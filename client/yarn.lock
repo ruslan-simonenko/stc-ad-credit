@@ -1635,6 +1635,7 @@ __metadata:
     typescript: ^5.0.2
     vite: ^4.4.0
     vue: ^3.3.4
+    vue-router: 4
     vue-tsc: ^1.8.3
     vue3-google-login: ^2.0.18
   languageName: unknown
@@ -1808,6 +1809,17 @@ __metadata:
     vue-demi-fix: bin/vue-demi-fix.js
     vue-demi-switch: bin/vue-demi-switch.js
   checksum: ff44b9372b8224590514252a2f73363cced6062205f9628a6b130dccb80e2023d55cd9d1da94aeb68d5539b7ea9eedcecf88ab281a3a9ff48b8db4c5366b9643
+  languageName: node
+  linkType: hard
+
+"vue-router@npm:4":
+  version: 4.2.4
+  resolution: "vue-router@npm:4.2.4"
+  dependencies:
+    "@vue/devtools-api": ^6.5.0
+  peerDependencies:
+    vue: ^3.2.0
+  checksum: 9fe1fc11b613c8e020aad5d0850ba5caa971033dfaa4fc117e4595349f2c5f211793a247c30e3c03b0f91c3512b87af929af96b8b20b6b7d4cdccc5af13e5e7f
   languageName: node
   linkType: hard
 
