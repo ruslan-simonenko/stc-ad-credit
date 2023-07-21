@@ -43,7 +43,7 @@ def login():
         return jsonify(LoginError(f'Invalid configuration: environment variable {e.args[0]} is not set')), 500
     try:
         id_info: Dict[str, any] = id_token.verify_oauth2_token(login_request.credential, requests.Request(),
-                                                               google_client_id)
+                                                               google_client_id, clock_skew_in_seconds=10)
     except (GoogleAuthError, ValueError) as e:
         return jsonify(LoginError(f'Token verification failed: {str(e)}')), 400
     try:
