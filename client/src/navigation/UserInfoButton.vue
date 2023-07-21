@@ -24,7 +24,7 @@
         </q-item-section>
       </q-item>
       <q-separator/>
-      <q-item clickable v-close-popup @click="authStore.logout">
+      <q-item clickable v-close-popup @click="onLogoutClick">
         <q-item-section side>
           <q-icon name="logout"></q-icon>
         </q-item-section>
@@ -39,11 +39,18 @@
 <script setup lang="ts">
 import {useAuthStore} from "../auth/auth-store.ts";
 import {computed} from "vue";
+import {useRouter} from "vue-router";
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
+const router = useRouter()
+
 const userName = computed(() => authStore.user!.name)
 const userEmail = computed(() => authStore.user!.email)
 const userPictureUrl = computed(() => authStore.user!.picture_url)
+
+const onLogoutClick = () => {
+  authStore.logout().then(() => router.push({name: 'Home'}))
+}
 </script>
 
 <style scoped>
