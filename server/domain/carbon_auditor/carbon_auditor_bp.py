@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from flask import Blueprint, jsonify
+from flask_jwt_extended import jwt_required
 
 carbon_auditor_bp = Blueprint('carbon-auditor', __name__, url_prefix='/carbon-auditor')
 
@@ -13,6 +14,7 @@ class CarbonAuditor:
 
 
 @carbon_auditor_bp.route('/', methods=['GET'])
+@jwt_required()
 def get():
     return jsonify([
         CarbonAuditor(email='john.doe@gmail.com', name='John Doe',
