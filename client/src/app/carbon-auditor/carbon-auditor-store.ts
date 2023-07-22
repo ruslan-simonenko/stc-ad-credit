@@ -9,18 +9,24 @@ export interface CarbonAuditor {
 }
 
 export interface CarbonAuditors {
-    items: CarbonAuditor[]
+    items: CarbonAuditor[],
+    fetching: boolean,
 }
 
 export const useCarbonAuditorStore = defineStore("carbonAuditor", () => {
     const apiClient = useApiClientAxios()
     const all = reactive<CarbonAuditors>({
-        items: []
+        items: [],
+        fetching: false,
     })
 
     const fetch = async () => {
+        all.fetching = true
         return apiClient.get('/domain/carbon-auditor').then((response) => {
             all.items = response.data
+            all.fetching = false
+        }).catch(() => {
+            all.fetching = false
         })
     }
 
