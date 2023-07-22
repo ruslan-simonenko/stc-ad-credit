@@ -5,9 +5,10 @@ Revises:
 Create Date: 2023-07-22 22:11:20.694268+00:00
 
 """
-from alembic import op
-import sqlalchemy as sa
+from typing import Any
 
+import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'c782956ef1a1'
@@ -16,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade() -> None:
+def upgrade(**kw: Any) -> None:
     op.create_table(
         'carbon_auditor',
         sa.Column('id', sa.INTEGER, primary_key=True),
@@ -26,5 +27,5 @@ def upgrade() -> None:
     )
 
 
-def downgrade() -> None:
+def downgrade(**kw: Any) -> None:
     op.drop_table('carbon_auditor')

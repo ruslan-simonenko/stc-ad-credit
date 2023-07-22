@@ -1,9 +1,8 @@
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
-from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,10 +19,22 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 target_metadata = None
 
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+def is_dev_mode() -> bool:
+    try:
+        env = context.get_x_argument(as_dictionary=True).get('env', 'prod')
+    except ValueError as e:
+        raise ValueError('Invalid -x argument! Must be in key1=value1,key2=value2 format')
+    if env == 'dev':
+        return True
+    elif env == 'prod':
+        return False
+    else:
+        raise ValueError(f'Unsupported env: {env} - must be one of: dev, prod')
 
 
 def run_migrations_offline() -> None:
@@ -47,7 +58,7 @@ def run_migrations_offline() -> None:
     )
 
     with context.begin_transaction():
-        context.run_migrations()
+        context.run_migrations(is_dev=is_dev_mode())
 
 
 def run_migrations_online() -> None:
@@ -69,7 +80,7 @@ def run_migrations_online() -> None:
         )
 
         with context.begin_transaction():
-            context.run_migrations()
+            context.run_migrations(is_dev=is_dev_mode())
 
 
 if context.is_offline_mode():
