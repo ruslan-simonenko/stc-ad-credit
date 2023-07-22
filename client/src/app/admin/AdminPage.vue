@@ -6,5 +6,5 @@
 </template>
 
 <script setup lang="ts">
-import CarbonAuditorsList from "../carbon_auditor/CarbonAuditorsList.vue";
+import CarbonAuditorsList from "../carbon-auditor/CarbonAuditorsList.vue";
 </script>
