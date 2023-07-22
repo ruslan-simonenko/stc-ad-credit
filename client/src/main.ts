@@ -8,6 +8,7 @@ import vue3GoogleLogin from 'vue3-google-login'
 import {ApiClientAxios} from "./api/api-client-axios.ts";
 import {createPinia} from "pinia";
 import {appRouter} from "./navigation/routing.ts";
+import {jwtAuth} from "./auth/auth.ts";
 
 createApp(App)
     .use(Quasar, {})
@@ -17,4 +18,5 @@ createApp(App)
     .use(ApiClientAxios)
     .use(createPinia())
     .use(appRouter)
+    .use(jwtAuth)
     .mount('#app')

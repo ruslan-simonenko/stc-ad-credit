@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import {useApiClientAxios} from "../api/api-client-axios.ts";
+import {StorageSerializers, useLocalStorage} from "@vueuse/core";
 
 export interface User {
     name: string,
@@ -11,7 +12,10 @@ export interface User {
 export const useAuthStore = defineStore("auth", () => {
     const apiClient = useApiClientAxios()
 
-    const user = ref<User | null>(null)
+    const user = useLocalStorage<User>('auth.user', null, {
+        serializer: StorageSerializers.object
+    })
+    const accessToken = useLocalStorage('auth.accessToken', null)
     const isAuthenticated = computed<boolean>(() => user.value != null)
 
     const loginWithGoogle = async (googleToken: string) => {
@@ -20,6 +24,7 @@ export const useAuthStore = defineStore("auth", () => {
         return apiClient.post('/auth/login', {
             credential: googleToken
         }).then(async (response) => {
+            accessToken.value = response.data.access_token
             user.value = {
                 name: response.data.name,
                 email: response.data.email,
@@ -29,11 +34,15 @@ export const useAuthStore = defineStore("auth", () => {
         })
     }
 
-    const logout = async () => user.value = null
+    const logout = async () => {
+        accessToken.value = null
+        user.value = null
+    }
 
     return {
         user,
         isAuthenticated,
+        accessToken,
         loginWithGoogle,
         logout,
     }

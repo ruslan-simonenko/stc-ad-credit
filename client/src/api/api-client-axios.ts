@@ -17,6 +17,7 @@ export const ApiClientAxios: Plugin = {
     const apiClientAxios = axios.create({
       baseURL: "/api",
     })
+    app.config.globalProperties.$apiClientAxios = apiClientAxios
     app.provide(apiClientAxiosKey, apiClientAxios)
   }
 }
