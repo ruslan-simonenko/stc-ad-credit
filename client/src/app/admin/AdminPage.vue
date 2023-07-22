@@ -1,6 +1,5 @@
 <template>
   <q-page padding>
-    Admin page
     <CarbonAuditorsList></CarbonAuditorsList>
   </q-page>
 </template>

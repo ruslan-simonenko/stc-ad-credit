@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
-import {ref} from "vue";
+import {reactive} from "vue";
+import {useApiClientAxios} from "../../api/api-client-axios.ts";
 
 export interface CarbonAuditor {
     name: string,
@@ -7,13 +8,24 @@ export interface CarbonAuditor {
     picture_url: string,
 }
 
+export interface CarbonAuditors {
+    items: CarbonAuditor[]
+}
+
 export const useCarbonAuditorStore = defineStore("carbonAuditor", () => {
-    const all = ref<CarbonAuditor[]>([
-        {name: 'John Doe', email: 'john.doe@gmail.com', picture_url: 'https://cdn.quasar.dev/img/avatar4.jpg'},
-        {name: 'Jane Doe', email: 'jane.doe@gmail.com', picture_url: 'https://cdn.quasar.dev/img/avatar2.jpg'}
-    ])
+    const apiClient = useApiClientAxios()
+    const all = reactive<CarbonAuditors>({
+        items: []
+    })
+
+    const fetch = async () => {
+        return apiClient.get('/domain/carbon-auditor').then((response) => {
+            all.items = response.data
+        })
+    }
 
     return {
         all,
+        fetch,
     }
 })
