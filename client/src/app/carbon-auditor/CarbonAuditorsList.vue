@@ -1,7 +1,7 @@
 <template>
   <q-list bordered padding>
     <q-item-label header>Carbon Auditors</q-item-label>
-    <q-item v-for="auditor in auditors">
+    <q-item v-for="auditor in auditorStore.all">
       <q-item-section avatar>
         <q-avatar><img :src="auditor.picture_url"></q-avatar>
       </q-item-section>
@@ -14,8 +14,7 @@
 </template>
 
 <script setup lang="ts">
-const auditors = [
-  {picture_url: 'https://cdn.quasar.dev/img/avatar4.jpg', name: 'John Doe', email: 'john.doe@gmail.com'},
-  {picture_url: 'https://cdn.quasar.dev/img/avatar2.jpg', name: 'Jane Doe', email: 'jane.doe@gmail.com'}
-]
+import {useCarbonAuditorStore} from "./carbon-auditor-store.ts";
+
+const auditorStore = useCarbonAuditorStore();
 </script>
