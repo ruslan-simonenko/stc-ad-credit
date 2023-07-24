@@ -8,6 +8,10 @@ export interface CarbonAuditor {
     picture_url: string,
 }
 
+export interface CarbonAuditorForm {
+    email: string,
+}
+
 export interface CarbonAuditors {
     items: CarbonAuditor[],
     fetching: boolean,
@@ -24,7 +28,11 @@ export const useCarbonAuditorStore = defineStore("carbonAuditor", () => {
 
     const fetch = async () => {
         all.fetching = true
-        return apiClient.get('/domain/carbon-auditor').then((response) => {
+        return apiClient.get('/domain/carbon-auditor/', {
+            headers:{
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
             all.items = response.data
             all.fetching = false
             all.error = false
@@ -34,8 +42,13 @@ export const useCarbonAuditorStore = defineStore("carbonAuditor", () => {
         })
     }
 
+    const add = async (newAuditor: CarbonAuditorForm) => {
+        return apiClient.post('/domain/carbon-auditor/', newAuditor).finally(() => fetch())
+    }
+
     return {
         all,
         fetch,
+        add,
     }
 })

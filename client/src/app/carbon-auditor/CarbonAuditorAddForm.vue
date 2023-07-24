@@ -11,10 +11,14 @@
 
 <script setup lang="ts">
 import {ref} from "vue";
+import {useCarbonAuditorStore} from "./carbon-auditor-store.ts";
+
+const auditorStore = useCarbonAuditorStore();
 
 const email = ref<string>('')
+
 const onSubmit = () => {
-  console.log('submit')
+  auditorStore.add({email: email.value})
 }
 </script>
 
