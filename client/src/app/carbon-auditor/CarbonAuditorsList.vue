@@ -1,6 +1,11 @@
 <template>
   <q-list class="relative-position" bordered padding>
     <q-item-label header>Carbon Auditors</q-item-label>
+    <q-separator inset/>
+    <q-item>
+      <CarbonAuditorAddForm></CarbonAuditorAddForm>
+    </q-item>
+    <q-separator inset/>
     <!-- Loaded -->
     <q-item v-if="state == State.LOADED" v-for="auditor in auditorStore.all.items">
       <q-item-section avatar>
@@ -43,6 +48,7 @@
 <script setup lang="ts">
 import {useCarbonAuditorStore} from "./carbon-auditor-store.ts";
 import {computed, onMounted} from "vue";
+import CarbonAuditorAddForm from "./CarbonAuditorAddForm.vue";
 
 const auditorStore = useCarbonAuditorStore();
 
