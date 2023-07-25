@@ -1,0 +1,8 @@
+annotated-types==0.5.0
+flask-sqlacodegen==2.0.0
+greenlet==2.0.2
+inflect==7.0.0
+pydantic==2.1.1
+pydantic_core==2.4.0
+SQLAlchemy==2.0.19
+typing_extensions==4.7.1

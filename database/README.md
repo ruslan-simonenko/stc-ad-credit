@@ -10,3 +10,4 @@
     2. Examples:
         1. [Putting mock data into dev database](versions%2F2023_07_22_2316-0b464a1d6c9c_carbon_auditor_mock_dev_data.py)
     3. Upgrade to latest: `alembic -x env=dev upgrade head`
+    4. Regenerate models - see database-gen project
