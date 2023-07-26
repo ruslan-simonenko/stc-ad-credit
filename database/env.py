@@ -4,6 +4,8 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
+from env_config import update_config_from_env, APP_ENV_CONFIG_KEY, Environment
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -12,6 +14,11 @@ config = context.config
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+# Loading env properties
+config = update_config_from_env(config)
+# Setting flags for migrations
+is_dev = config.get_main_option(APP_ENV_CONFIG_KEY) == Environment.DEV.value
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -24,19 +31,6 @@ target_metadata = None
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-def is_dev_mode() -> bool:
-    try:
-        env = context.get_x_argument(as_dictionary=True).get('env', 'prod')
-    except ValueError as e:
-        raise ValueError('Invalid -x argument! Must be in key1=value1,key2=value2 format')
-    if env == 'dev':
-        return True
-    elif env == 'prod':
-        return False
-    else:
-        raise ValueError(f'Unsupported env: {env} - must be one of: dev, prod')
-
-
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -59,7 +53,7 @@ def run_migrations_offline() -> None:
     )
 
     with context.begin_transaction():
-        context.run_migrations(is_dev=is_dev_mode())
+        context.run_migrations(is_dev=is_dev)
 
 
 def run_migrations_online() -> None:
@@ -83,7 +77,7 @@ def run_migrations_online() -> None:
         )
 
         with context.begin_transaction():
-            context.run_migrations(is_dev=is_dev_mode())
+            context.run_migrations(is_dev=is_dev)
 
 
 if context.is_offline_mode():
