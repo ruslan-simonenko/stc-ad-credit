@@ -13,9 +13,11 @@ from google.auth.transport import requests
 # noinspection PyPackageRequirements
 from google.oauth2 import id_token
 
+from config import EnvironmentConstantsKeys
+
 
 def setup_auth_with_jwt(state: BlueprintSetupState):
-    state.app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
+    state.app.config['JWT_SECRET_KEY'] = os.environ[EnvironmentConstantsKeys.JWT_SECRET_KEY]
     state.app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
     JWTManager(state.app)
 
@@ -49,8 +51,8 @@ def login():
     except (TypeError, ValueError) as e:
         return jsonify(LoginError(f'Invalid request: {str(e)}')), 400
     try:
-        google_client_id = os.environ['GOOGLE_LOGIN_CLIENT_ID']
-        project_manager_email = os.environ['PROJECT_MANAGER_EMAIL']
+        google_client_id = os.environ[EnvironmentConstantsKeys.GOOGLE_LOGIN_CLIENT_ID]
+        project_manager_email = os.environ[EnvironmentConstantsKeys.PROJECT_MANAGER_EMAIL]
     except KeyError as e:
         return jsonify(LoginError(f'Invalid configuration: environment variable {e.args[0]} is not set')), 500
     try:
