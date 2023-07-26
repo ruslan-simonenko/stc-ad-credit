@@ -10,8 +10,7 @@ from config import EnvironmentConstantsKeys
 @pytest.fixture(scope='session')
 def client() -> FlaskClient:
     with app.test_client() as client:
-        with app.app_context():
-            yield client
+        yield client
 
 
 @pytest.fixture(scope="session")
