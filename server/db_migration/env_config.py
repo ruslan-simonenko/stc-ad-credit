@@ -15,8 +15,7 @@ class Environment(Enum):
 
 
 def update_config_from_env(config: Config) -> Config:
-    logger = logging.getLogger('env_config.py')
-    logger.setLevel(logging.INFO)
+    logger = logging.getLogger('db_migration.env_config')
 
     load_dotenv('.env.local')
     app_env = Environment(os.environ.get('APP_ENV', 'prod'))

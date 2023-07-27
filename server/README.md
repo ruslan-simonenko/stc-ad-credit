@@ -2,9 +2,7 @@
 ## Development Environment Setup
 1. Create [virtualenv](https://virtualenv.pypa.io/en/latest/user_guide.html): `virtualenv venv`
 2. Install dependencies: `pip3 install -r requirements.txt`
-3. Specify env parameters: 
-   1. Create `.env.local` in the project root
-   2. Create `.env.local` in /tests
+3. Create `.env.local` in the project root, and put configuration properties there   
 4. Create dev database: 
    1. `mkdir -p instance`
    2. `cd db_migration`

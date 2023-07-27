@@ -1,29 +1,43 @@
-import pytest
-from _pytest.monkeypatch import MonkeyPatch
-from sqlalchemy import text
+import os
+from contextlib import contextmanager
+
+from alembic import command
+from alembic.config import Config
 
 from app import app
-from src.persistence.schema import db
+from src.persistence.schema import db, User
+
+
+@contextmanager
+def alembic_working_directory():
+    working_dir = os.getcwd()
+    try:
+        os.chdir('db_migration')
+        yield
+    finally:
+        os.chdir(working_dir)
 
 
 class DatabaseTest:
 
-    @pytest.fixture(autouse=True, scope='function')
-    def isolate_test_db_data_between_tests(self, monkeypatch: MonkeyPatch):
-        # According to https://github.com/pallets-eco/flask-sqlalchemy/issues/1171#issue-1603935306
+    @staticmethod
+    def get_alembic_config() -> Config:
+        config = Config('alembic.ini')
+        config.attributes['db-migration-engine'] = db.engine
+        return config
+
+    @staticmethod
+    def setup_method():
         with app.app_context():
-            engines = db.engines
-        engine_cleanup = []
-        for key, engine in engines.items():
-            connection = engine.connect()
-            transaction = connection.begin()
-            engines[key] = connection
-            engine_cleanup.append((key, engine, connection, transaction))
-        yield
-        for key, engine, connection, transaction in engine_cleanup:
-            transaction.rollback()
-            connection.close()
-            engines[key] = engine
+            with alembic_working_directory():
+                command.upgrade(DatabaseTest.get_alembic_config(), 'head')
+
+    @staticmethod
+    def teardown_method():
+        with app.app_context():
+            db.session.remove()
+            with alembic_working_directory():
+                command.downgrade(DatabaseTest.get_alembic_config(), 'base')
 
 
 class TestDatabaseIsolationBetweenTests(DatabaseTest):
@@ -33,12 +47,12 @@ class TestDatabaseIsolationBetweenTests(DatabaseTest):
 
     def test_db_connection_isolation1(self):
         with app.app_context():
-            db.session.execute(text('CREATE TABLE IF NOT EXISTS db_isolation_test(id INTEGER PRIMARY KEY);'))
-            db.session.execute(text('INSERT INTO db_isolation_test(id) VALUES(1);'))
+            user = User(email='test-user@gmail.com')
+            db.session.add(user)
             db.session.commit()
 
     def test_db_connection_isolation2(self):
         with app.app_context():
-            db.session.execute(text('CREATE TABLE IF NOT EXISTS db_isolation_test(id INTEGER PRIMARY KEY);'))
-            db.session.execute(text('INSERT INTO db_isolation_test(id) VALUES(1);'))
+            user = User(email='test-user@gmail.com')
+            db.session.add(user)
             db.session.commit()
