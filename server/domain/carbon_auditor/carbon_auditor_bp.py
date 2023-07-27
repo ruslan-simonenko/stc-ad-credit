@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from persistence.schema import CarbonAuditor as CarbonAuditorEntity
-from persistence import db
+from persistence.schema import db
 
 carbon_auditor_bp = Blueprint('carbon-auditor', __name__, url_prefix='/carbon-auditor')
 
