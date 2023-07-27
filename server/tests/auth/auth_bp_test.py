@@ -8,9 +8,9 @@ from google.auth.exceptions import GoogleAuthError
 # noinspection PyPackageRequirements
 from google.oauth2 import id_token
 
-from auth import auth_bp
-from auth.auth_bp import LoginRequest
-from config import EnvironmentConstantsKeys
+from src.auth import auth_bp
+from src.auth.auth_bp import LoginRequest
+from src.config import EnvironmentConstantsKeys
 
 
 class TestLogin:

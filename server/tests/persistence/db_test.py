@@ -3,7 +3,7 @@ from _pytest.monkeypatch import MonkeyPatch
 from sqlalchemy import text
 
 from app import app
-from persistence.schema import db
+from src.persistence.schema import db
 
 
 class DatabaseTest:

@@ -3,8 +3,8 @@ import os
 from flask import Blueprint
 from flask.blueprints import BlueprintSetupState
 
-from config import EnvironmentConstantsKeys
-from persistence.schema import db
+from src.config import EnvironmentConstantsKeys
+from src.persistence.schema import db
 
 
 def setup_database(state: BlueprintSetupState):

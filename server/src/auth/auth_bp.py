@@ -13,7 +13,7 @@ from google.auth.transport import requests
 # noinspection PyPackageRequirements
 from google.oauth2 import id_token
 
-from config import EnvironmentConstantsKeys
+from src.config import EnvironmentConstantsKeys
 
 
 def setup_auth_with_jwt(state: BlueprintSetupState):

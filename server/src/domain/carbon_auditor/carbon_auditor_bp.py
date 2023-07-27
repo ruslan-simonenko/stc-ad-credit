@@ -6,8 +6,8 @@ from flask_jwt_extended import jwt_required
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from persistence.schema import CarbonAuditor as CarbonAuditorEntity
-from persistence.schema import db
+from src.persistence.schema import CarbonAuditor as CarbonAuditorEntity
+from src.persistence.schema import db
 
 carbon_auditor_bp = Blueprint('carbon-auditor', __name__, url_prefix='/carbon-auditor')
 
@@ -50,7 +50,7 @@ async def normalize_email(email: str) -> str:
 
 
 @carbon_auditor_bp.route('/', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get():
     auditor_entities = db.session.execute(select(CarbonAuditorEntity)).scalars().all()
     return jsonify([

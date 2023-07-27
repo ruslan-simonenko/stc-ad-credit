@@ -1,10 +1,13 @@
+import os
+
 from dotenv import load_dotenv
 from flask import Flask
 
-from auth.auth_bp import auth_bp
-from domain.domain_bp import domain_bp
-from persistence.database import database_bp
+from src.auth.auth_bp import auth_bp
+from src.domain.domain_bp import domain_bp
+from src.persistence.database import database_bp
 
+print(os.getcwd())
 load_dotenv('.env.local')
 
 app = Flask(__name__)
