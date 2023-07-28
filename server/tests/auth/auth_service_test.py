@@ -1,6 +1,6 @@
 import pytest
 from src.auth.auth_role import AuthRole
-from src.auth.auth_service import AuthService
+from src.auth.auth_service import AuthService, UserInfo
 
 from app import app
 from tests.persistence.db_test import DatabaseTest
@@ -37,3 +37,13 @@ class TestAuthRoleService(DatabaseTest):
             AuthService.setup_admin(self.TEST_USER_EMAIL)
             AuthService.setup_admin(self.TEST_USER_EMAIL)
             assert AuthService.get_user_roles(self.TEST_USER_EMAIL) == [AuthRole.ADMIN]
+
+    def test_get_users(self):
+        with app.app_context():
+            AuthService.add_user('userA@gmail.com', [AuthRole.ADMIN, AuthRole.CARBON_AUDITOR])
+            AuthService.add_user('userB@gmail.com', [AuthRole.CARBON_AUDITOR])
+            users = AuthService.get_users()
+            assert set(users) == {
+                UserInfo(email='userA@gmail.com', roles=tuple([AuthRole.ADMIN, AuthRole.CARBON_AUDITOR])),
+                UserInfo(email='userB@gmail.com', roles=tuple([AuthRole.CARBON_AUDITOR]))
+            }

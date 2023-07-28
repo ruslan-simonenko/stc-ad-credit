@@ -1,13 +1,25 @@
-from typing import List, Iterable
+from dataclasses import dataclass, field
+from itertools import groupby
+from typing import List, Iterable, Optional, Tuple
+
+from sqlalchemy import select
 
 from src.auth.auth_role import AuthRole
 from src.persistence.schema import User, UserRole, db, Role
 
 
+@dataclass(eq=True, frozen=True)
+class UserInfo:
+    email: str
+    roles: Tuple[AuthRole, ...]
+    name: Optional[str] = field(default=None)
+    picture_url: Optional[str] = field(default=None)
+
+
 class AuthService:
 
     @staticmethod
-    def add_user(email: str, roles: Iterable[AuthRole]) -> User:
+    def add_user(email: str, roles: Iterable[AuthRole]) -> UserInfo:
         if not roles:
             raise ValueError('At least one role is required')
         with db.session.begin_nested():
@@ -20,7 +32,19 @@ class AuthService:
                 db.session.add(user_role)
 
             db.session.commit()
-        return user
+        return UserInfo(email=email, roles=tuple(roles))
+
+    @staticmethod
+    def get_users() -> List[UserInfo]:
+        rows = db.session.execute(
+            select(User, Role.name).outerjoin_from(User, UserRole).outerjoin(Role)
+        ).all()
+        return [UserInfo(
+            email=user.email,
+            roles=tuple(sorted(AuthRole(row[1]) for row in user_rows)),
+            name=user.name,
+            picture_url=user.avatar_url,
+        ) for user, user_rows in groupby(rows, lambda row: row[0])]
 
     @staticmethod
     def get_user_roles(email: str) -> List[AuthRole]:
