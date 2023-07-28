@@ -20,7 +20,7 @@
       <q-separator/>
       <q-item>
         <q-item-section>
-          <q-item-label>Role: Project Manager</q-item-label>
+          <q-item-label>Role: {{userRole}}</q-item-label>
         </q-item-section>
       </q-item>
       <q-separator/>
@@ -47,6 +47,7 @@ const router = useRouter()
 const userName = computed(() => authStore.user!.name)
 const userEmail = computed(() => authStore.user!.email)
 const userPictureUrl = computed(() => authStore.user!.picture_url)
+const userRole = computed(() => authStore.user!.roles[0])
 
 const onLogoutClick = () => {
   authStore.logout().then(() => router.push({name: 'Home'}))

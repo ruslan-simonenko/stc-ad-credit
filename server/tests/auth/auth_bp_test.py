@@ -56,6 +56,7 @@ class TestLogin(DatabaseTest):
             name=self.MOCK_GOOGLE_RESPONSE['name'],
             picture_url=self.MOCK_GOOGLE_RESPONSE['picture'],
             access_token=self.MOCK_ACCESS_TOKEN,
+            roles=[AuthRole.ADMIN.value],
         )
 
     def test_invalid_user(self, monkeypatch: MonkeyPatch, client: FlaskClient):

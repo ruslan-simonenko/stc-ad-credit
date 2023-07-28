@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Dict
+from typing import Dict, List
 
 from flask import Blueprint, request, jsonify
 from flask.blueprints import BlueprintSetupState
@@ -39,6 +39,7 @@ class LoginResponse:
     name: str
     picture_url: str
     access_token: str
+    roles: List[AuthRole]
 
 
 @dataclass
@@ -68,10 +69,11 @@ def login():
             return jsonify(LoginError(f'Not a known user: {email}')), 403
         access_token = create_access_token(email)
         return jsonify(LoginResponse(
-            email,
-            id_info['name'],
-            id_info['picture'],
-            access_token,
+            email=email,
+            name=id_info['name'],
+            picture_url=id_info['picture'],
+            access_token=access_token,
+            roles=user_roles,
         ))
     except KeyError as e:
         return jsonify(LoginError(f'User profile not accessible, field not found: {str(e)}')), 400

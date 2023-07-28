@@ -3,10 +3,13 @@ import {computed} from "vue";
 import {useApiClientAxios} from "../api/api-client-axios.ts";
 import {StorageSerializers, useLocalStorage} from "@vueuse/core";
 
+export type UserRole = 'Admin' | 'Carbon Auditor'
+
 export interface User {
     name: string,
     email: string,
     picture_url: string,
+    roles: Array<UserRole>
 }
 
 export const useAuthStore = defineStore("auth", () => {
@@ -29,6 +32,7 @@ export const useAuthStore = defineStore("auth", () => {
                 name: response.data.name,
                 email: response.data.email,
                 picture_url: response.data.picture_url,
+                roles: response.data.roles
             }
             console.log("Login succeeded", user.value.name)
         })
