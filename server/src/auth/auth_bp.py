@@ -13,6 +13,8 @@ from google.auth.transport import requests
 # noinspection PyPackageRequirements
 from google.oauth2 import id_token
 
+from src.auth.auth_role import AuthRole
+from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
 
 
@@ -52,7 +54,6 @@ def login():
         return jsonify(LoginError(f'Invalid request: {str(e)}')), 400
     try:
         google_client_id = os.environ[EnvironmentConstantsKeys.GOOGLE_LOGIN_CLIENT_ID]
-        project_manager_email = os.environ[EnvironmentConstantsKeys.PROJECT_MANAGER_EMAIL]
     except KeyError as e:
         return jsonify(LoginError(f'Invalid configuration: environment variable {e.args[0]} is not set')), 500
     try:
@@ -62,7 +63,8 @@ def login():
         return jsonify(LoginError(f'Token verification failed: {str(e)}')), 400
     try:
         email = id_info['email']
-        if email != project_manager_email:
+        user_roles = AuthService.get_user_roles(email)
+        if AuthRole.ADMIN not in user_roles:
             return jsonify(LoginError(f'Not a known user: {email}')), 403
         access_token = create_access_token(email)
         return jsonify(LoginResponse(
