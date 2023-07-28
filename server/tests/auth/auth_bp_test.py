@@ -11,9 +11,10 @@ from google.oauth2 import id_token
 from src.auth import auth_bp
 from src.auth.auth_bp import LoginRequest
 from src.config import EnvironmentConstantsKeys
+from tests.persistence.db_test import DatabaseTest
 
 
-class TestLogin:
+class TestLogin(DatabaseTest):
     MOCK_GOOGLE_TOKEN = 'testcredential'
     MOCK_GOOGLE_CLIENT_ID = 'google_client_id'
     MOCK_GOOGLE_RESPONSE = dict(email='admin@stc.com', name='Admin', picture='')
