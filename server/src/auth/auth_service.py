@@ -1,8 +1,6 @@
-import os
 from typing import List, Iterable
 
 from src.auth.auth_role import AuthRole
-from src.config import EnvironmentConstantsKeys
 from src.persistence.schema import User, UserRole, db, Role
 
 
@@ -26,13 +24,6 @@ class AuthService:
 
     @staticmethod
     def get_user_roles(email: str) -> List[AuthRole]:
-        try:
-            project_manager_email = os.environ[EnvironmentConstantsKeys.PROJECT_MANAGER_EMAIL]
-        except KeyError as e:
-            raise RuntimeError(f'Invalid configuration: environment variable {e.args[0]} is not set')
-        if email == project_manager_email:
-            return [AuthRole.ADMIN]
-
         user = User.query.filter_by(email=email).first()
         if not user:
             return []
@@ -40,3 +31,8 @@ class AuthService:
         role_names = [user_role.role.name for user_role in user_roles]
         return [AuthRole(role_name) for role_name in role_names]
 
+    @staticmethod
+    def setup_admin(email: str) -> None:
+        current_roles = AuthService.get_user_roles(email)
+        if AuthRole.ADMIN not in current_roles:
+            AuthService.add_user(email, [AuthRole.ADMIN])

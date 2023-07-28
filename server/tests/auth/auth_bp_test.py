@@ -8,8 +8,11 @@ from google.auth.exceptions import GoogleAuthError
 # noinspection PyPackageRequirements
 from google.oauth2 import id_token
 
+from app import app
 from src.auth import auth_bp
 from src.auth.auth_bp import LoginRequest
+from src.auth.auth_role import AuthRole
+from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
 from tests.persistence.db_test import DatabaseTest
 
@@ -38,7 +41,8 @@ class TestLogin(DatabaseTest):
         def mock_create_access_token(identity) -> str:
             return self.MOCK_ACCESS_TOKEN
 
-        monkeypatch.setenv(EnvironmentConstantsKeys.PROJECT_MANAGER_EMAIL, self.MOCK_GOOGLE_RESPONSE['email'])
+        with app.app_context():
+            AuthService.add_user(self.MOCK_GOOGLE_RESPONSE['email'], [AuthRole.ADMIN])
         monkeypatch.setenv(EnvironmentConstantsKeys.GOOGLE_LOGIN_CLIENT_ID, self.MOCK_GOOGLE_CLIENT_ID)
         self.mock_google_auth_token_verifier(monkeypatch)
         monkeypatch.setattr(auth_bp, 'create_access_token', mock_create_access_token)

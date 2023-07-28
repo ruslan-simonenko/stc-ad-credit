@@ -24,3 +24,16 @@ class TestAuthRoleService(DatabaseTest):
         with app.app_context():
             actual_roles = AuthService.get_user_roles(self.TEST_USER_EMAIL)
         assert actual_roles == []
+
+    def test_setup_admin(self):
+        with app.app_context():
+            AuthService.setup_admin(self.TEST_USER_EMAIL)
+            assert AuthService.get_user_roles(self.TEST_USER_EMAIL) == [AuthRole.ADMIN]
+
+    def test_setup_admin_is_idempotent(self):
+        with app.app_context():
+            AuthService.setup_admin(self.TEST_USER_EMAIL)
+            assert AuthService.get_user_roles(self.TEST_USER_EMAIL) == [AuthRole.ADMIN]
+            AuthService.setup_admin(self.TEST_USER_EMAIL)
+            AuthService.setup_admin(self.TEST_USER_EMAIL)
+            assert AuthService.get_user_roles(self.TEST_USER_EMAIL) == [AuthRole.ADMIN]
