@@ -1,19 +1,10 @@
-from dataclasses import dataclass, field
 from itertools import groupby
-from typing import List, Iterable, Optional, Tuple
+from typing import List, Iterable
 
 from sqlalchemy import select
 
-from src.user.user_types import UserRole
+from src.user.user_types import UserRole, UserInfo
 from src.persistence.schema import User, UserRole as UserRoleEntity, db, Role
-
-
-@dataclass(eq=True, frozen=True)
-class UserInfo:
-    email: str
-    roles: Tuple[UserRole, ...]
-    name: Optional[str] = field(default=None)
-    picture_url: Optional[str] = field(default=None)
 
 
 class AuthService:

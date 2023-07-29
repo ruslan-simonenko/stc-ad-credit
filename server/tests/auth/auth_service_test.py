@@ -1,6 +1,6 @@
 import pytest
-from src.user.user_types import UserRole
-from src.auth.auth_service import AuthService, UserInfo
+from src.user.user_types import UserRole, UserInfo
+from src.auth.auth_service import AuthService
 
 from app import app
 from tests.persistence.db_test import DatabaseTest
