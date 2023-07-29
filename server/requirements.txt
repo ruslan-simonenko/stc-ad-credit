@@ -1,5 +1,6 @@
 aiodns==3.0.0
 alembic==1.11.1
+annotated-types==0.5.0
 asgiref==3.7.2
 blinker==1.6.2
 cachetools==5.3.1
@@ -28,6 +29,8 @@ pyasn1==0.5.0
 pyasn1-modules==0.3.0
 pycares==4.3.0
 pycparser==2.21
+pydantic==2.1.1
+pydantic_core==2.4.0
 PyJWT==2.8.0
 pytest==7.4.0
 python-dotenv==1.0.0

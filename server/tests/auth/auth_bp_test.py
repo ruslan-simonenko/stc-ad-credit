@@ -11,6 +11,7 @@ from google.oauth2 import id_token
 from app import app
 from src.auth import auth_bp
 from src.auth.auth_bp import LoginRequest
+from src.auth.auth_service import AuthService
 from src.user.user_types import UserRole
 from src.user.user_service import UserService
 from src.config import EnvironmentConstantsKeys
@@ -45,7 +46,7 @@ class TestLogin(DatabaseTest):
             UserService.add_user(self.MOCK_GOOGLE_RESPONSE['email'], [UserRole.ADMIN])
         monkeypatch.setenv(EnvironmentConstantsKeys.GOOGLE_LOGIN_CLIENT_ID, self.MOCK_GOOGLE_CLIENT_ID)
         self.mock_google_auth_token_verifier(monkeypatch)
-        monkeypatch.setattr(auth_bp, 'create_access_token', mock_create_access_token)
+        monkeypatch.setattr(AuthService, 'create_access_token', mock_create_access_token)
 
     def test_successful_login(self, monkeypatch: MonkeyPatch, client: FlaskClient):
         response = client.post('/auth/login', json=LoginRequest(credential=self.MOCK_GOOGLE_TOKEN))
