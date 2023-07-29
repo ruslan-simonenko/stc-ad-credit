@@ -1,13 +1,13 @@
 from itertools import groupby
-from typing import List, Iterable
+from typing import Iterable, List
 
 from sqlalchemy import select
 
-from src.user.user_types import UserRole, UserInfo
-from src.persistence.schema import User, UserRole as UserRoleEntity, db, Role
+from src.persistence.schema import UserRole as UserRoleEntity, db, User, Role
+from src.user.user_types import UserInfo, UserRole
 
 
-class AuthService:
+class UserService:
 
     @staticmethod
     def add_user(email: str, roles: Iterable[UserRole]) -> UserInfo:
@@ -48,6 +48,6 @@ class AuthService:
 
     @staticmethod
     def setup_admin(email: str) -> None:
-        current_roles = AuthService.get_user_roles(email)
+        current_roles = UserService.get_user_roles(email)
         if UserRole.ADMIN not in current_roles:
-            AuthService.add_user(email, [UserRole.ADMIN])
+            UserService.add_user(email, [UserRole.ADMIN])

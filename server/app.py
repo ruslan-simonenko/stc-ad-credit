@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask
 
 from src.auth.auth_bp import auth_bp
-from src.auth.auth_service import AuthService
+from src.user.user_service import UserService
 from src.config import EnvironmentConstantsKeys
 from src.domain.domain_bp import domain_bp
 from src.persistence.database import database_bp
@@ -19,7 +19,7 @@ def setup_admin():
     with app.app_context():
         admin_email = os.environ.get(EnvironmentConstantsKeys.SETUP_ADMIN_WITH_EMAIL)
         if admin_email:
-            AuthService.setup_admin(admin_email)
+            UserService.setup_admin(admin_email)
 
 
 app = Flask(__name__)
