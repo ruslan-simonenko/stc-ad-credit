@@ -11,7 +11,7 @@ from google.oauth2 import id_token
 from app import app
 from src.auth import auth_bp
 from src.auth.auth_bp import LoginRequest
-from src.auth.auth_role import AuthRole
+from src.user.user_types import UserRole
 from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
 from tests.persistence.db_test import DatabaseTest
@@ -42,7 +42,7 @@ class TestLogin(DatabaseTest):
             return self.MOCK_ACCESS_TOKEN
 
         with app.app_context():
-            AuthService.add_user(self.MOCK_GOOGLE_RESPONSE['email'], [AuthRole.ADMIN])
+            AuthService.add_user(self.MOCK_GOOGLE_RESPONSE['email'], [UserRole.ADMIN])
         monkeypatch.setenv(EnvironmentConstantsKeys.GOOGLE_LOGIN_CLIENT_ID, self.MOCK_GOOGLE_CLIENT_ID)
         self.mock_google_auth_token_verifier(monkeypatch)
         monkeypatch.setattr(auth_bp, 'create_access_token', mock_create_access_token)
@@ -56,7 +56,7 @@ class TestLogin(DatabaseTest):
             name=self.MOCK_GOOGLE_RESPONSE['name'],
             picture_url=self.MOCK_GOOGLE_RESPONSE['picture'],
             access_token=self.MOCK_ACCESS_TOKEN,
-            roles=[AuthRole.ADMIN.value],
+            roles=[UserRole.ADMIN.value],
         )
 
     def test_invalid_user(self, monkeypatch: MonkeyPatch, client: FlaskClient):

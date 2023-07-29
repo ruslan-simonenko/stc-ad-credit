@@ -13,7 +13,7 @@ from google.auth.transport import requests
 # noinspection PyPackageRequirements
 from google.oauth2 import id_token
 
-from src.auth.auth_role import AuthRole
+from src.user.user_types import UserRole
 from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
 
@@ -39,7 +39,7 @@ class LoginResponse:
     name: str
     picture_url: str
     access_token: str
-    roles: List[AuthRole]
+    roles: List[UserRole]
 
 
 @dataclass
@@ -65,7 +65,7 @@ def login():
     try:
         email = id_info['email']
         user_roles = AuthService.get_user_roles(email)
-        if AuthRole.ADMIN not in user_roles:
+        if UserRole.ADMIN not in user_roles:
             return jsonify(LoginError(f'Not a known user: {email}')), 403
         access_token = create_access_token(email)
         return jsonify(LoginResponse(
