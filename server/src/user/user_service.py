@@ -23,7 +23,7 @@ class UserService:
                 db.session.add(user_role)
 
             db.session.commit()
-        return UserInfo(email=email, roles=tuple(roles))
+        return UserInfo(email=email, roles=tuple(sorted([role.name for role in roles])))
 
     @staticmethod
     def get_users() -> List[UserInfo]:
