@@ -3,7 +3,10 @@ from typing import Iterable, List, Optional
 
 from sqlalchemy import select, update
 
-from src.persistence.schema import UserRole as UserRoleEntity, db, User, Role
+from src.persistence.schema import db
+from src.persistence.schema.role import Role
+from src.persistence.schema.user import User
+from src.persistence.schema.user_role import UserRole as UserRoleEntity
 from src.user.user_types import UserInfo, UserRole
 
 

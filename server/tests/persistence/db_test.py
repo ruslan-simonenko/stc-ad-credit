@@ -5,7 +5,8 @@ from alembic import command
 from alembic.config import Config
 
 from app import app
-from src.persistence.schema import db, User
+from src.persistence.schema import db
+from src.persistence.schema.user import User
 
 
 @contextmanager
