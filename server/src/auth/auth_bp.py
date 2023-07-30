@@ -1,11 +1,13 @@
+import asyncio
 import os
 from dataclasses import dataclass
 from datetime import timedelta
+from functools import wraps
 from typing import Dict, Any
 
 from flask import Blueprint, request, jsonify
 from flask.blueprints import BlueprintSetupState
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, verify_jwt_in_request
 # noinspection PyPackageRequirements
 from google.auth.exceptions import GoogleAuthError
 # noinspection PyPackageRequirements
@@ -18,6 +20,7 @@ from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
 from src.user.user_dto import UserInfoDTO
 from src.user.user_service import UserService
+from src.user.user_types import UserRole
 
 
 def setup_auth_with_jwt(state: BlueprintSetupState):
@@ -86,3 +89,35 @@ def login():
         access_token=access_token,
     ))
 
+
+class AuthorizationError(BaseModel):
+    message: str
+
+
+def auth_role(*allowed_roles: UserRole):
+    def wrapper(fn):
+        def is_authorized() -> bool:
+            verify_jwt_in_request()
+            user_roles = AuthService.get_roles_from_claims()
+            return any(user_role in allowed_roles for user_role in user_roles)
+
+        @wraps(fn)
+        def sync_decorator(*args, **kwargs):
+            if is_authorized():
+                return fn(*args, **kwargs)
+            else:
+                return jsonify(AuthorizationError(message='Unauthorized')), 403
+
+        @wraps(fn)
+        async def async_decorator(*args, **kwargs):
+            if is_authorized():
+                return await fn(*args, **kwargs)
+            else:
+                return jsonify(AuthorizationError(message='Unauthorized')), 403
+
+        if asyncio.iscoroutinefunction(fn):
+            return async_decorator
+        else:
+            return sync_decorator
+
+    return wrapper

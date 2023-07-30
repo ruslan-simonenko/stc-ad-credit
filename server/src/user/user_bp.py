@@ -1,7 +1,7 @@
 import email_normalize
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
 
+from src.auth.auth_bp import auth_role
 from src.user.user_dto import UserInfoDTO, UsersGetManageableResponse, UserAddForm, UserAddSuccessfulResponse, \
     UserAddFailedResponse
 from src.user.user_service import UserService
@@ -11,14 +11,14 @@ user_bp = Blueprint('user', __name__, url_prefix='/users')
 
 
 @user_bp.route('/manageable', methods=['get'])
-@jwt_required()
+@auth_role(UserRole.ADMIN)
 def get_manageable_users():
     users = [UserInfoDTO.from_model(user) for user in UserService.get_users() if UserRole.CARBON_AUDITOR in user.roles]
     return jsonify(UsersGetManageableResponse(users=users))
 
 
 @user_bp.route('/', methods=['post'])
-@jwt_required()
+@auth_role(UserRole.ADMIN)
 async def add_user():
     form = UserAddForm.model_validate(request.get_json())
     try:
@@ -26,10 +26,7 @@ async def add_user():
     except EmailNormalizationError as e:
         return jsonify(UserAddFailedResponse(message=f'Email validation failed: {str(e)}')), 400
     user = UserService.add_user(normalized_email, form.roles)
-    return jsonify(UserAddSuccessfulResponse(user=UserInfoDTO(
-        email=user.email,
-        roles=user.roles
-    )))
+    return jsonify(UserAddSuccessfulResponse(user=UserInfoDTO.from_model(user)))
 
 
 async def normalize_email(email: str) -> str:

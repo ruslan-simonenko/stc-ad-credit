@@ -35,13 +35,17 @@ class PydanticJSONProvider(DefaultJSONProvider):
         return super().loads(s, **kwargs)
 
 
+def configure_app(app_: Flask):
+    app_.url_map.strict_slashes = False
+    app_.register_blueprint(auth_bp)
+    app_.register_blueprint(database_bp)
+    app_.register_blueprint(user_bp)
+    app_.json_provider_class = PydanticJSONProvider
+    app_.json = PydanticJSONProvider(app_)
+
+
 app = Flask(__name__)
-app.url_map.strict_slashes = False
-app.register_blueprint(auth_bp)
-app.register_blueprint(database_bp)
-app.register_blueprint(user_bp)
-app.json_provider_class = PydanticJSONProvider
-app.json = PydanticJSONProvider(app)
+configure_app(app)
 setup_admin()
 
 

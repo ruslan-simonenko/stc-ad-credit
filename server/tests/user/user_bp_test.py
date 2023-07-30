@@ -31,9 +31,10 @@ class TestUserEndpoint:
     def setup_normalize_email_mock(self, monkeypatch: MonkeyPatch):
         TestUserEndpoint.mock_normalize_email(monkeypatch, lambda x: x)
 
-    @pytest.fixture(scope="class")
+    @pytest.fixture
     def access_headers(self) -> Dict[str, str]:
         with app.app_context():
+            UserService.add_user(CURRENT_ADMIN_EMAIL, [UserRole.ADMIN])
             access_token = AuthService.create_access_token(CURRENT_ADMIN_EMAIL)
         return {'Authorization': f'Bearer {access_token}'}
 
