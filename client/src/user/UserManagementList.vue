@@ -73,5 +73,7 @@ const state = computed<State>(() => {
 </script>
 
 <style scoped>
-
+.error-background {
+  height: 10rem
+}
 </style>
