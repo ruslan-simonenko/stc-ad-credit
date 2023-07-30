@@ -2,15 +2,8 @@ import {defineStore} from "pinia";
 import {computed} from "vue";
 import {useApiClientAxios} from "../api/api-client-axios.ts";
 import {StorageSerializers, useLocalStorage} from "@vueuse/core";
+import {User} from "../user/user.ts";
 
-export type UserRole = 'Admin' | 'Carbon Auditor'
-
-export interface User {
-    name: string,
-    email: string,
-    picture_url: string,
-    roles: Array<UserRole>
-}
 
 export const useAuthStore = defineStore("auth", () => {
     const apiClient = useApiClientAxios()
