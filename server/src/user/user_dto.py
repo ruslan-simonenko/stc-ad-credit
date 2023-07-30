@@ -2,7 +2,8 @@ from typing import Optional, FrozenSet, Any
 
 from pydantic import BaseModel
 
-from src.user.user_types import UserRole, UserInfo
+from src.persistence.schema.user import User
+from src.user.user_types import UserRole
 
 
 class UserInfoDTO(BaseModel):
@@ -23,11 +24,11 @@ class UserInfoDTO(BaseModel):
                 self.picture_url == other.picture_url)
 
     @classmethod
-    def from_model(cls, model: UserInfo) -> "UserInfoDTO":
-        return cls(email=model.email,
-                   name=model.name,
-                   picture_url=model.picture_url,
-                   roles=model.roles)
+    def from_entity(cls, entity: User) -> "UserInfoDTO":
+        return cls(email=entity.email,
+                   name=entity.name,
+                   picture_url=entity.avatar_url,
+                   roles=[UserRole(role.name) for role in entity.roles])
 
 
 class UsersGetManageableResponse(BaseModel):

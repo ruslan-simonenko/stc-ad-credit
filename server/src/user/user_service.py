@@ -7,13 +7,13 @@ from src.persistence.schema import db
 from src.persistence.schema.role import Role
 from src.persistence.schema.user import User
 from src.persistence.schema.user_role import UserRole as UserRoleEntity
-from src.user.user_types import UserInfo, UserRole
+from src.user.user_types import UserRole
 
 
 class UserService:
 
     @staticmethod
-    def add_user(email: str, roles: Iterable[UserRole]) -> UserInfo:
+    def add_user(email: str, roles: Iterable[UserRole]) -> User:
         if not roles:
             raise ValueError('At least one role is required')
         with db.session.begin_nested():
@@ -26,23 +26,17 @@ class UserService:
                 db.session.add(user_role)
 
             db.session.commit()
-        return UserInfo(email=email, roles=tuple(sorted([role.name for role in roles])))
+        return user
 
     @staticmethod
-    def get_users(filter_email: Optional[str] = None) -> List[UserInfo]:
-        statement = select(User, Role.name).outerjoin_from(User, UserRoleEntity).outerjoin(Role)
+    def get_users(filter_email: Optional[str] = None) -> List[User]:
+        statement = select(User).outerjoin_from(User, UserRoleEntity).outerjoin(Role)
         if filter_email:
             statement = statement.where(User.email == filter_email)
-        rows = db.session.execute(statement).all()
-        return [UserInfo(
-            email=user.email,
-            roles=tuple(sorted(UserRole(row[1]) for row in user_rows)),
-            name=user.name,
-            picture_url=user.avatar_url,
-        ) for user, user_rows in groupby(rows, lambda row: row[0])]
+        return db.session.execute(statement).scalars().all()
 
     @staticmethod
-    def get_user(email: str) -> Optional[UserInfo]:
+    def get_user(email: str) -> Optional[User]:
         users = UserService.get_users(email)
         return None if not users else users[0]
 
@@ -51,12 +45,10 @@ class UserService:
         user = User.query.filter_by(email=email).first()
         if not user:
             return []
-        user_roles = UserRoleEntity.query.filter_by(user_id=user.id).all()
-        role_names = [user_role.role.name for user_role in user_roles]
-        return [UserRole(role_name) for role_name in role_names]
+        return [UserRole(role.name) for role in user.roles]
 
     @staticmethod
-    def update_user(user: UserInfo, avatar_url: str, name: str) -> UserInfo:
+    def update_user(user: User, avatar_url: str, name: str) -> User:
         db.session.execute(
             update(User).where(User.email == user.email).values({
                 User.name: name,

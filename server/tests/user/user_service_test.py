@@ -2,7 +2,7 @@ import pytest
 
 from app import app
 from src.user.user_service import UserService
-from src.user.user_types import UserRole, UserInfo
+from src.user.user_types import UserRole
 from tests.persistence.db_test import DatabaseTest
 
 
@@ -40,10 +40,8 @@ class TestUserService(DatabaseTest):
 
     def test_get_users(self):
         with app.app_context():
-            UserService.add_user('userA@gmail.com', [UserRole.ADMIN, UserRole.CARBON_AUDITOR])
-            UserService.add_user('userB@gmail.com', [UserRole.CARBON_AUDITOR])
+            user_a = UserService.add_user('userA@gmail.com', [UserRole.ADMIN, UserRole.CARBON_AUDITOR])
+            user_b = UserService.add_user('userB@gmail.com', [UserRole.CARBON_AUDITOR])
             users = UserService.get_users()
-            assert set(users) == {
-                UserInfo(email='userA@gmail.com', roles=tuple([UserRole.ADMIN, UserRole.CARBON_AUDITOR])),
-                UserInfo(email='userB@gmail.com', roles=tuple([UserRole.CARBON_AUDITOR]))
-            }
+            assert user_a in users
+            assert user_b in users

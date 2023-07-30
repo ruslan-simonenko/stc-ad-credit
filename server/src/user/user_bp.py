@@ -13,7 +13,8 @@ user_bp = Blueprint('user', __name__, url_prefix='/users')
 @user_bp.route('/manageable', methods=['get'])
 @auth_role(UserRole.ADMIN)
 def get_manageable_users():
-    users = [UserInfoDTO.from_model(user) for user in UserService.get_users() if UserRole.CARBON_AUDITOR in user.roles]
+    users = [UserInfoDTO.from_entity(user) for user in UserService.get_users()
+             if UserRole.CARBON_AUDITOR.value in [role.name for role in user.roles]]
     return jsonify(UsersGetManageableResponse(users=users))
 
 
@@ -26,7 +27,7 @@ async def add_user():
     except EmailNormalizationError as e:
         return jsonify(UserAddFailedResponse(message=f'Email validation failed: {str(e)}')), 400
     user = UserService.add_user(normalized_email, form.roles)
-    return jsonify(UserAddSuccessfulResponse(user=UserInfoDTO.from_model(user)))
+    return jsonify(UserAddSuccessfulResponse(user=UserInfoDTO.from_entity(user)))
 
 
 async def normalize_email(email: str) -> str:
