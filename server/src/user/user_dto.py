@@ -2,7 +2,7 @@ from typing import Optional, FrozenSet, Any
 
 from pydantic import BaseModel
 
-from src.user.user_types import UserRole
+from src.user.user_types import UserRole, UserInfo
 
 
 class UserInfoDTO(BaseModel):
@@ -21,6 +21,13 @@ class UserInfoDTO(BaseModel):
                 self.roles == other.roles and
                 self.name == other.name and
                 self.picture_url == other.picture_url)
+
+    @classmethod
+    def from_model(cls, model: UserInfo) -> "UserInfoDTO":
+        return cls(email=model.email,
+                   name=model.name,
+                   picture_url=model.picture_url,
+                   roles=model.roles)
 
 
 class UsersGetManageableResponse(BaseModel):

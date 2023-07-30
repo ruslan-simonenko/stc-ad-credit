@@ -13,12 +13,7 @@ user_bp = Blueprint('user', __name__, url_prefix='/users')
 @user_bp.route('/manageable', methods=['get'])
 @jwt_required()
 def get_manageable_users():
-    users = [UserInfoDTO(
-        email=user.email,
-        name=user.name,
-        picture_url=user.picture_url,
-        roles=user.roles
-    ) for user in UserService.get_users() if UserRole.CARBON_AUDITOR in user.roles]
+    users = [UserInfoDTO.from_model(user) for user in UserService.get_users() if UserRole.CARBON_AUDITOR in user.roles]
     return jsonify(UsersGetManageableResponse(users=users))
 
 
