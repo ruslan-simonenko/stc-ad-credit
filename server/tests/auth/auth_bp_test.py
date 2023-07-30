@@ -9,12 +9,12 @@ from google.auth.exceptions import GoogleAuthError
 from google.oauth2 import id_token
 
 from app import app
-from src.auth import auth_bp
-from src.auth.auth_bp import LoginRequest
+from src.auth.auth_bp import LoginRequest, LoginResponse
 from src.auth.auth_service import AuthService
-from src.user.user_types import UserRole
-from src.user.user_service import UserService
 from src.config import EnvironmentConstantsKeys
+from src.user.user_dto import UserInfoDTO
+from src.user.user_service import UserService
+from src.user.user_types import UserRole
 from tests.persistence.db_test import DatabaseTest
 
 
@@ -52,13 +52,17 @@ class TestLogin(DatabaseTest):
         response = client.post('/auth/login', json=LoginRequest(credential=self.MOCK_GOOGLE_TOKEN))
 
         assert response.status_code == 200
-        assert response.json == dict(
-            email=self.MOCK_GOOGLE_RESPONSE['email'],
-            name=self.MOCK_GOOGLE_RESPONSE['name'],
-            picture_url=self.MOCK_GOOGLE_RESPONSE['picture'],
+        actual_response = LoginResponse.model_validate(response.json)
+        expected_response = LoginResponse(
+            user=UserInfoDTO(
+                email=self.MOCK_GOOGLE_RESPONSE['email'],
+                name=self.MOCK_GOOGLE_RESPONSE['name'],
+                picture_url=self.MOCK_GOOGLE_RESPONSE['picture'],
+                roles=[UserRole.ADMIN.value],
+            ),
             access_token=self.MOCK_ACCESS_TOKEN,
-            roles=[UserRole.ADMIN.value],
         )
+        assert actual_response.user == expected_response.user
 
     def test_invalid_user(self, monkeypatch: MonkeyPatch, client: FlaskClient):
         self.mock_google_auth_token_verifier(

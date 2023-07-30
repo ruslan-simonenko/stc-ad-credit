@@ -1,22 +1,23 @@
 import os
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Dict, List
+from typing import Dict, Any
 
 from flask import Blueprint, request, jsonify
 from flask.blueprints import BlueprintSetupState
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager
 # noinspection PyPackageRequirements
 from google.auth.exceptions import GoogleAuthError
 # noinspection PyPackageRequirements
 from google.auth.transport import requests
 # noinspection PyPackageRequirements
 from google.oauth2 import id_token
+from pydantic import BaseModel
 
 from src.auth.auth_service import AuthService
-from src.user.user_types import UserRole
-from src.user.user_service import UserService
 from src.config import EnvironmentConstantsKeys
+from src.user.user_dto import UserInfoDTO
+from src.user.user_service import UserService
 
 
 def setup_auth_with_jwt(state: BlueprintSetupState):
@@ -34,13 +35,18 @@ class LoginRequest:
     credential: str
 
 
-@dataclass
-class LoginResponse:
-    email: str
-    name: str
-    picture_url: str
+class LoginResponse(BaseModel):
+    user: UserInfoDTO
     access_token: str
-    roles: List[UserRole]
+
+    def __hash__(self) -> int:
+        return self.user.__hash__()
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, LoginResponse):
+            return False
+        return (self.user == other.user and
+                self.access_token == other.access_token)
 
 
 @dataclass
@@ -63,18 +69,20 @@ def login():
                                                                google_client_id, clock_skew_in_seconds=10)
     except (GoogleAuthError, ValueError) as e:
         return jsonify(LoginError(f'Token verification failed: {str(e)}')), 400
+    email = id_info['email']
+    user = UserService.get_user(email)
+    if not user:
+        return jsonify(LoginError(f'Not a known user: {email}')), 403
     try:
-        email = id_info['email']
-        user_roles = UserService.get_user_roles(email)
-        if UserRole.ADMIN not in user_roles:
-            return jsonify(LoginError(f'Not a known user: {email}')), 403
-        access_token = AuthService.create_access_token(email)
-        return jsonify(LoginResponse(
-            email=email,
-            name=id_info['name'],
-            picture_url=id_info['picture'],
-            access_token=access_token,
-            roles=user_roles,
-        ))
+        google_picture = id_info['picture']
+        google_name = id_info['name']
     except KeyError as e:
         return jsonify(LoginError(f'User profile not accessible, field not found: {str(e)}')), 400
+    if user.picture_url != google_picture or user.name != google_name:
+        user = UserService.update_user(user, avatar_url=google_picture, name=google_name)
+    access_token = AuthService.create_access_token(email)
+    return jsonify(LoginResponse(
+        user=UserInfoDTO.from_model(user),
+        access_token=access_token,
+    ))
+

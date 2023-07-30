@@ -21,12 +21,7 @@ export const useAuthStore = defineStore("auth", () => {
             credential: googleToken
         }).then(async (response) => {
             accessToken.value = response.data.access_token
-            user.value = {
-                name: response.data.name,
-                email: response.data.email,
-                picture_url: response.data.picture_url,
-                roles: response.data.roles
-            }
+            user.value = response.data.user
             console.log("Login succeeded", user.value.name)
         })
     }
