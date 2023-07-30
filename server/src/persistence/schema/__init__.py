@@ -5,15 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-class CarbonAuditor(db.Model):
-    __tablename__ = 'carbon_auditor'
-
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(256), unique=True)
-    name = db.Column(db.String(256))
-    picture_url = db.Column(db.String(2048))
-
-
 class Role(db.Model):
     __tablename__ = 'role'
 

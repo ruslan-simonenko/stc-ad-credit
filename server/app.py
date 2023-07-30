@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 from src.auth.auth_bp import auth_bp
 from src.config import EnvironmentConstantsKeys
-from src.domain.domain_bp import domain_bp
 from src.persistence.database import database_bp
 from src.user.user_bp import user_bp
 from src.user.user_service import UserService
@@ -40,7 +39,6 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 app.register_blueprint(auth_bp)
 app.register_blueprint(database_bp)
-app.register_blueprint(domain_bp)
 app.register_blueprint(user_bp)
 app.json_provider_class = PydanticJSONProvider
 app.json = PydanticJSONProvider(app)
