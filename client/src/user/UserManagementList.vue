@@ -2,6 +2,10 @@
   <q-list class="relative-position" bordered padding>
     <q-item-label header>Users</q-item-label>
     <q-separator inset/>
+    <q-item>
+      <UserAddForm></UserAddForm>
+    </q-item>
+    <q-separator inset/>
     <!-- Loaded -->
     <q-item v-if="state == State.LOADED" v-for="user in userStore.all.items">
       <q-item-section avatar>
@@ -45,6 +49,7 @@
 
 import {useUserStore} from "./user-store.ts";
 import {computed, onMounted} from "vue";
+import UserAddForm from "./UserAddForm.vue";
 
 const userStore = useUserStore();
 

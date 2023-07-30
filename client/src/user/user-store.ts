@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive} from "vue";
-import {Users} from "./user.ts";
+import {UserAddFormDTO, Users} from "./user.ts";
 import {useApiClientAxios} from "../api/api-client-axios.ts";
 
 
@@ -26,8 +26,14 @@ export const useUserStore = defineStore("user", () => {
         })
     }
 
+    const add = async (newUser: UserAddFormDTO) => {
+        return apiClient.post('/users/', newUser).finally(() => fetch())
+    }
+
+
     return {
         all,
         fetch,
+        add,
     }
 })
