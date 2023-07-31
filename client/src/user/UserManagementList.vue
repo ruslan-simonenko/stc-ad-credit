@@ -15,6 +15,9 @@
         <q-item-label>{{ user.name }}</q-item-label>
         <q-item-label>{{ user.email }}</q-item-label>
       </q-item-section>
+      <q-item-section v-if="showDevTools" side>
+        <q-btn @click="authStore.loginAs(user)">[DEV] Login as</q-btn>
+      </q-item-section>
     </q-item>
     <!-- Loading -->
     <q-item v-if="state == State.LOADING" v-for="_ in 4">
@@ -50,8 +53,12 @@
 import {useUserStore} from "./user-store.ts";
 import {computed, onMounted} from "vue";
 import UserAddForm from "./UserAddForm.vue";
+import {useAuthStore} from "../auth/auth-store.ts";
 
+const authStore = useAuthStore();
 const userStore = useUserStore();
+
+const showDevTools = computed(() => import.meta.env.DEV)
 
 onMounted(() => {
   userStore.fetch()

@@ -11,24 +11,36 @@ export const useAuthStore = defineStore("auth", () => {
     const user = useLocalStorage<User>('auth.user', null, {
         serializer: StorageSerializers.object
     })
-    const accessToken = useLocalStorage('auth.accessToken', null)
+    const accessToken = useLocalStorage<string | null>('auth.accessToken', null)
     const isAuthenticated = computed<boolean>(() => user.value != null)
 
     const loginWithGoogle = async (googleToken: string) => {
-        user.value = null
-
-        return apiClient.post('/auth/login', {
+        const response = await apiClient.post('/auth/login', {
             credential: googleToken
-        }).then(async (response) => {
-            accessToken.value = response.data.access_token
-            user.value = response.data.user
-            console.log("Login succeeded", user.value.name)
         })
+        updateAuthenticatedUser(response.data.access_token, response.data.user)
     }
 
     const logout = async () => {
         accessToken.value = null
         user.value = null
+    }
+
+    const loginAs = async (user: User) => {
+        const response = await apiClient.post('/auth/login-as', {
+            user_id: user.id,
+        })
+        // TODO: save current user somewhere and restore on logout
+        updateAuthenticatedUser(response.data.access_token, response.data.user)
+    }
+
+    const updateAuthenticatedUser = (newAccessToken: string, newUser: User) => {
+        accessToken.value = newAccessToken
+        user.value = newUser
+    }
+
+    const devFeatures = {
+        loginAs
     }
 
     return {
@@ -37,5 +49,6 @@ export const useAuthStore = defineStore("auth", () => {
         accessToken,
         loginWithGoogle,
         logout,
+        ...devFeatures
     }
 })
