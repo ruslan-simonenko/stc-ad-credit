@@ -2,6 +2,8 @@ import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
 import LoginPage from "../auth/LoginPage.vue";
 import AdminPage from "../app/admin/AdminPage.vue";
 import {useAuthStore} from "../auth/auth-store.ts";
+import CarbonAuditPage from "../app/carbon-audit/CarbonAuditPage.vue";
+import {UserRole} from "../user/user.ts";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();
@@ -14,7 +16,12 @@ const navigateToHomeIfAuthenticated = () => {
 const redirectFromHome = () => {
     const authStore = useAuthStore()
     if (authStore.isAuthenticated) {
-        return {name: 'Admin'}
+        if (authStore.user.roles.includes(UserRole.ADMIN)){
+            return {name: 'Admin'}
+        } else if (authStore.user.roles.includes(UserRole.CARBON_AUDITOR)){
+            return {name: 'CarbonAudit'}
+        }
+        throw new Error('Unsupported role: ' + authStore.user.roles)
     } else {
         return {name: 'Login'}
     }
@@ -24,6 +31,7 @@ const routes: RouteRecordRaw[] = [
     {name: 'Home', path: '/', redirect: redirectFromHome},
     {name: "Login", path: '/login', beforeEnter: navigateToHomeIfAuthenticated, component: LoginPage},
     {name: 'Admin', path: '/admin', component: AdminPage, meta: {requiresAuth: true}},
+    {name: 'CarbonAudit', path: '/carbon-audit', component: CarbonAuditPage, meta: {requiresAuth: true}},
 ]
 
 export const appRouter = createRouter({

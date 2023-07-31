@@ -16,7 +16,7 @@
         <q-item-label>{{ user.email }}</q-item-label>
       </q-item-section>
       <q-item-section v-if="showDevTools" side>
-        <q-btn @click="authStore.loginAs(user)">[DEV] Login as</q-btn>
+        <q-btn @click="loginAs(user)">[DEV] Login as</q-btn>
       </q-item-section>
     </q-item>
     <!-- Loading -->
@@ -54,9 +54,12 @@ import {useUserStore} from "./user-store.ts";
 import {computed, onMounted} from "vue";
 import UserAddForm from "./UserAddForm.vue";
 import {useAuthStore} from "../auth/auth-store.ts";
+import {User} from "./user.ts";
+import {useRouter} from "vue-router";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
+const router = useRouter()
 
 const showDevTools = computed(() => import.meta.env.DEV)
 
@@ -77,6 +80,11 @@ const state = computed<State>(() => {
   }
   return State.LOADED
 })
+
+const loginAs = async (user: User) => {
+  await authStore.loginAs(user)
+  await router.push({name: "Home"})
+}
 </script>
 
 <style scoped>
