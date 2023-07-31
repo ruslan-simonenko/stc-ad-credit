@@ -1,9 +1,9 @@
 import email_normalize
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, abort
 
 from src.auth.auth_bp import auth_role
 from src.user.user_dto import UserInfoDTO, UsersGetManageableResponse, UserAddForm, UserOperationSuccessResponse, \
-    UserAddFailedResponse, UserDisableRequest
+    UserAddFailedResponse, UserUpdateRequest
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
 
@@ -31,11 +31,14 @@ async def add_user():
     return jsonify(UserOperationSuccessResponse(user=UserInfoDTO.from_entity(user)))
 
 
-@user_bp.route('/disable', methods=['post'])
+@user_bp.route('/<int:user_id>', methods=['put'])
 @auth_role(UserRole.ADMIN)
-async def disable_user():
-    disable_request = UserDisableRequest.model_validate(request.get_json())
-    user = UserService.set_user_roles(disable_request.user_id, [])
+async def update_user(user_id):
+    update = UserUpdateRequest.model_validate(request.get_json())
+    if update.roles is not None:
+        user = UserService.set_user_roles(user_id, update.roles)
+    else:
+        user = UserService.get_user_by_id(user_id)
     return jsonify(UserOperationSuccessResponse(user=UserInfoDTO.from_entity(user)))
 
 

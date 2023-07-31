@@ -1,4 +1,4 @@
-from typing import Optional, FrozenSet, Any
+from typing import Optional, FrozenSet, Any, List
 
 from pydantic import BaseModel
 
@@ -90,5 +90,5 @@ class UserOperationSuccessResponse(BaseModel):
         return self.user == other.user
 
 
-class UserDisableRequest(BaseModel):
-    user_id: int
+class UserUpdateRequest(BaseModel):
+    roles: Optional[List[UserRole]]
