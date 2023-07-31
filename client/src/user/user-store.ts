@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive} from "vue";
-import {UserAddFormDTO, Users} from "./user.ts";
+import {User, UserAddFormDTO, Users} from "./user.ts";
 import {useApiClientAxios} from "../api/api-client-axios.ts";
 
 
@@ -17,7 +17,7 @@ export const useUserStore = defineStore("user", () => {
         return apiClient.get('/users/manageable/', {
             headers: {'Content-Type': 'application/json'}
         }).then((response) => {
-            all.items = response.data.users
+            all.items = response.data.users.sort((a: User, b: User) => b.id - a.id)
             all.fetching = false
             all.error = false
         }).catch(() => {

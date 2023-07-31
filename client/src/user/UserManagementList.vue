@@ -9,19 +9,7 @@
     <!-- Loaded -->
     <UserManagementListItem v-if="state == State.LOADED" v-for="user in userStore.all.items" :user="user"/>
     <!-- Loading -->
-    <q-item v-if="state == State.LOADING" v-for="_ in 4">
-      <q-item-section avatar>
-        <q-skeleton type="QAvatar" size="3rem"/>
-      </q-item-section>
-      <q-item-section>
-        <q-item-label>
-          <q-skeleton type="text" width="7rem"/>
-        </q-item-label>
-        <q-item-label>
-          <q-skeleton type="text" width="12rem"/>
-        </q-item-label>
-      </q-item-section>
-    </q-item>
+    <UserManagementListItem v-if="state == State.LOADING" v-for="_ in 4" loading/>
     <q-inner-loading :showing="state == State.LOADING" label="Please wait..."/>
     <!-- Error -->
     <q-item v-if="state == State.ERROR">

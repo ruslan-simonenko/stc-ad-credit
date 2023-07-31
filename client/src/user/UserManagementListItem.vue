@@ -1,15 +1,25 @@
 <template>
   <q-item>
     <q-item-section avatar>
-      <q-avatar size="3rem"><img :src="user.picture_url"></q-avatar>
+      <q-skeleton v-if="loading" type="QAvatar" size="3rem"/>
+      <q-avatar v-else size="3rem"><img :src="user!.picture_url"></q-avatar>
     </q-item-section>
     <q-item-section>
-      <q-item-label>{{ user.name }}</q-item-label>
-      <q-item-label>{{ user.email }}</q-item-label>
+      <q-item-label>
+        <q-skeleton v-if="loading" type="text" width="7rem"/>
+        <span v-else>{{ user.name }}</span>
+      </q-item-label>
+      <q-item-label>
+        <q-skeleton v-if="loading" type="text" width="12rem"/>
+        <span v-else>{{ user.email }}</span>
+      </q-item-label>
     </q-item-section>
     <q-item-section side>
-      <q-toggle v-model="user.enabled"></q-toggle>
-      <q-btn v-if="showDevTools" @click="loginAs(user)">[DEV] Login as</q-btn>
+      <div>
+        <q-skeleton v-if="loading" type="QToggle"/>
+        <q-toggle v-else v-model="user!.enabled"></q-toggle>
+      </div>
+      <q-btn v-if="showDevTools" @click="loginAs(user!)">[DEV] Login as</q-btn>
     </q-item-section>
   </q-item>
 </template>
@@ -22,10 +32,8 @@ import {useRouter} from "vue-router";
 
 
 const props = defineProps({
-  user: {
-    type: Object as PropType<User>,
-    required: true,
-  }
+  user: Object as PropType<User | null>,
+  loading: Boolean
 })
 
 const authStore = useAuthStore();
