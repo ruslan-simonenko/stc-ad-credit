@@ -7,7 +7,8 @@ from flask.testing import FlaskClient
 from app import app
 from src.auth.auth_service import AuthService
 from src.user import user_bp
-from src.user.user_dto import UserInfoDTO, UsersGetManageableResponse, UserAddForm, UserAddSuccessfulResponse
+from src.user.user_dto import UserInfoDTO, UsersGetManageableResponse, UserAddForm, UserOperationSuccessResponse, \
+    UserDisableRequest
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
 from tests.persistence.db_test import DatabaseTest
@@ -74,8 +75,8 @@ class TestUserEndpoint:
 
             assert response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                actual_response = UserAddSuccessfulResponse.model_validate(response.json)
-                expected_response = UserAddSuccessfulResponse(
+                actual_response = UserOperationSuccessResponse.model_validate(response.json)
+                expected_response = UserOperationSuccessResponse(
                     user=UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]))
                 assert actual_response == expected_response
 
@@ -92,8 +93,8 @@ class TestUserEndpoint:
 
             assert response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                actual_response = UserAddSuccessfulResponse.model_validate(response.json)
-                expected_response = UserAddSuccessfulResponse(
+                actual_response = UserOperationSuccessResponse.model_validate(response.json)
+                expected_response = UserOperationSuccessResponse(
                     user=UserInfoDTO(id=0, email=normalize_email(USER_A_EMAIL), roles=[UserRole.CARBON_AUDITOR]))
                 assert actual_response == expected_response
 
@@ -115,3 +116,22 @@ class TestUserEndpoint:
                 assert actual_response == expected_response
                 actual_users = list(actual_response.users)
                 assert actual_users[0].id != actual_users[1].id
+
+    class TestDisableUser(DatabaseTest):
+        def test_disable_user(self, client: FlaskClient, access_headers: Dict[str, str]):
+            user_a_response = client.post(
+                '/users/',
+                json=UserAddForm(email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                headers=access_headers)
+            user_a = UserOperationSuccessResponse.model_validate(user_a_response.json).user
+
+            disable_response = client.post(
+                '/users/disable',
+                json=UserDisableRequest(user_id=user_a.id),
+                headers=access_headers)
+
+            assert disable_response.status_code == 200
+            with patched_dto_for_comparison(UserInfoDTO):
+                user_a_after_disable = UserOperationSuccessResponse.model_validate(disable_response.json).user
+                expected_user = UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[])
+                assert user_a_after_disable == expected_user

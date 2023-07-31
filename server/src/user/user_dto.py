@@ -78,13 +78,17 @@ class UserAddFailedResponse(BaseModel):
         return self.message == other.message
 
 
-class UserAddSuccessfulResponse(BaseModel):
+class UserOperationSuccessResponse(BaseModel):
     user: UserInfoDTO
 
     def __hash__(self) -> int:
         return self.user.__hash__()
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, UserAddSuccessfulResponse):
+        if not isinstance(other, UserOperationSuccessResponse):
             return False
         return self.user == other.user
+
+
+class UserDisableRequest(BaseModel):
+    user_id: int

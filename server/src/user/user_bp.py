@@ -2,8 +2,8 @@ import email_normalize
 from flask import Blueprint, jsonify, request
 
 from src.auth.auth_bp import auth_role
-from src.user.user_dto import UserInfoDTO, UsersGetManageableResponse, UserAddForm, UserAddSuccessfulResponse, \
-    UserAddFailedResponse
+from src.user.user_dto import UserInfoDTO, UsersGetManageableResponse, UserAddForm, UserOperationSuccessResponse, \
+    UserAddFailedResponse, UserDisableRequest
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
 
@@ -27,7 +27,15 @@ async def add_user():
     except EmailNormalizationError as e:
         return jsonify(UserAddFailedResponse(message=f'Email validation failed: {str(e)}')), 400
     user = UserService.add_user(normalized_email, form.roles)
-    return jsonify(UserAddSuccessfulResponse(user=UserInfoDTO.from_entity(user)))
+    return jsonify(UserOperationSuccessResponse(user=UserInfoDTO.from_entity(user)))
+
+
+@user_bp.route('/disable', methods=['post'])
+@auth_role(UserRole.ADMIN)
+async def disable_user():
+    disable_request = UserDisableRequest.model_validate(request.get_json())
+    user = UserService.disable_user(disable_request.user_id)
+    return jsonify(UserOperationSuccessResponse(user=UserInfoDTO.from_entity(user)))
 
 
 async def normalize_email(email: str) -> str:

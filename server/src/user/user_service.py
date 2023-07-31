@@ -28,6 +28,17 @@ class UserService:
         return user
 
     @staticmethod
+    def disable_user(user_id: int) -> User:
+        with db.session.begin_nested():
+            user = UserService.get_user_by_id(user_id)
+            if not user:
+                raise ValueError(f'User does not exist: {user_id}')
+            for user_role in user.user_roles:
+                db.session.delete(user_role)
+            db.session.commit()
+        return UserService.get_user_by_id(user_id)
+
+    @staticmethod
     def get_users(filter_email: Optional[str] = None,
                   filter_id: Optional[int] = None) -> List[User]:
         statement = select(User).outerjoin_from(User, UserRoleEntity).outerjoin(Role)
