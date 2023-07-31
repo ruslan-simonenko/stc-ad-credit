@@ -66,6 +66,23 @@ class TestUserEndpoint:
                            UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR])])
                 assert actual_response == expected_response
 
+        def test_returns_disabled_users(self, client: FlaskClient, access_headers: Dict[str, str]):
+            with app.app_context():
+                user_a = UserService.add_user(USER_A_EMAIL, [UserRole.CARBON_AUDITOR])
+                UserService.add_user(USER_B_EMAIL, [UserRole.CARBON_AUDITOR])
+                UserService.disable_user(user_a.id)
+
+            response = client.get('/users/manageable', headers=access_headers)
+
+            assert response.status_code == 200
+            with patched_dto_for_comparison(UserInfoDTO):
+                actual_response = UsersGetManageableResponse.model_validate(response.json)
+                expected_response = UsersGetManageableResponse(
+                    users=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[]),
+                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR])])
+                assert actual_response == expected_response
+
+
     class TestAddUser(DatabaseTest):
 
         def test_simple_add(self, client: FlaskClient, access_headers: Dict[str, str]):
@@ -119,15 +136,12 @@ class TestUserEndpoint:
 
     class TestDisableUser(DatabaseTest):
         def test_disable_user(self, client: FlaskClient, access_headers: Dict[str, str]):
-            user_a_response = client.post(
-                '/users/',
-                json=UserAddForm(email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
-                headers=access_headers)
-            user_a = UserOperationSuccessResponse.model_validate(user_a_response.json).user
+            with app.app_context():
+                user_a_id = UserService.add_user(USER_A_EMAIL, [UserRole.CARBON_AUDITOR]).id
 
             disable_response = client.post(
                 '/users/disable',
-                json=UserDisableRequest(user_id=user_a.id),
+                json=UserDisableRequest(user_id=user_a_id),
                 headers=access_headers)
 
             assert disable_response.status_code == 200

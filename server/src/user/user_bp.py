@@ -14,7 +14,8 @@ user_bp = Blueprint('user', __name__, url_prefix='/users')
 @auth_role(UserRole.ADMIN)
 def get_manageable_users():
     users = [UserInfoDTO.from_entity(user) for user in UserService.get_users()
-             if UserRole.CARBON_AUDITOR.value in [role.name for role in user.roles]]
+             if (UserRole.CARBON_AUDITOR.value in [role.name for role in user.roles]) or
+             (len(user.roles) == 0)]
     return jsonify(UsersGetManageableResponse(users=users))
 
 
