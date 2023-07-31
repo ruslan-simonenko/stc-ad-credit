@@ -19,6 +19,7 @@ from src.user.user_dto import UserInfoDTO
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
 from tests.persistence.db_test import DatabaseTest
+from tests.utils.dto_comparison_utils import patched_dto_for_comparison
 
 
 class TestLogin(DatabaseTest):
@@ -55,17 +56,19 @@ class TestLogin(DatabaseTest):
         response = client.post('/auth/login', json=LoginRequest(credential=self.MOCK_GOOGLE_TOKEN))
 
         assert response.status_code == 200
-        actual_response = LoginResponse.model_validate(response.json)
-        expected_response = LoginResponse(
-            user=UserInfoDTO(
-                email=self.MOCK_GOOGLE_RESPONSE['email'],
-                name=self.MOCK_GOOGLE_RESPONSE['name'],
-                picture_url=self.MOCK_GOOGLE_RESPONSE['picture'],
-                roles=[UserRole.ADMIN.value],
-            ),
-            access_token=self.MOCK_ACCESS_TOKEN,
-        )
-        assert actual_response.user == expected_response.user
+        with patched_dto_for_comparison(UserInfoDTO):
+            actual_response = LoginResponse.model_validate(response.json)
+            expected_response = LoginResponse(
+                user=UserInfoDTO(
+                    id=0,
+                    email=self.MOCK_GOOGLE_RESPONSE['email'],
+                    name=self.MOCK_GOOGLE_RESPONSE['name'],
+                    picture_url=self.MOCK_GOOGLE_RESPONSE['picture'],
+                    roles=[UserRole.ADMIN.value],
+                ),
+                access_token=self.MOCK_ACCESS_TOKEN,
+            )
+            assert actual_response == expected_response
 
     def test_invalid_user(self, monkeypatch: MonkeyPatch, client: FlaskClient):
         self.mock_google_auth_token_verifier(
