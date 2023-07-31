@@ -7,18 +7,7 @@
     </q-item>
     <q-separator inset/>
     <!-- Loaded -->
-    <q-item v-if="state == State.LOADED" v-for="user in userStore.all.items">
-      <q-item-section avatar>
-        <q-avatar size="3rem"><img :src="user.picture_url"></q-avatar>
-      </q-item-section>
-      <q-item-section>
-        <q-item-label>{{ user.name }}</q-item-label>
-        <q-item-label>{{ user.email }}</q-item-label>
-      </q-item-section>
-      <q-item-section v-if="showDevTools" side>
-        <q-btn @click="loginAs(user)">[DEV] Login as</q-btn>
-      </q-item-section>
-    </q-item>
+    <UserManagementListItem v-if="state == State.LOADED" v-for="user in userStore.all.items" :user="user"/>
     <!-- Loading -->
     <q-item v-if="state == State.LOADING" v-for="_ in 4">
       <q-item-section avatar>
@@ -53,15 +42,11 @@
 import {useUserStore} from "./user-store.ts";
 import {computed, onMounted} from "vue";
 import UserAddForm from "./UserAddForm.vue";
-import {useAuthStore} from "../auth/auth-store.ts";
-import {User} from "./user.ts";
 import {useRouter} from "vue-router";
+import UserManagementListItem from "./UserManagementListItem.vue";
 
-const authStore = useAuthStore();
 const userStore = useUserStore();
 const router = useRouter()
-
-const showDevTools = computed(() => import.meta.env.DEV)
 
 onMounted(() => {
   userStore.fetch()
@@ -80,11 +65,6 @@ const state = computed<State>(() => {
   }
   return State.LOADED
 })
-
-const loginAs = async (user: User) => {
-  await authStore.loginAs(user)
-  await router.push({name: "Home"})
-}
 </script>
 
 <style scoped>
