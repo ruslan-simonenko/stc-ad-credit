@@ -5,7 +5,7 @@ from datetime import timedelta
 from functools import wraps
 from typing import Dict, Any
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, abort
 from flask.blueprints import BlueprintSetupState
 from flask_jwt_extended import JWTManager, verify_jwt_in_request
 # noinspection PyPackageRequirements
@@ -16,6 +16,7 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from pydantic import BaseModel
 
+from src.auth.auth_dto import LoginAsRequest
 from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
 from src.user.user_dto import UserInfoDTO
@@ -121,3 +122,19 @@ def auth_role(*allowed_roles: UserRole):
             return sync_decorator
 
     return wrapper
+
+
+@auth_bp.route('/login-as', methods=['POST'])
+@auth_role(UserRole.ADMIN)
+def login_as():
+    if os.environ.get(EnvironmentConstantsKeys.APP_ENV, 'prod') not in ['dev', 'test']:
+        abort(404)
+    login_request = LoginAsRequest.model_validate(request.get_json())
+    user = UserService.get_user_by_id(login_request.user_id)
+    if not user:
+        return jsonify(LoginError(f'User not found: {login_request.user_id}')), 400
+    access_token = AuthService.create_access_token(user.email)
+    return jsonify(LoginResponse(
+        user=UserInfoDTO.from_entity(user),
+        access_token=access_token,
+    ))

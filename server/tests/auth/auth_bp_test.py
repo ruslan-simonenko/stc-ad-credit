@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Optional, Iterable
 
 import pytest
@@ -5,7 +6,7 @@ from _pytest.fixtures import FixtureRequest
 from _pytest.monkeypatch import MonkeyPatch
 from flask import Blueprint, Flask
 from flask.testing import FlaskClient
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, decode_token
 # noinspection PyPackageRequirements
 from google.auth.exceptions import GoogleAuthError
 # noinspection PyPackageRequirements
@@ -13,6 +14,7 @@ from google.oauth2 import id_token
 
 from app import app, configure_app
 from src.auth.auth_bp import LoginRequest, LoginResponse, auth_role
+from src.auth.auth_dto import LoginAsRequest
 from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
 from src.user.user_dto import UserInfoDTO
@@ -200,3 +202,45 @@ class TestAuthorization(DatabaseTest):
     def test_admin_or_carbon_auditor(self, auth_client: FlaskClient, request: FixtureRequest, code: int, headers: str):
         response = auth_client.get('/test-authorization/admin-or-ca', headers=request.getfixturevalue(headers))
         assert response.status_code == code
+
+
+class TestLoginAs(DatabaseTest):
+    ADMIN_EMAIL = 'admin@gmail.com'
+    CARBON_AUDITOR_EMAIL = 'carbon_auditor@gmail.com'
+    admin_access_token: str
+    carbon_auditor_id: int
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self, monkeypatch: MonkeyPatch) -> None:
+        with app.app_context():
+            UserService.add_user(TestLoginAs.ADMIN_EMAIL, [UserRole.ADMIN])
+            carbon_auditor = UserService.add_user(TestLoginAs.CARBON_AUDITOR_EMAIL, [UserRole.CARBON_AUDITOR])
+            self.carbon_auditor_id = carbon_auditor.id
+            self.admin_access_token = AuthService.create_access_token(TestLoginAs.ADMIN_EMAIL)
+        pass
+
+    def test_successful_login_as(self, client: FlaskClient):
+        response = client.post('/auth/login-as',
+                               json=LoginAsRequest(user_id=self.carbon_auditor_id),
+                               headers={'Authorization': f'Bearer {self.admin_access_token}'})
+
+        assert response.status_code == 200
+        with patched_dto_for_comparison(UserInfoDTO):
+            actual_response = LoginResponse.model_validate(response.json)
+            expected_user = UserInfoDTO(
+                id=0,
+                email=TestLoginAs.CARBON_AUDITOR_EMAIL,
+                roles=[UserRole.CARBON_AUDITOR],
+            )
+            with app.app_context():
+                decode_token(actual_response.access_token)
+            assert actual_response.user == expected_user
+
+    def test_login_as_disabled_in_prod(self, monkeypatch: MonkeyPatch, client: FlaskClient):
+        monkeypatch.setenv(EnvironmentConstantsKeys.APP_ENV, 'prod')
+
+        response = client.post('/auth/login-as',
+                               json=LoginAsRequest(user_id=self.carbon_auditor_id),
+                               headers={'Authorization': f'Bearer {self.admin_access_token}'})
+
+        assert response.status_code == 404

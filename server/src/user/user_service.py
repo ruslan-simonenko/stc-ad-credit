@@ -1,4 +1,3 @@
-from itertools import groupby
 from typing import Iterable, List, Optional
 
 from sqlalchemy import select, update
@@ -29,15 +28,23 @@ class UserService:
         return user
 
     @staticmethod
-    def get_users(filter_email: Optional[str] = None) -> List[User]:
+    def get_users(filter_email: Optional[str] = None,
+                  filter_id: Optional[int] = None) -> List[User]:
         statement = select(User).outerjoin_from(User, UserRoleEntity).outerjoin(Role)
         if filter_email:
             statement = statement.where(User.email == filter_email)
+        if filter_id:
+            statement = statement.where(User.id == filter_id)
         return db.session.execute(statement).scalars().all()
 
     @staticmethod
+    def get_user_by_id(id_: int) -> Optional[User]:
+        users = UserService.get_users(filter_id=id_)
+        return None if not users else users[0]
+
+    @staticmethod
     def get_user(email: str) -> Optional[User]:
-        users = UserService.get_users(email)
+        users = UserService.get_users(filter_email=email)
         return None if not users else users[0]
 
     @staticmethod
