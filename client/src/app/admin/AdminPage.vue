@@ -5,5 +5,5 @@
 </template>
 
 <script setup lang="ts">
-import UserManagementList from "../../user/UserManagementList.vue";
+import UserManagementList from "../../user/management/UserManagementList.vue";
 </script>

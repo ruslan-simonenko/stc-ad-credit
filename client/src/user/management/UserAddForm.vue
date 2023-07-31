@@ -11,8 +11,8 @@
 
 <script setup lang="ts">
 import {ref} from "vue";
-import {useUserStore} from "./user-store.ts";
-import {UserRole} from "./user.ts";
+import {useUserStore} from "../user-store.ts";
+import {UserRole} from "../user.ts";
 
 const userStore = useUserStore();
 

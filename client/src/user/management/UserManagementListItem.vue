@@ -25,11 +25,11 @@
 </template>
 
 <script setup lang="ts">
-import {User} from "./user.ts";
+import {User} from "../user.ts";
 import {computed, PropType} from "vue";
-import {useAuthStore} from "../auth/auth-store.ts";
+import {useAuthStore} from "../../auth/auth-store.ts";
 import {useRouter} from "vue-router";
-import {useUserStore} from "./user-store.ts";
+import {useUserStore} from "../user-store.ts";
 
 const props = defineProps({
   user: Object as PropType<User | null>,

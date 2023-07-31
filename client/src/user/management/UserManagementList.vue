@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 
-import {useUserStore} from "./user-store.ts";
+import {useUserStore} from "../user-store.ts";
 import {computed, onMounted} from "vue";
 import UserAddForm from "./UserAddForm.vue";
 import {useRouter} from "vue-router";
