@@ -66,11 +66,10 @@ class TestUserEndpoint:
                            UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR])])
                 assert actual_response == expected_response
 
-        def test_returns_disabled_users(self, client: FlaskClient, access_headers: Dict[str, str]):
+        def test_returns_users_without_roles(self, client: FlaskClient, access_headers: Dict[str, str]):
             with app.app_context():
-                user_a = UserService.add_user(USER_A_EMAIL, [UserRole.CARBON_AUDITOR])
+                UserService.add_user(USER_A_EMAIL, [])
                 UserService.add_user(USER_B_EMAIL, [UserRole.CARBON_AUDITOR])
-                UserService.disable_user(user_a.id)
 
             response = client.get('/users/manageable', headers=access_headers)
 
@@ -81,7 +80,6 @@ class TestUserEndpoint:
                     users=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[]),
                            UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR])])
                 assert actual_response == expected_response
-
 
     class TestAddUser(DatabaseTest):
 

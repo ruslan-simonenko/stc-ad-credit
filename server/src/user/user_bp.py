@@ -35,7 +35,7 @@ async def add_user():
 @auth_role(UserRole.ADMIN)
 async def disable_user():
     disable_request = UserDisableRequest.model_validate(request.get_json())
-    user = UserService.disable_user(disable_request.user_id)
+    user = UserService.set_user_roles(disable_request.user_id, [])
     return jsonify(UserOperationSuccessResponse(user=UserInfoDTO.from_entity(user)))
 
 

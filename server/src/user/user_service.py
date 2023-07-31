@@ -13,30 +13,31 @@ class UserService:
 
     @staticmethod
     def add_user(email: str, roles: Iterable[UserRole]) -> User:
-        if not roles:
-            raise ValueError('At least one role is required')
         with db.session.begin_nested():
             user = User(email=email)
             db.session.add(user)
-
-            roles = Role.query.filter(Role.name.in_([role.value for role in roles]))
-            for role in roles:
-                user_role = UserRoleEntity(user=user, role=role)
-                db.session.add(user_role)
-
+            UserService._add_user_roles(user, roles)
             db.session.commit()
         return user
 
     @staticmethod
-    def disable_user(user_id: int) -> User:
+    def set_user_roles(user_id: int, roles: Iterable[UserRole]) -> User:
         with db.session.begin_nested():
             user = UserService.get_user_by_id(user_id)
             if not user:
                 raise ValueError(f'User does not exist: {user_id}')
             for user_role in user.user_roles:
                 db.session.delete(user_role)
+            UserService._add_user_roles(user, roles)
             db.session.commit()
         return UserService.get_user_by_id(user_id)
+
+    @staticmethod
+    def _add_user_roles(user: User, roles: Iterable[UserRole]):
+        role_entities = Role.query.filter(Role.name.in_([role.value for role in roles]))
+        for role in role_entities:
+            user_role = UserRoleEntity(user=user, role=role)
+            db.session.add(user_role)
 
     @staticmethod
     def get_users(filter_email: Optional[str] = None,
