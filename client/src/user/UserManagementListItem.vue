@@ -17,7 +17,7 @@
     <q-item-section side>
       <div>
         <q-skeleton v-if="loading" type="QToggle"/>
-        <q-toggle v-else v-model="user!.enabled"></q-toggle>
+        <q-toggle v-else v-model="enabled"></q-toggle>
       </div>
       <q-btn v-if="showDevTools" @click="loginAs(user!)">[DEV] Login as</q-btn>
     </q-item-section>
@@ -29,7 +29,7 @@ import {User} from "./user.ts";
 import {computed, PropType} from "vue";
 import {useAuthStore} from "../auth/auth-store.ts";
 import {useRouter} from "vue-router";
-
+import {useUserStore} from "./user-store.ts";
 
 const props = defineProps({
   user: Object as PropType<User | null>,
@@ -37,6 +37,7 @@ const props = defineProps({
 })
 
 const authStore = useAuthStore();
+const userStore = useUserStore();
 const router = useRouter()
 
 const showDevTools = computed(() => import.meta.env.DEV)
@@ -45,4 +46,13 @@ const loginAs = async (user: User) => {
   await authStore.loginAs(user)
   await router.push({name: "Home"})
 }
+
+const enabled = computed<boolean>({
+  get() {
+    return props.user!.roles.length > 0
+  },
+  set(newValue: boolean) {
+    userStore.setEnabled(props.user!.id, newValue)
+  }
+})
 </script>
