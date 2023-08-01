@@ -5,6 +5,7 @@ import {useAuthStore} from "../auth/auth-store.ts";
 import CarbonAuditPage from "../app/carbon-audit/CarbonAuditPage.vue";
 import {UserRole} from "../user/user.ts";
 import DisabledUserPage from "../user/DisabledUserPage.vue";
+import BusinessesPage from "../app/business/BusinessesPage.vue";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();
@@ -36,6 +37,7 @@ const routes: RouteRecordRaw[] = [
     {name: 'Admin', path: '/admin', component: AdminPage, meta: {requiresAuth: true}},
     {name: 'CarbonAudit', path: '/carbon-audit', component: CarbonAuditPage, meta: {requiresAuth: true}},
     {name: 'DisabledUser', path: '/disabled', component: DisabledUserPage, meta: {requiresAuth: true}},
+    {name: 'Businesses', path: '/businesses', component: BusinessesPage, meta: {requiresAuth: true}},
 ]
 
 export const appRouter = createRouter({
