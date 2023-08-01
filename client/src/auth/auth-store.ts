@@ -8,7 +8,7 @@ import {User} from "../user/user.ts";
 export const useAuthStore = defineStore("auth", () => {
     const apiClient = useApiClientAxios()
 
-    const user = useLocalStorage<User>('auth.user', null, {
+    const user = useLocalStorage<User | null>('auth.user', null, {
         serializer: StorageSerializers.object
     })
     const accessToken = useLocalStorage<string | null>('auth.accessToken', null)

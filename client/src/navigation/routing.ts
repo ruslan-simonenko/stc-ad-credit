@@ -18,14 +18,14 @@ const navigateToHomeIfAuthenticated = () => {
 const redirectFromHome = () => {
     const authStore = useAuthStore()
     if (authStore.isAuthenticated) {
-        if (authStore.user.roles.includes(UserRole.ADMIN)) {
+        if (authStore.user!.roles.includes(UserRole.ADMIN)) {
             return {name: 'Admin'}
-        } else if (authStore.user.roles.includes(UserRole.CARBON_AUDITOR)) {
+        } else if (authStore.user!.roles.includes(UserRole.CARBON_AUDITOR)) {
             return {name: 'CarbonAudit'}
-        } else if (authStore.user.roles.length === 0) {
+        } else if (authStore.user!.roles.length === 0) {
             return {name: 'DisabledUser'}
         }
-        throw new Error('Unsupported role: ' + authStore.user.roles)
+        throw new Error('Unsupported role: ' + authStore.user!.roles)
     } else {
         return {name: 'Login'}
     }
@@ -34,10 +34,34 @@ const redirectFromHome = () => {
 const routes: RouteRecordRaw[] = [
     {name: 'Home', path: '/', redirect: redirectFromHome},
     {name: "Login", path: '/login', beforeEnter: navigateToHomeIfAuthenticated, component: LoginPage},
-    {name: 'Admin', path: '/admin', component: AdminPage, meta: {requiresAuth: true}},
-    {name: 'CarbonAudit', path: '/carbon-audit', component: CarbonAuditPage, meta: {requiresAuth: true}},
-    {name: 'DisabledUser', path: '/disabled', component: DisabledUserPage, meta: {requiresAuth: true}},
-    {name: 'Businesses', path: '/businesses', component: BusinessesPage, meta: {requiresAuth: true}},
+    {name: 'DisabledUser', path: '/disabled', component: DisabledUserPage},
+    {
+        name: 'Admin', path: '/admin', component: AdminPage, meta: {
+            auth: {
+                allowedRoles: [UserRole.ADMIN, UserRole.CARBON_AUDITOR],
+                navIcon: 'manage_accounts',
+                navLabel: 'Users'
+            }
+        }
+    },
+    {
+        name: 'CarbonAudit', path: '/carbon-audit', component: CarbonAuditPage, meta: {
+            auth: {
+                allowedRoles: [UserRole.CARBON_AUDITOR],
+                navIcon: 'co2',
+                navLabel: 'Carbon Audit'
+            }
+        }
+    },
+    {
+        name: 'Businesses', path: '/businesses', component: BusinessesPage, meta: {
+            auth: {
+                allowedRoles: [UserRole.ADMIN, UserRole.CARBON_AUDITOR],
+                navIcon: 'storefront',
+                navLabel: 'Businesses'
+            }
+        }
+    },
 ]
 
 export const appRouter = createRouter({
