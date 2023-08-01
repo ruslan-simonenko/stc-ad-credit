@@ -1,6 +1,7 @@
 <template>
   <q-list padding class="menu-list">
-    <q-item v-for="route in visibleRoutes" :active="route.name === currentRoute.name" v-ripple>
+    <q-item v-for="route in visibleRoutes" :active="route.name === currentRoute.name" v-ripple
+            clickable @click="router.push({name: route.name})">
       <q-item-section avatar>
         <q-icon :name="route.meta.navigation!.icon"/>
       </q-item-section>
