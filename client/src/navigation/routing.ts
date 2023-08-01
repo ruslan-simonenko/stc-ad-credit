@@ -34,31 +34,44 @@ const redirectFromHome = () => {
 const routes: RouteRecordRaw[] = [
     {name: 'Home', path: '/', redirect: redirectFromHome},
     {name: "Login", path: '/login', beforeEnter: navigateToHomeIfAuthenticated, component: LoginPage},
-    {name: 'DisabledUser', path: '/disabled', component: DisabledUserPage},
+    {
+        name: 'DisabledUser', path: '/disabled', component: DisabledUserPage, meta: {
+            auth: {required: true}
+        }
+    },
     {
         name: 'Admin', path: '/admin', component: AdminPage, meta: {
             auth: {
-                allowedRoles: [UserRole.ADMIN, UserRole.CARBON_AUDITOR],
-                navIcon: 'manage_accounts',
-                navLabel: 'Users'
+                required: true,
+                authorizedRoles: [UserRole.ADMIN, UserRole.CARBON_AUDITOR],
+            },
+            navigation: {
+                icon: 'manage_accounts',
+                label: 'Users'
             }
         }
     },
     {
         name: 'CarbonAudit', path: '/carbon-audit', component: CarbonAuditPage, meta: {
             auth: {
-                allowedRoles: [UserRole.CARBON_AUDITOR],
-                navIcon: 'co2',
-                navLabel: 'Carbon Audit'
+                required: true,
+                authorizedRoles: [UserRole.CARBON_AUDITOR],
+            },
+            navigation: {
+                icon: 'co2',
+                label: 'Carbon Audit'
             }
         }
     },
     {
         name: 'Businesses', path: '/businesses', component: BusinessesPage, meta: {
             auth: {
-                allowedRoles: [UserRole.ADMIN, UserRole.CARBON_AUDITOR],
-                navIcon: 'storefront',
-                navLabel: 'Businesses'
+                required: true,
+                authorizedRoles: [UserRole.ADMIN, UserRole.CARBON_AUDITOR],
+            },
+            navigation: {
+                icon: 'storefront',
+                label: 'Businesses'
             }
         }
     },
@@ -70,11 +83,14 @@ export const appRouter = createRouter({
 })
 appRouter.beforeEach((to) => {
     const authStore = useAuthStore()
-    if (to.meta.requiresAuth !== true || authStore.isAuthenticated) {
+    if (to.meta.auth?.required === true && !authStore.isAuthenticated) {
+        return {
+            name: 'Login',
+            query: {next: to.fullPath}
+        }
+    }
+    if (to.meta.auth?.authorizedRoles != null && !authStore.user?.roles.some(role => to.meta.auth?.authorizedRoles?.includes(role))) {
         return true;
     }
-    return {
-        name: 'Login',
-        query: {next: to.fullPath}
-    }
+    return true;
 })
