@@ -6,13 +6,19 @@ import CarbonAuditPage from "../app/carbon-audit/CarbonAuditPage.vue";
 import {UserRole} from "../user/user.ts";
 import DisabledUserPage from "../user/DisabledUserPage.vue";
 import BusinessesPage from "../app/business/BusinessesPage.vue";
+import {useRoutingStore} from "./routing-store.ts";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();
     if (authStore.isAuthenticated) {
-        return {name: 'Admin'}
+        return {name: 'Home'}
     }
     return true
+}
+
+const doNotNavigateIfNotDisabled = () => {
+    const authStore = useAuthStore();
+    return authStore.user?.roles.length === 0;
 }
 
 const redirectFromHome = () => {
@@ -35,7 +41,11 @@ const routes: RouteRecordRaw[] = [
     {name: 'Home', path: '/', redirect: redirectFromHome},
     {name: "Login", path: '/login', beforeEnter: navigateToHomeIfAuthenticated, component: LoginPage},
     {
-        name: 'DisabledUser', path: '/disabled', component: DisabledUserPage, meta: {
+        name: 'DisabledUser',
+        path: '/disabled',
+        beforeEnter: doNotNavigateIfNotDisabled,
+        component: DisabledUserPage,
+        meta: {
             auth: {required: true}
         }
     },
@@ -43,7 +53,7 @@ const routes: RouteRecordRaw[] = [
         name: 'Admin', path: '/admin', component: AdminPage, meta: {
             auth: {
                 required: true,
-                authorizedRoles: [UserRole.ADMIN, UserRole.CARBON_AUDITOR],
+                authorizedRoles: [UserRole.ADMIN],
             },
             navigation: {
                 icon: 'manage_accounts',
@@ -82,15 +92,15 @@ export const appRouter = createRouter({
     routes
 })
 appRouter.beforeEach((to) => {
-    const authStore = useAuthStore()
-    if (to.meta.auth?.required === true && !authStore.isAuthenticated) {
+    const routingStore = useRoutingStore();
+    if (!routingStore.passesAuthenticationGuard(to)) {
         return {
             name: 'Login',
             query: {next: to.fullPath}
         }
     }
-    if (to.meta.auth?.authorizedRoles != null && !authStore.user?.roles.some(role => to.meta.auth?.authorizedRoles?.includes(role))) {
-        return true;
+    if (!routingStore.passesAuthorizationGuard(to)) {
+        return {name: 'Home'}
     }
     return true;
 })

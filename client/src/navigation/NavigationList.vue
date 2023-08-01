@@ -13,20 +13,17 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {computed} from "vue";
-import {useAuthStore} from "../auth/auth-store.ts";
+import {useRoutingStore} from "./routing-store.ts";
 
 const router = useRouter()
 const currentRoute = useRoute()
-const authStore = useAuthStore();
+const routingStore = useRoutingStore();
 
 const visibleRoutes = computed(() =>
     router.options.routes
         .filter(route => {
           // noinspection JSIncompatibleTypesComparison
           const supportsNavigation = route.meta?.navigation !== undefined
-          const passesAuthenticationGuard = !(route.meta?.auth?.required) || authStore.isAuthenticated
-          const passesAuthorizationGuard = !(route.meta?.auth?.authorizedRoles) ||
-              route.meta?.auth?.authorizedRoles.some(role => authStore.user?.roles.includes(role))
-          return supportsNavigation && passesAuthenticationGuard && passesAuthorizationGuard
+          return supportsNavigation && routingStore.passesAuthGuards(route)
         }))
 </script>
