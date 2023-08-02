@@ -36,3 +36,10 @@ class TestBusinessService(DatabaseTest):
         with pytest.raises(ValueError, match='Business name is already in use'):
             BusinessService.add(name='test business', facebook_link=None, creator=current_user)
 
+    def test_get_all_businesses(self, current_user):
+        biz_a = BusinessService.add('test biz a', facebook_link=None, creator=current_user)
+        biz_b = BusinessService.add('test biz b', facebook_link='https://facebook.com/somepage', creator=current_user)
+        biz_c = BusinessService.add('test biz c', facebook_link=None, creator=current_user)
+        actual_businesses = BusinessService.get_all()
+        assert set(actual_businesses) == {biz_a, biz_b, biz_c}
+

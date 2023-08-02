@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from src.persistence.schema import db
@@ -24,3 +25,6 @@ class BusinessService:
             raise ValueError(e, 'Business name is already in use')
         return business
 
+    @staticmethod
+    def get_all() -> List[Business]:
+        return db.session.execute(select(Business)).scalars().all()
