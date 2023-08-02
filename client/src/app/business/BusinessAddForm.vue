@@ -16,12 +16,14 @@
 
 <script setup lang="ts">
 import {ref} from "vue";
+import {useBusinessStore} from "./business-store.ts";
 
 const name = ref<string>('')
 const facebookLink = ref<string>('')
+const businessStore = useBusinessStore();
 
-const onSubmit = () => {
-  console.log(`Add business: ${name.value} at ${facebookLink.value}`)
+const onSubmit = async () => {
+  await businessStore.add({name: name.value, facebookLink: facebookLink.value})
 }
 </script>
 
