@@ -22,7 +22,7 @@ def upgrade(is_dev: bool, **kw: Any) -> None:
         'business',
         sa.Column('id', sa.INTEGER, primary_key=True),
         sa.Column('name', sa.VARCHAR(256), nullable=False, unique=True),
-        sa.Column('facebook_link', sa.VARCHAR(2048), nullable=True),
+        sa.Column('facebook_url', sa.VARCHAR(2048), nullable=True),
         sa.Column('created_by', sa.INTEGER, sa.ForeignKey('user.id'), nullable=False),
         sa.Column('created_at', sa.DATETIME(timezone=True), nullable=False)
     )

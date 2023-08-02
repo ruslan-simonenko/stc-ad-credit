@@ -7,7 +7,7 @@ class Business(db.Model):
     __tablename__ = 'business'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256), nullable=False, unique=True)
-    facebook_link = db.Column(db.String(2048))
+    facebook_url = db.Column(db.String(2048))
     created_by = db.Column(db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
     user = db.relationship('User', primaryjoin='Business.created_by == User.id', backref='businesses')

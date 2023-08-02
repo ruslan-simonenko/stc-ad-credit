@@ -11,10 +11,10 @@ from src.persistence.schema.user import User
 
 class BusinessService:
     @staticmethod
-    def add(name: str, facebook_link: Optional[str], creator: User) -> Business:
+    def add(name: str, facebook_url: Optional[str], creator: User) -> Business:
         business = Business(
             name=name,
-            facebook_link=facebook_link,
+            facebook_url=facebook_url,
             created_by=creator.id,
             created_at=datetime.utcnow()
         )
