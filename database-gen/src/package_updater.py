@@ -27,6 +27,6 @@ class PackageUpdater:
 
 def _build_flask_sqlacodegen_module(database_uri) -> ast.Module:
     import subprocess
-    command = ["flask-sqlacodegen", "--flask", database_uri]
+    command = ["flask-sqlacodegen", "--flask", "--noinflect", database_uri]
     completed_process = subprocess.run(command, capture_output=True, text=True)
     return ast.parse(completed_process.stdout)
