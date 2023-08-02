@@ -1,5 +1,5 @@
-import os
 from typing import Dict, Optional, Iterable
+from unittest.mock import Mock
 
 import pytest
 from _pytest.fixtures import FixtureRequest
@@ -17,6 +17,7 @@ from src.auth.auth_bp import LoginRequest, LoginResponse, auth_role
 from src.auth.auth_dto import LoginAsRequest
 from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
+from src.persistence.schema.role import Role
 from src.user.user_dto import UserInfoDTO
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
@@ -115,8 +116,6 @@ class TestLogin(DatabaseTest):
 
 
 class TestAuthorization(DatabaseTest):
-    ADMIN_EMAIL = 'admin@stc.com'
-    CARBON_AUDITOR_EMAIL = 'ca@stc.com'
 
     @pytest.fixture(scope="class")
     def auth_app(self):
@@ -152,23 +151,22 @@ class TestAuthorization(DatabaseTest):
         return auth_app.test_client()
 
     @staticmethod
-    def create_access_token(auth_app: Flask, email: str, roles: Iterable[UserRole]):
+    def create_access_token(auth_app: Flask, roles: Iterable[UserRole]):
         with auth_app.app_context():
-            access_token = create_access_token(email, additional_claims=AuthService.build_claims_for_roles(roles))
+            user_mock = Mock()
+            user_mock.id = 1
+            user_mock.roles = [Role(name=role.value) for role in roles]
+            access_token = create_access_token(user_mock.id, additional_claims=AuthService.build_roles_claim(user_mock))
         return access_token
 
     @pytest.fixture
-    def access_headers_admin(self, auth_app) -> Dict[str, str]:
-        access_token = TestAuthorization.create_access_token(auth_app, TestAuthorization.ADMIN_EMAIL, [UserRole.ADMIN])
+    def access_headers_admin(self, auth_app, monkeypatch) -> Dict[str, str]:
+        access_token = TestAuthorization.create_access_token(auth_app, [UserRole.ADMIN])
         return {'Authorization': f'Bearer {access_token}'}
 
     @pytest.fixture
-    def access_headers_carbon_auditor(self, auth_app) -> Dict[str, str]:
-        access_token = TestAuthorization.create_access_token(
-            auth_app,
-            TestAuthorization.CARBON_AUDITOR_EMAIL,
-            [UserRole.CARBON_AUDITOR]
-        )
+    def access_headers_carbon_auditor(self, auth_app, monkeypatch) -> Dict[str, str]:
+        access_token = TestAuthorization.create_access_token(auth_app, [UserRole.CARBON_AUDITOR])
         return {'Authorization': f'Bearer {access_token}'}
 
     @pytest.fixture
@@ -211,12 +209,12 @@ class TestLoginAs(DatabaseTest):
     carbon_auditor_id: int
 
     @pytest.fixture(autouse=True)
-    def setup_data(self, monkeypatch: MonkeyPatch) -> None:
+    def setup_data(self) -> None:
         with app.app_context():
-            UserService.add_user(TestLoginAs.ADMIN_EMAIL, [UserRole.ADMIN])
+            admin = UserService.add_user(TestLoginAs.ADMIN_EMAIL, [UserRole.ADMIN])
             carbon_auditor = UserService.add_user(TestLoginAs.CARBON_AUDITOR_EMAIL, [UserRole.CARBON_AUDITOR])
             self.carbon_auditor_id = carbon_auditor.id
-            self.admin_access_token = AuthService.create_access_token(TestLoginAs.ADMIN_EMAIL)
+            self.admin_access_token = AuthService.create_access_token(admin.id)
         pass
 
     def test_successful_login_as(self, client: FlaskClient):

@@ -36,8 +36,8 @@ class TestUserEndpoint:
     @pytest.fixture
     def access_headers(self) -> Dict[str, str]:
         with app.app_context():
-            UserService.add_user(CURRENT_ADMIN_EMAIL, [UserRole.ADMIN])
-            access_token = AuthService.create_access_token(CURRENT_ADMIN_EMAIL)
+            admin = UserService.add_user(CURRENT_ADMIN_EMAIL, [UserRole.ADMIN])
+            access_token = AuthService.create_access_token(admin.id)
         return {'Authorization': f'Bearer {access_token}'}
 
     class TestGetManageableUsers(DatabaseTest):

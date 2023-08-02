@@ -84,7 +84,7 @@ def login():
         return jsonify(LoginError(f'User profile not accessible, field not found: {str(e)}')), 400
     if user.avatar_url != google_picture or user.name != google_name:
         user = UserService.update_user(user, avatar_url=google_picture, name=google_name)
-    access_token = AuthService.create_access_token(email)
+    access_token = AuthService.create_access_token(user.id)
     return jsonify(LoginResponse(
         user=UserInfoDTO.from_entity(user),
         access_token=access_token,
@@ -133,7 +133,7 @@ def login_as():
     user = UserService.get_user_by_id(login_request.user_id)
     if not user:
         return jsonify(LoginError(f'User not found: {login_request.user_id}')), 400
-    access_token = AuthService.create_access_token(user.email)
+    access_token = AuthService.create_access_token(user.id)
     return jsonify(LoginResponse(
         user=UserInfoDTO.from_entity(user),
         access_token=access_token,
