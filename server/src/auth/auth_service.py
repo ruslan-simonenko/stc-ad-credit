@@ -16,11 +16,11 @@ class AuthService:
         return create_access_token(user_id, additional_claims=AuthService.build_roles_claim(user))
 
     @staticmethod
-    def get_current_user_or_throw() -> User:
+    def get_current_user_id_or_throw() -> User:
         user_id = get_jwt_identity()
         if not user_id:
             raise RuntimeError('Not in the context of request, or the endpoint does not require authentication.')
-        return UserService.get_user_by_id(user_id)
+        return user_id
 
     @staticmethod
     def get_roles_from_claims() -> Set[UserRole]:
