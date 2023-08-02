@@ -1,14 +1,11 @@
 <template>
   <q-page padding>
-    <BusinessAddForm/>
-    {{businessStore.all}}
+    <BusinessesList/>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import BusinessAddForm from "./BusinessAddForm.vue";
-import {useBusinessStore} from "./business-store.ts";
-const businessStore = useBusinessStore();
+import BusinessesList from "./BusinessesList.vue";
 </script>
 
 <style scoped>
