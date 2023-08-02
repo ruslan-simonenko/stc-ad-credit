@@ -23,7 +23,7 @@ const facebookLink = ref<string>('')
 const businessStore = useBusinessStore();
 
 const onSubmit = async () => {
-  await businessStore.add({name: name.value, facebookLink: facebookLink.value})
+  await businessStore.add({name: name.value, facebook_url: facebookLink.value})
 }
 </script>
 
