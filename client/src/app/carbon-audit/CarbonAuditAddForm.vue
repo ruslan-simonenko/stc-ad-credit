@@ -35,8 +35,10 @@
 import {useBusinessStore} from "../business/business-store.ts";
 import {onMounted, ref} from "vue";
 import {Business} from "../business/business-types.ts";
+import {useCarbonAuditStore} from "./carbon-audit-store.ts";
 
 const businessStore = useBusinessStore();
+const carbonAuditStore = useCarbonAuditStore();
 
 const fieldRequiredValidator = (value) => value != null || 'Field required'
 
@@ -60,8 +62,13 @@ onMounted(() => {
   businessStore.fetch()
 });
 
-const onSubmit = () => {
-  console.log('submit', business, score, reportDate, reportUrl)
+const onSubmit = async () => {
+  await carbonAuditStore.add({
+    business_id: business.value.id,
+    score: score.value,
+    report_date: reportDate.value,
+    report_url: reportUrl.value,
+  })
 }
 </script>
 
