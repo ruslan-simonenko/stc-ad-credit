@@ -1,10 +1,10 @@
 <template>
-  <CarbonAuditForm/>
+  <CarbonAuditAddForm/>
 </template>
 
 <script setup lang="ts">
 
-import CarbonAuditForm from "./CarbonAuditForm.vue";
+import CarbonAuditAddForm from "./CarbonAuditAddForm.vue";
 </script>
 
 <style scoped>
