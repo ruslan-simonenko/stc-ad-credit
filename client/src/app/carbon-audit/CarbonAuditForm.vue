@@ -3,7 +3,8 @@
     <q-select label="Business"
               v-model="business"
               :loading="businessStore.all.fetching"
-              :options="businessStore.all.items">
+              :options="businessStore.all.items"
+              :rules="businessValidators">
       <template v-slot:option="{ itemProps, opt }: {opt: Business}">
         <q-item v-bind="itemProps">
           <q-item-section>
@@ -23,9 +24,9 @@
         </q-item>
       </template>
     </q-select>
-    <q-input label="Score [0-100]" v-model="score" type="number"/>
-    <q-input label="Date" v-model="reportDate" type="date"/>
-    <q-input label="Report URL" v-model="reportUrl" type="url"/>
+    <q-input label="Score [0-100]" v-model="score" type="number" :rules="scoreValidators"/>
+    <q-input label="Date" v-model="reportDate" type="date" :rules="reportDateValidators"/>
+    <q-input label="Report URL" v-model="reportUrl" type="url" :rules="reportUrlValidators"/>
     <q-btn label="Submit" type="submit" color="primary"/>
   </q-form>
 </template>
@@ -37,10 +38,23 @@ import {Business} from "../business/business-types.ts";
 
 const businessStore = useBusinessStore();
 
+const fieldRequiredValidator = (value) => value != null || 'Field required'
+
 const business = ref<Business | null>(null)
+const businessValidators = [fieldRequiredValidator]
 const score = ref<number | null>(null)
+const scoreValidators = [
+  fieldRequiredValidator,
+  (value: number) => value >= 0 || 'Must be greater or equal to 0',
+  (value: number) => value <= 100 || 'Must be lower or equal to 100',
+]
 const reportDate = ref<Date | null>(null)
+const reportDateValidators = [
+  fieldRequiredValidator,
+  (value: Date) => Date.now() >= Date.parse(value) || 'Can not be in future'
+]
 const reportUrl = ref<string | null>(null)
+const reportUrlValidators = [fieldRequiredValidator]
 
 onMounted(() => {
   businessStore.fetch()
