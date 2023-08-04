@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta, date
+from typing import List
 
 import pytest
 
 from app import app
 from src.business.business_service import BusinessService
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
+from src.persistence.schema.business import Business
+from src.persistence.schema.carbon_audit import CarbonAudit
 from src.persistence.schema.user import User
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
@@ -24,8 +27,11 @@ class TestCarbonAuditService(DatabaseTest):
     def current_user(self, setup_app_context) -> User:
         return UserService.add_user('test@gmail.com', [UserRole.ADMIN])
 
-    def test_add_carbon_audit(self, current_user: User):
-        business = BusinessService.add(name='Test Business', facebook_url=None, creator_id=current_user.id)
+    @pytest.fixture
+    def business(self, current_user) -> Business:
+        return BusinessService.add(name='Test Business', facebook_url=None, creator_id=current_user.id)
+
+    def test_add_carbon_audit(self, current_user: User, business: Business):
         carbon_audit = CarbonAuditService.add(
             business_id=business.id,
             score=self.AUDIT_SCORE,
@@ -39,8 +45,7 @@ class TestCarbonAuditService(DatabaseTest):
         assert carbon_audit.report_url == self.AUDIT_REPORT_URL
         assert datetime.utcnow() - business.created_at < timedelta(minutes=1)
 
-    def test_add_multiple_audits_for_a_single_business(self, current_user: User):
-        business = BusinessService.add(name='Test Business', facebook_url=None, creator_id=current_user.id)
+    def test_add_multiple_audits_for_a_single_business(self, current_user: User, business: Business):
         for score, report_date in [
             (70, date.today() - timedelta(days=60)),
             (60, date.today() - timedelta(days=30)),
@@ -59,4 +64,35 @@ class TestCarbonAuditService(DatabaseTest):
             assert carbon_audit.report_url == self.AUDIT_REPORT_URL
             assert datetime.utcnow() - business.created_at < timedelta(minutes=1)
 
+    class TestGetLatestCreatedByUser:
+        @pytest.fixture()
+        def carbon_audits(self, current_user, business) -> List[CarbonAudit]:
+            return [CarbonAuditService.add(
+                business_id=business.id,
+                score=score,
+                report_date=report_date,
+                report_url=TestCarbonAuditService.AUDIT_REPORT_URL + str(index),
+                creator_id=current_user.id
+            ) for index, (score, report_date) in enumerate([
+                (70, date.today() - timedelta(days=60)),
+                (60, date.today() - timedelta(days=30)),
+                (90, date.today())
+            ])]
 
+        def test_gets_only_for_current_user(self,
+                                            current_user: User,
+                                            business: Business,
+                                            carbon_audits: List[CarbonAudit]):
+            other_user = UserService.add_user('another-user@gmail.com', [UserRole.ADMIN])
+            CarbonAuditService.add(business_id=business.id,
+                                   score=100,
+                                   report_date=datetime.utcnow().date(),
+                                   report_url=TestCarbonAuditService.AUDIT_REPORT_URL + str(40),
+                                   creator_id=other_user.id)
+
+            actual_carbon_audits = CarbonAuditService.get_latest_created_by_user(current_user.id, 100)
+            assert actual_carbon_audits == list(reversed(carbon_audits))
+
+        def test_cuts_off_older_audits(self, current_user: User, carbon_audits: List[CarbonAudit]):
+            actual_carbon_audits = CarbonAuditService.get_latest_created_by_user(current_user.id, 2)
+            assert actual_carbon_audits == [carbon_audits[2], carbon_audits[1]]

@@ -1,4 +1,7 @@
 from datetime import datetime, date
+from typing import List
+
+from sqlalchemy import select
 
 from src.persistence.schema import db
 from src.persistence.schema.carbon_audit import CarbonAudit
@@ -18,3 +21,11 @@ class CarbonAuditService:
         db.session.add(carbon_audit)
         db.session.commit()
         return carbon_audit
+
+    @staticmethod
+    def get_latest_created_by_user(creator_id: int, items_count: int) -> List[CarbonAudit]:
+        query = select(CarbonAudit) \
+            .where(CarbonAudit.created_by == creator_id) \
+            .order_by(CarbonAudit.created_at.desc()) \
+            .limit(items_count)
+        return db.session.execute(query).scalars().all()
