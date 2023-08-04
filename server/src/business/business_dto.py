@@ -54,7 +54,7 @@ class BusinessOperationSuccessResponse(BaseModel):
     business: BusinessDTO
 
     def __hash__(self) -> int:
-        return self.user.__hash__()
+        return self.business.__hash__()
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BusinessOperationSuccessResponse):
