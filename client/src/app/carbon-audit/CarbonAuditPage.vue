@@ -1,16 +1,11 @@
 <template>
   <CarbonAuditAddForm/>
-  {{ store.all.items }}
+  <CarbonAuditsHistory/>
 </template>
 
 <script setup lang="ts">
 import CarbonAuditAddForm from "./CarbonAuditAddForm.vue";
-import {useCarbonAuditStore} from "./carbon-audit-store.ts";
-import {onMounted} from "vue";
-
-const store = useCarbonAuditStore();
-
-onMounted(() => store.fetch());
+import CarbonAuditsHistory from "./CarbonAuditsHistory.vue";
 </script>
 
 <style scoped>
