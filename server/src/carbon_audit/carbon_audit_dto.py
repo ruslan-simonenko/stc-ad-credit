@@ -54,3 +54,10 @@ class CarbonAuditsGetResponse(BaseModel):
         if not isinstance(other, CarbonAuditsGetResponse):
             return False
         return self.audits == other.audits
+
+
+class CarbonAuditAddForm(BaseModel):
+    business_id: int
+    score: int
+    report_date: date
+    report_url: str
