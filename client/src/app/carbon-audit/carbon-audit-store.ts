@@ -16,7 +16,7 @@ export const useCarbonAuditStore = defineStore("carbonAudit", () => {
     const fetch = async () => {
         all.fetching = true
         try {
-            const response = await apiClient.get('/carbon_audits/user', {
+            const response = await apiClient.get('/carbon_audits/', {
                 headers: {'Content-Type': 'application/json'}
             })
             all.items = response.data.audits.sort((a: CarbonAudit, b: CarbonAudit) => b.id - a.id)

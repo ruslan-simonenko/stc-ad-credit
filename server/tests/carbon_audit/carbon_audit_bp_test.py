@@ -59,7 +59,7 @@ class TestCarbonAuditEndpoint(DatabaseTest):
                 )
                 assert actual_data == expected_data
 
-    class TestGetForUser:
+    class TestGetAll:
         def test_get_audits(self,
                             client: FlaskClient,
                             admin_id: int,
@@ -78,7 +78,7 @@ class TestCarbonAuditEndpoint(DatabaseTest):
                 (66, datetime.utcnow().date()),
             ]]
 
-            response = client.get('/carbon_audits/user', headers=access_headers)
+            response = client.get('/carbon_audits/', headers=access_headers)
 
             assert response.status_code == 200
             with patched_dto_for_comparison(CarbonAuditDTO):

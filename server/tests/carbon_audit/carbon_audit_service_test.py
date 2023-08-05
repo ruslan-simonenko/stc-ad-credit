@@ -79,20 +79,6 @@ class TestCarbonAuditService(DatabaseTest):
                 (90, date.today())
             ])]
 
-        def test_gets_only_for_current_user(self,
-                                            current_user: User,
-                                            business: Business,
-                                            carbon_audits: List[CarbonAudit]):
-            other_user = UserService.add_user('another-user@gmail.com', [UserRole.ADMIN])
-            CarbonAuditService.add(business_id=business.id,
-                                   score=100,
-                                   report_date=datetime.utcnow().date(),
-                                   report_url=TestCarbonAuditService.AUDIT_REPORT_URL + str(40),
-                                   creator_id=other_user.id)
-
-            actual_carbon_audits = CarbonAuditService.get_latest_created_by_user(current_user.id, 100)
+        def test_get_all(self, carbon_audits: List[CarbonAudit]):
+            actual_carbon_audits = CarbonAuditService.get_all()
             assert actual_carbon_audits == list(reversed(carbon_audits))
-
-        def test_cuts_off_older_audits(self, current_user: User, carbon_audits: List[CarbonAudit]):
-            actual_carbon_audits = CarbonAuditService.get_latest_created_by_user(current_user.id, 2)
-            assert actual_carbon_audits == [carbon_audits[2], carbon_audits[1]]

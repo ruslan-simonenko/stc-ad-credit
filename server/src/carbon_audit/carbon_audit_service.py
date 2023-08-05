@@ -23,9 +23,6 @@ class CarbonAuditService:
         return carbon_audit
 
     @staticmethod
-    def get_latest_created_by_user(creator_id: int, items_count: int) -> List[CarbonAudit]:
-        query = select(CarbonAudit) \
-            .where(CarbonAudit.created_by == creator_id) \
-            .order_by(CarbonAudit.created_at.desc()) \
-            .limit(items_count)
+    def get_all() -> List[CarbonAudit]:
+        query = select(CarbonAudit).order_by(CarbonAudit.created_at.desc())
         return db.session.execute(query).scalars().all()
