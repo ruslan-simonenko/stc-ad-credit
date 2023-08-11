@@ -4,6 +4,7 @@
         type="email"
         v-model="email"
         label="Email"
+        :rules="emailValidators"
     />
     <q-option-group
         v-model="roles"
@@ -19,12 +20,15 @@ import {ref} from "vue";
 import {useUserStore} from "../user-store.ts";
 import {UserRole} from "../user.ts";
 import {QForm} from "quasar";
+import {fieldRequiredValidator} from "../../utils/form-validators.ts";
 
 const userStore = useUserStore();
 
 const email = ref<string>('')
 const roles = ref<Array<UserRole>>([])
 const roleOptions = Object.values(UserRole).map(role => ({label: role, value: role}))
+
+const emailValidators = [fieldRequiredValidator];
 
 const onSubmit = async () => {
   await userStore.add({email: email.value, roles: roles.value})

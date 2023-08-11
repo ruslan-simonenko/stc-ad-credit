@@ -1,0 +1,1 @@
+export const fieldRequiredValidator = (value: any) => (value != null && value != '') || 'Field required'

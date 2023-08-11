@@ -36,11 +36,10 @@ import {useBusinessStore} from "../business/business-store.ts";
 import {onMounted, ref} from "vue";
 import {Business} from "../business/business-types.ts";
 import {useCarbonAuditStore} from "./carbon-audit-store.ts";
+import {fieldRequiredValidator} from "../../utils/form-validators.ts";
 
 const businessStore = useBusinessStore();
 const carbonAuditStore = useCarbonAuditStore();
-
-const fieldRequiredValidator = (value) => value != null || 'Field required'
 
 const business = ref<Business | null>(null)
 const businessValidators = [fieldRequiredValidator]
