@@ -36,7 +36,13 @@ const router = useRouter();
 const columns = [
   {name: 'name', label: 'Name', align: 'left', field: (user: User) => user.name},
   {name: 'email', label: 'E-mail', align: 'left', field: (user: User) => user.email},
-  {name: 'roles',label: 'Roles', align: 'left', field: (user: User) => user.roles},
+  {
+    name: 'roles',
+    label: 'Roles',
+    align: 'left',
+    field: (user: User) => user.roles,
+    format: (roles: Array<UserRole>) => roles.join(', ')
+  },
   {name: 'actions', label: 'Actions', align: 'left'},
 ]
 
