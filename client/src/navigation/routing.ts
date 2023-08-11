@@ -7,6 +7,7 @@ import {UserRole} from "../user/user.ts";
 import DisabledUserPage from "../user/DisabledUserPage.vue";
 import BusinessesPage from "../app/business/BusinessesPage.vue";
 import {useRoutingStore} from "./routing-store.ts";
+import AdRecordsPage from "../app/ad-records/AdRecordsPage.vue";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();
@@ -28,6 +29,8 @@ const redirectFromHome = () => {
             return {name: 'Admin'}
         } else if (authStore.user!.roles.includes(UserRole.CARBON_AUDITOR)) {
             return {name: 'CarbonAudit'}
+        } else if (authStore.user!.roles.includes(UserRole.AD_MANAGER)) {
+            return {name: 'AdRecords'}
         } else if (authStore.user!.roles.length === 0) {
             return {name: 'DisabledUser'}
         }
@@ -82,6 +85,18 @@ const routes: RouteRecordRaw[] = [
             navigation: {
                 icon: 'storefront',
                 label: 'Businesses'
+            }
+        }
+    },
+    {
+        name: 'AdRecords', path: '/ad-records', component: AdRecordsPage, meta: {
+            auth: {
+                required: true,
+                authorizedRoles: [UserRole.ADMIN, UserRole.AD_MANAGER],
+            },
+            navigation: {
+                icon: 'list_alt',
+                label: 'Ad Records'
             }
         }
     },
