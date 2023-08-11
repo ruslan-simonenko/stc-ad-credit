@@ -1,6 +1,7 @@
 export enum UserRole {
     ADMIN = 'Admin',
-    CARBON_AUDITOR = 'Carbon Auditor'
+    CARBON_AUDITOR = 'Carbon Auditor',
+    AD_MANAGER = 'Ad Manager'
 }
 
 export interface User {

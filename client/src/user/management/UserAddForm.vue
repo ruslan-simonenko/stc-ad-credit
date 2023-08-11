@@ -24,7 +24,7 @@ const userStore = useUserStore();
 
 const email = ref<string>('')
 const roles = ref<Array<UserRole>>([])
-const roleOptions = [{label: 'Admin', value: UserRole.ADMIN}, {label: 'Carbon Auditor', value: UserRole.CARBON_AUDITOR}]
+const roleOptions = Object.values(UserRole).map(role => ({label: role, value: role}))
 
 const onSubmit = async () => {
   await userStore.add({email: email.value, roles: roles.value})
