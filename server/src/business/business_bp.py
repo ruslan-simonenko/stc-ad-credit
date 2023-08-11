@@ -11,7 +11,7 @@ business_bp = Blueprint('business', __name__, url_prefix='/businesses')
 
 
 @business_bp.route('/', methods=['get'])
-@auth_role(UserRole.ADMIN, UserRole.CARBON_AUDITOR)
+@auth_role(UserRole.ADMIN, UserRole.CARBON_AUDITOR, UserRole.AD_MANAGER)
 def get_all():
     businesses = [BusinessDTO.from_entity(business) for business in BusinessService.get_all()]
     return jsonify(BusinessesGetAllResponse(businesses=businesses))
