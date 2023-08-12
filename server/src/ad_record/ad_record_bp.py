@@ -6,7 +6,7 @@ from src.auth.auth_bp import auth_role
 from src.auth.auth_service import AuthService
 from src.user.user_types import UserRole
 
-ad_record_bp = Blueprint('ad_record', __name__, url_prefix='/ad_records')
+ad_record_bp = Blueprint('ad_record', __name__, url_prefix='/ad-records')
 
 
 @ad_record_bp.route('/', methods=['get'])

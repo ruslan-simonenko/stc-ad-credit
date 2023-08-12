@@ -45,7 +45,7 @@ class TestAdRecordEndpoint(DatabaseTest):
                 ad_post_url=AD_POST_URL,
             )
 
-            response = client.post('/ad_records/', json=form, headers=access_headers)
+            response = client.post('/ad-records/', json=form, headers=access_headers)
 
             assert response.status_code == 200
             with patched_dto_for_comparison(AdRecordDTO):
@@ -71,7 +71,7 @@ class TestAdRecordEndpoint(DatabaseTest):
                 creator_id=user_ad_manager.id,
             ) for ad_post_url_suffix in ['a', 'b', 'c', 'd', 'e']]
 
-            response = client.get('/ad_records/', headers=access_headers)
+            response = client.get('/ad-records/', headers=access_headers)
 
             assert response.status_code == 200
             with patched_dto_for_comparison(AdRecordDTO):
