@@ -48,7 +48,7 @@ class CarbonAuditsGetResponse(BaseModel):
     audits: FrozenSet[CarbonAuditDTO]
 
     def __hash__(self) -> int:
-        return self.users.__hash__()
+        return self.audits.__hash__()
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, CarbonAuditsGetResponse):
