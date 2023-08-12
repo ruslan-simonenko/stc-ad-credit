@@ -5,6 +5,7 @@ from flask import Flask
 from flask.json.provider import DefaultJSONProvider
 from pydantic import BaseModel
 
+from src.ad_record.ad_record_bp import ad_record_bp
 from src.auth.auth_bp import auth_bp
 from src.business.business_bp import business_bp
 from src.carbon_audit.carbon_audit_bp import carbon_audit_bp
@@ -44,6 +45,7 @@ def configure_app(app_: Flask):
     app_.register_blueprint(user_bp)
     app_.register_blueprint(business_bp)
     app_.register_blueprint(carbon_audit_bp)
+    app_.register_blueprint(ad_record_bp)
     app_.json_provider_class = PydanticJSONProvider
     app_.json = PydanticJSONProvider(app_)
 
