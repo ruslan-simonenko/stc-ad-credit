@@ -42,15 +42,7 @@ class TestUserEndpoint:
 
     class TestGetManageableUsers(DatabaseTest):
 
-        def test_no_users(self, client: FlaskClient, access_headers: Dict[str, str]):
-            response = client.get('/users/manageable', headers=access_headers)
-
-            assert response.status_code == 200
-            assert response.json == dict(
-                users=list()
-            )
-
-        def test_returns_only_carbon_auditors(self, client: FlaskClient, access_headers: Dict[str, str], monkeypatch):
+        def test_returns_all_users(self, client: FlaskClient, access_headers: Dict[str, str], monkeypatch):
             with app.app_context():
                 UserService.add_user(USER_A_EMAIL, [UserRole.CARBON_AUDITOR])
                 UserService.add_user(USER_B_EMAIL, [UserRole.CARBON_AUDITOR])
@@ -63,7 +55,9 @@ class TestUserEndpoint:
                 actual_response = UsersGetManageableResponse.model_validate(response.json)
                 expected_response = UsersGetManageableResponse(
                     users=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
-                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR])])
+                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                           UserInfoDTO(id=0, email=ANOTHER_ADMIN_EMAIL, roles=[UserRole.ADMIN]),
+                           UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
                 assert actual_response == expected_response
 
         def test_returns_users_without_roles(self, client: FlaskClient, access_headers: Dict[str, str]):
@@ -78,7 +72,8 @@ class TestUserEndpoint:
                 actual_response = UsersGetManageableResponse.model_validate(response.json)
                 expected_response = UsersGetManageableResponse(
                     users=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[]),
-                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR])])
+                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                           UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
                 assert actual_response == expected_response
 
     class TestAddUser(DatabaseTest):
@@ -127,7 +122,8 @@ class TestUserEndpoint:
                 actual_response = UsersGetManageableResponse.model_validate(response.json)
                 expected_response = UsersGetManageableResponse(
                     users=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
-                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR])])
+                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                           UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
                 assert actual_response == expected_response
                 actual_users = list(actual_response.users)
                 assert actual_users[0].id != actual_users[1].id
