@@ -1,11 +1,13 @@
 <template>
   <q-page padding>
-    <q-form ref='form' @submit="onSubmit" @reset="onReset">
-      <BusinessSelector v-model="business"/>
-      <q-input label="Ad Post URL" v-model="adPostURL" type="url" :rules="adPostURLValidators"/>
-      <q-btn label="Submit" type="submit" color="primary"/>
-    </q-form>
-    {{adRecordsStore.all.items}}
+    <div class="column q-gutter-y-md">
+      <q-form ref='form' @submit="onSubmit" @reset="onReset">
+        <BusinessSelector v-model="business"/>
+        <q-input label="Ad Post URL" v-model="adPostURL" type="url" :rules="adPostURLValidators"/>
+        <q-btn label="Submit" type="submit" color="primary"/>
+      </q-form>
+      <AdRecordsTable/>
+    </div>
   </q-page>
 </template>
 
@@ -16,6 +18,7 @@ import {onMounted, ref} from "vue";
 import {fieldRequiredValidator} from "../../utils/form-validators.ts";
 import {QForm} from "quasar";
 import {useAdRecordsStore} from "./ad-records-store.ts";
+import AdRecordsTable from "./AdRecordsTable.vue";
 
 const form = ref<QForm>()
 const adRecordsStore = useAdRecordsStore();

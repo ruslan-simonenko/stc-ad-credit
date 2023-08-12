@@ -2,9 +2,12 @@ import {defineStore} from "pinia";
 import {reactive} from "vue";
 import {User, UserAddFormDTO, UserRole, Users} from "./user.ts";
 import {useApiClientAxios} from "../api/api-client-axios.ts";
+import {useAuthStore} from "../auth/auth-store.ts";
 
 
 export const useUserStore = defineStore("user", () => {
+    const authStore = useAuthStore();
+
     const apiClient = useApiClientAxios()
     const all = reactive<Users>({
         items: [],
@@ -13,6 +16,9 @@ export const useUserStore = defineStore("user", () => {
     })
 
     const fetch = async () => {
+        if (!authStore.user.roles.includes(UserRole.ADMIN)) {
+            return;
+        }
         all.fetching = true
         return apiClient.get('/users/manageable/', {
             headers: {'Content-Type': 'application/json'}
