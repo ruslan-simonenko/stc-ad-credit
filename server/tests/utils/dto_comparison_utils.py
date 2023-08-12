@@ -10,6 +10,12 @@ TPydanticModelSubtype = TypeVar('TPydanticModelSubtype', bound=Union[BaseModel, 
 
 @contextmanager
 def patched_dto_for_comparison(model_type: Type[TPydanticModelSubtype]):
+    """
+    See DTODataComparable for usage info
+
+    :param model_type: Object to patch within the created context. Only collections formed within this
+    context will be data-comparable, as before model is patched different hash method is used.
+    """
     hash_backup = model_type.__hash__
     eq_backup = model_type.__eq__
 
