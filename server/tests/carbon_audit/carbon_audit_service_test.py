@@ -43,7 +43,7 @@ class TestCarbonAuditService(DatabaseTest):
         assert carbon_audit.score == self.AUDIT_SCORE
         assert carbon_audit.report_date == date.today()
         assert carbon_audit.report_url == self.AUDIT_REPORT_URL
-        assert datetime.utcnow() - business.created_at < timedelta(minutes=1)
+        assert datetime.utcnow() - carbon_audit.created_at < timedelta(minutes=1)
 
     def test_add_multiple_audits_for_a_single_business(self, current_user: User, business: Business):
         for score, report_date in [
