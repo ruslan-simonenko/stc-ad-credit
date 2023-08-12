@@ -16,7 +16,7 @@ export const useUserStore = defineStore("user", () => {
     })
 
     const fetch = async () => {
-        if (!authStore.user.roles.includes(UserRole.ADMIN)) {
+        if (!authStore.hasRole(UserRole.ADMIN)) {
             return;
         }
         all.fetching = true

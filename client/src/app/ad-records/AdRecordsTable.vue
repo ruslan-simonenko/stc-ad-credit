@@ -58,7 +58,7 @@ const columns = [
 ];
 const visibleColumns = [
   'business', 'ad_post_url',
-  ...(authStore.user.roles.includes(UserRole.ADMIN) ? ['creator'] : []),
+  ...(authStore.hasRole(UserRole.ADMIN) ? ['creator'] : []),
   'timestamp'
 ]
 
