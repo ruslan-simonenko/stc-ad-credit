@@ -64,7 +64,7 @@ class TestCarbonAuditService(DatabaseTest):
             assert carbon_audit.report_url == self.AUDIT_REPORT_URL
             assert datetime.utcnow() - business.created_at < timedelta(minutes=1)
 
-    class TestGetLatestCreatedByUser:
+    class TestGet:
         @pytest.fixture()
         def carbon_audits(self, current_user, business) -> List[CarbonAudit]:
             return [CarbonAuditService.add(
@@ -82,3 +82,12 @@ class TestCarbonAuditService(DatabaseTest):
         def test_get_all(self, carbon_audits: List[CarbonAudit]):
             actual_carbon_audits = CarbonAuditService.get_all()
             assert actual_carbon_audits == list(reversed(carbon_audits))
+
+        def test_get_latest_for_business__returns_latest(self, carbon_audits: List[CarbonAudit], business: Business):
+            actual_carbon_audit = CarbonAuditService.get_latest(business.id)
+            assert actual_carbon_audit == carbon_audits[-1]
+
+        def test_get_latest_for_business__none_available(self, current_user: User):
+            unaudited_business = BusinessService.add('Greens on the Hills', None, current_user.id)
+            actual_carbon_audit = CarbonAuditService.get_latest(unaudited_business.id)
+            assert actual_carbon_audit is None

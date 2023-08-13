@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import select
 
@@ -26,3 +26,11 @@ class CarbonAuditService:
     def get_all() -> List[CarbonAudit]:
         query = select(CarbonAudit).order_by(CarbonAudit.created_at.desc())
         return db.session.execute(query).scalars().all()
+
+    @staticmethod
+    def get_latest(business_id: int) -> Optional[CarbonAudit]:
+        query = select(CarbonAudit) \
+            .where(CarbonAudit.business_id == business_id) \
+            .order_by(CarbonAudit.created_at.desc())\
+            .limit(1)
+        return db.session.execute(query).scalars().first()
