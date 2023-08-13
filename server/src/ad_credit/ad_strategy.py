@@ -1,3 +1,4 @@
+from datetime import timedelta
 from enum import Enum
 from typing import Dict
 
@@ -15,8 +16,10 @@ CARBON_RATING_MIN_SCORE: Dict[CarbonAuditRating, int] = {
 }
 
 AD_ALLOWANCE: Dict[CarbonAuditRating, int] = {
-    CarbonAuditRating.UNKNOWN: 5,
-    CarbonAuditRating.LOW: 10,
-    CarbonAuditRating.MEDIUM: 25,
-    CarbonAuditRating.HIGH: 50,
+    CarbonAuditRating.UNKNOWN: 1,
+    CarbonAuditRating.LOW: 2,
+    CarbonAuditRating.MEDIUM: 5,
+    CarbonAuditRating.HIGH: 10,
 }
+
+AD_RATE_LIMIT_WINDOW_DURATION = timedelta(days=72)

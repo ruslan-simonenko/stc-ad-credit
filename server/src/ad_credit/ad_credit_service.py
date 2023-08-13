@@ -1,5 +1,8 @@
-from src.ad_credit.ad_strategy import AD_ALLOWANCE, CarbonAuditRating, CARBON_RATING_MIN_SCORE
+from src.ad_credit.ad_strategy import AD_ALLOWANCE, CarbonAuditRating, CARBON_RATING_MIN_SCORE, \
+    AD_RATE_LIMIT_WINDOW_DURATION
+from src.ad_record.ad_record_service import AdRecordService
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
+from src.utils.clock import Clock
 
 
 class AdCreditService:
@@ -8,6 +11,16 @@ class AdCreditService:
     def get_allowance(business_id: int) -> int:
         rating = AdCreditService._get_rating(business_id)
         return AD_ALLOWANCE[rating]
+
+    @staticmethod
+    def get_used_allowance(business_id: int) -> int:
+        return AdRecordService.get_count_for_business_since_date(
+            business_id,
+            since=Clock.now() - AD_RATE_LIMIT_WINDOW_DURATION)
+
+    @staticmethod
+    def get_remaining_allowance(business_id: int) -> int:
+        return AdCreditService.get_allowance(business_id) - AdCreditService.get_used_allowance(business_id)
 
     @staticmethod
     def _get_rating(business_id: int) -> CarbonAuditRating:
