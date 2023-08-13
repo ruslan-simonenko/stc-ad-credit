@@ -8,6 +8,7 @@ import DisabledUserPage from "../user/DisabledUserPage.vue";
 import BusinessesPage from "../app/business/BusinessesPage.vue";
 import {useRoutingStore} from "./routing-store.ts";
 import AdRecordsPage from "../app/ad-records/AdRecordsPage.vue";
+import AdStrategyPage from "../app/ad-strategy/AdStrategyPage.vue";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();
@@ -97,6 +98,18 @@ const routes: RouteRecordRaw[] = [
             navigation: {
                 icon: 'list_alt',
                 label: 'Ad Records'
+            }
+        }
+    },
+    {
+        name: 'AdStrategy', path: '/ad-strategy', component: AdStrategyPage, meta: {
+            auth: {
+                required: true,
+                authorizedRoles: [UserRole.ADMIN, UserRole.AD_MANAGER],
+            },
+            navigation: {
+                icon: 'tune',
+                label: 'Ad Strategy'
             }
         }
     },
