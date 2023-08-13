@@ -55,3 +55,15 @@ class AdRecordsDTO(BaseModel):
 class AdRecordAddFormDTO(BaseModel):
     business_id: int
     ad_post_url: str
+
+
+class ErrorResponse(BaseModel):
+    message: str
+
+    def __hash__(self) -> int:
+        return self.message.__hash__()
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, ErrorResponse):
+            return False
+        return self.message == other.message
