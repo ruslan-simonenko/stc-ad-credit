@@ -1,44 +1,80 @@
 <template>
   <q-page padding>
-    A business can display [Ad Allowance] number of ads in the last [{{ windowSizeInDays }}] days
-    <q-markup-table flat bordered>
-      <thead>
-      <tr>
-        <th class="text-left">Rating</th>
-        <th class="text-right">Carbon Audit Score Required</th>
-        <th class="text-right">Ad Allowance</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="(_, row) in 4" :key="row">
-        <td class="text-left">
-          <q-icon :name="items[row].icon" :color="items[row].color" size="4em"/>
-        </td>
-        <td class="text-right">
-          {{ items[row].minScore }}
-        </td>
-        <td class="text-right">
-          {{ items[row].adAllowance }}
-        </td>
-      </tr>
-      </tbody>
-    </q-markup-table>
+    <div class="column">
+      <div v-if="adStrategyStore.data.fetching">Loading...</div>
+      <template v-else>
+        <div>A business can display [Ad Allowance] number of ads in the last [{{ windowSizeInDays }}] days</div>
+        <q-markup-table flat bordered>
+          <thead>
+          <tr>
+            <th class="text-left">Rating</th>
+            <th class="text-right">Carbon Audit Score Required</th>
+            <th class="text-right">Ad Allowance</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="row in rows">
+            <td class="text-left">
+              <q-icon :name="row.icon" :color="row.color" size="4em"/>
+            </td>
+            <td class="text-right">
+              {{ row.minScore }}
+            </td>
+            <td class="text-right">
+              {{ row.adAllowance }}
+            </td>
+          </tr>
+          </tbody>
+        </q-markup-table>
+      </template>
+    </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from "vue";
+import {computed, onMounted} from "vue";
+import {useAdStrategyStore} from "./ad-strategy-store.ts";
+
+const adStrategyStore = useAdStrategyStore();
 
 type RatingData = { icon: string, color: string, minScore: number | null, adAllowance: number }
 
-const items = reactive<Array<RatingData>>([
-  {rating: 'high', icon: 'sentiment_satisfied', color: 'green', minScore: 0, adAllowance: 0},
-  {rating: 'medium', icon: 'sentiment_neutral', color: 'amber', minScore: 0, adAllowance: 0},
-  {rating: 'low', icon: 'sentiment_dissatisfied', color: 'red', minScore: 0, adAllowance: 0},
-  {rating: 'unknown', icon: 'question_mark', color: 'grey', minScore: null, adAllowance: 0},
-])
-const windowSizeInDays = ref<number>(0)
+const rows = computed<Array<RatingData>>(() => {
+  const strategy = adStrategyStore.data.strategy;
+  return strategy ? [
+    {
+      rating: 'high',
+      icon: 'sentiment_satisfied',
+      color: 'green',
+      minScore: strategy.rating_high_min_score,
+      adAllowance: strategy.ads_allowance_high_rating
+    },
+    {
+      rating: 'medium',
+      icon: 'sentiment_neutral',
+      color: 'amber',
+      minScore: strategy.rating_medium_min_score,
+      adAllowance: strategy.ads_allowance_medium_rating
+    },
+    {
+      rating: 'low',
+      icon: 'sentiment_dissatisfied',
+      color: 'red',
+      minScore: 0,
+      adAllowance: strategy.ads_allowance_low_rating
+    },
+    {
+      rating: 'unknown',
+      icon: 'question_mark',
+      color: 'grey',
+      minScore: null,
+      adAllowance: strategy.ads_allowance_unknown_rating
+    },
+  ] : []
+})
+const windowSizeInDays = computed<number>(() => adStrategyStore.data.strategy?.ads_allowance_window_days ?? 0)
 
+onMounted(() => adStrategyStore.fetch());
 </script>
 
 <style scoped>
