@@ -24,7 +24,7 @@ class AdAllowanceService:
 
     @staticmethod
     def _get_rating(business_id: int) -> CarbonAuditRating:
-        latest_audit = CarbonAuditService.get_latest(business_id)
+        latest_audit = CarbonAuditService.get_latest_for_business(business_id)
         if latest_audit is None:
             return CarbonAuditRating.UNKNOWN
         for rating in [CarbonAuditRating.HIGH, CarbonAuditRating.MEDIUM]:

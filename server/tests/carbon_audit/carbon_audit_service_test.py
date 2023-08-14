@@ -84,10 +84,10 @@ class TestCarbonAuditService(DatabaseTest):
             assert actual_carbon_audits == list(reversed(carbon_audits))
 
         def test_get_latest_for_business__returns_latest(self, carbon_audits: List[CarbonAudit], business: Business):
-            actual_carbon_audit = CarbonAuditService.get_latest(business.id)
+            actual_carbon_audit = CarbonAuditService.get_latest_for_business(business.id)
             assert actual_carbon_audit == carbon_audits[-1]
 
         def test_get_latest_for_business__none_available(self, current_user: User):
             unaudited_business = BusinessService.add('Greens on the Hills', None, current_user.id)
-            actual_carbon_audit = CarbonAuditService.get_latest(unaudited_business.id)
+            actual_carbon_audit = CarbonAuditService.get_latest_for_business(unaudited_business.id)
             assert actual_carbon_audit is None

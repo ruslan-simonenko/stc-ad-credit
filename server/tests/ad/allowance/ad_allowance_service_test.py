@@ -38,5 +38,5 @@ class TestAdAllowanceService:
             audit.score = latest_audit_score
             return audit
 
-        monkeypatch.setattr(CarbonAuditService, 'get_latest', mock_get_latest_audit)
+        monkeypatch.setattr(CarbonAuditService, 'get_latest_for_business', mock_get_latest_audit)
         assert AdAllowanceService.get_allowance(BUSINESS_ID) == AD_ALLOWANCE[expected_rating]

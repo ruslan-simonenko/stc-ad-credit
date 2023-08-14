@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from sqlalchemy import select
 
@@ -28,7 +28,7 @@ class CarbonAuditService:
         return db.session.execute(query).scalars().all()
 
     @staticmethod
-    def get_latest(business_id: int) -> Optional[CarbonAudit]:
+    def get_latest_for_business(business_id: int) -> Optional[CarbonAudit]:
         query = select(CarbonAudit) \
             .where(CarbonAudit.business_id == business_id) \
             .order_by(CarbonAudit.created_at.desc())\
