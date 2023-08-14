@@ -2,10 +2,13 @@ import {defineStore} from "pinia";
 import {reactive} from "vue";
 import {useApiClientAxios} from "../../../api/api-client-axios.ts";
 import {AdRecord, AdRecordAddFormDTO, AdRecords, AdRecordSchema} from "./ad-records-types.ts";
+import {useAdAllowanceStore} from "../allowance/ad-allowance-store.ts";
 
 
 export const useAdRecordsStore = defineStore("adRecords", () => {
     const apiClient = useApiClientAxios();
+
+    const adAllowanceStore = useAdAllowanceStore();
 
     const all = reactive<AdRecords>({
         items: [],
@@ -36,6 +39,9 @@ export const useAdRecordsStore = defineStore("adRecords", () => {
         } catch (e) {
             await fetch()
             throw e
+        } finally {
+            // noinspection ES6MissingAwait
+            adAllowanceStore.fetch()
         }
     }
 
