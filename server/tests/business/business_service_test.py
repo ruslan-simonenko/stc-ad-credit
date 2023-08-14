@@ -2,22 +2,17 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from app import app
 from src.business.business_service import BusinessService
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
+from tests.app_fixtures import AutoAppContextFixture
 from tests.persistence.db_test import DatabaseTest
 
 
-class TestBusinessService(DatabaseTest):
+class TestBusinessService(DatabaseTest, AutoAppContextFixture):
 
     @pytest.fixture(autouse=True)
-    def setup_app_context(self):
-        with app.app_context():
-            yield
-
-    @pytest.fixture(autouse=True)
-    def current_user(self, setup_app_context):
+    def current_user(self, auto_app_context):
         return UserService.add_user('test@gmail.com', [UserRole.ADMIN])
 
     @pytest.mark.parametrize('name, facebook_url', [

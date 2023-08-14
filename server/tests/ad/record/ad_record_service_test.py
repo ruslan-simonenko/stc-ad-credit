@@ -1,11 +1,9 @@
-from collections import namedtuple
 from datetime import datetime, timedelta
 from typing import List, NamedTuple
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from app import app
 from src.ad.record.ad_record_service import AdRecordService
 from src.business.business_service import BusinessService
 from src.persistence.schema.ad_record import AdRecord
@@ -14,25 +12,21 @@ from src.persistence.schema.user import User
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
 from src.utils.clock import Clock
+from tests.app_fixtures import AutoAppContextFixture
 from tests.persistence.db_test import DatabaseTest
 
 AD_POST_URL = 'https://facebook.com/groups/salisbury-noticeboard/posts/1643638762794779/'
 
 
-class TestAdRecordService(DatabaseTest):
+class TestAdRecordService(DatabaseTest, AutoAppContextFixture):
     AD_POST_URL = 'https://facebook.com/groups/salisbury-noticeboard/posts/1643638762794779/'
 
     @pytest.fixture(autouse=True)
-    def setup_app_context(self):
-        with app.app_context():
-            yield
-
-    @pytest.fixture(autouse=True)
-    def user_admin(self, setup_app_context) -> User:
+    def user_admin(self, auto_app_context) -> User:
         return UserService.add_user('admin@stc.com', [UserRole.ADMIN])
 
     @pytest.fixture(autouse=True)
-    def user_ad_manager(self, setup_app_context) -> User:
+    def user_ad_manager(self, auto_app_context) -> User:
         return UserService.add_user('ad-manager@stc.com', [UserRole.AD_MANAGER])
 
     @pytest.fixture

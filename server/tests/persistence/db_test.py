@@ -7,6 +7,7 @@ from alembic.config import Config
 from app import app
 from src.persistence.schema import db
 from src.persistence.schema.user import User
+from tests.app_fixtures import AutoAppContextFixture
 
 
 @contextmanager
@@ -41,19 +42,17 @@ class DatabaseTest:
                 command.downgrade(DatabaseTest.get_alembic_config(), 'base')
 
 
-class TestDatabaseIsolationBetweenTests(DatabaseTest):
+class TestDatabaseIsolationBetweenTests(DatabaseTest, AutoAppContextFixture):
     """
     Testing that tests are properly isolated and don't pollute test database. If they do one of the tests will fail.
     """
 
     def test_db_connection_isolation1(self):
-        with app.app_context():
-            user = User(email='test-user@gmail.com')
-            db.session.add(user)
-            db.session.commit()
+        user = User(email='test-user@gmail.com')
+        db.session.add(user)
+        db.session.commit()
 
     def test_db_connection_isolation2(self):
-        with app.app_context():
-            user = User(email='test-user@gmail.com')
-            db.session.add(user)
-            db.session.commit()
+        user = User(email='test-user@gmail.com')
+        db.session.add(user)
+        db.session.commit()

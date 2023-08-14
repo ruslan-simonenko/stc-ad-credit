@@ -2,21 +2,15 @@ from typing import Iterable
 
 import pytest
 
-from app import app
-from src.persistence.schema.role import Role
 from src.persistence.schema.user import User
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
+from tests.app_fixtures import AutoAppContextFixture
 from tests.persistence.db_test import DatabaseTest
 
 
-class TestUserService(DatabaseTest):
+class TestUserService(DatabaseTest, AutoAppContextFixture):
     TEST_USER_EMAIL = 'test-user@gmail.com'
-
-    @pytest.fixture(autouse=True)
-    def setup_app_context(self):
-        with app.app_context():
-            yield
 
     def test_add_admin(self):
         UserService.add_user(self.TEST_USER_EMAIL, [UserRole.ADMIN])

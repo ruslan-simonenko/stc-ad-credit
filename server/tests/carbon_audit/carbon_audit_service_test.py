@@ -3,7 +3,6 @@ from typing import List
 
 import pytest
 
-from app import app
 from src.business.business_service import BusinessService
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
 from src.persistence.schema.business import Business
@@ -11,20 +10,16 @@ from src.persistence.schema.carbon_audit import CarbonAudit
 from src.persistence.schema.user import User
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
+from tests.app_fixtures import AutoAppContextFixture
 from tests.persistence.db_test import DatabaseTest
 
 
-class TestCarbonAuditService(DatabaseTest):
+class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture):
     AUDIT_REPORT_URL = 'https://reports.seethroughcarbon.org/report-19365'
     AUDIT_SCORE = 85
 
     @pytest.fixture(autouse=True)
-    def setup_app_context(self):
-        with app.app_context():
-            yield
-
-    @pytest.fixture(autouse=True)
-    def current_user(self, setup_app_context) -> User:
+    def current_user(self, auto_app_context) -> User:
         return UserService.add_user('test@gmail.com', [UserRole.ADMIN])
 
     @pytest.fixture
