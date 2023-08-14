@@ -1,5 +1,6 @@
+from collections import namedtuple
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, NamedTuple
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
@@ -14,6 +15,8 @@ from src.user.user_service import UserService
 from src.user.user_types import UserRole
 from src.utils.clock import Clock
 from tests.persistence.db_test import DatabaseTest
+
+AD_POST_URL = 'https://facebook.com/groups/salisbury-noticeboard/posts/1643638762794779/'
 
 
 class TestAdRecordService(DatabaseTest):
@@ -129,3 +132,41 @@ class TestAdRecordService(DatabaseTest):
                                                                                     since=since_time)
             assert actual_count_first == 3
             assert actual_count_second == 2
+
+    class TestGetCountForAllBusinessesSinceDate:
+
+        class Businesses(NamedTuple):
+            bicycles: Business
+            donuts: Business
+            ice_cream: Business
+
+        @pytest.fixture
+        def businesses(self, user_admin: User) -> Businesses:
+            business_bicycles = BusinessService.add(name='Bicycles Business', facebook_url=None,
+                                                    creator_id=user_admin.id)
+            business_donuts = BusinessService.add(name='Donuts Business', facebook_url=None, creator_id=user_admin.id)
+            business_ice_cream = BusinessService.add(name='Ice Cream Business', facebook_url=None,
+                                                     creator_id=user_admin.id)
+            return self.Businesses(donuts=business_donuts,
+                                   ice_cream=business_ice_cream,
+                                   bicycles=business_bicycles)
+
+        def test_get_no_records(self, businesses: Businesses):
+            result = AdRecordService.get_count_for_all_businesses_since_date(since=datetime.utcnow())
+            assert result == {businesses.bicycles.id: 0,
+                              businesses.donuts.id: 0,
+                              businesses.ice_cream.id: 0}
+
+        def test_get_count(self, businesses: Businesses, user_ad_manager: User, monkeypatch: MonkeyPatch):
+            now = datetime.utcnow()
+            for business_id, records_days_ago in {businesses.bicycles.id: [30, 15, 10],
+                                                  businesses.donuts.id: [50, 7, 5, 1],
+                                                  businesses.ice_cream.id: [100, 80, 12]}.items():
+                for days_ago in records_days_ago:
+                    monkeypatch.setattr(Clock, 'now', lambda: now - timedelta(days=days_ago))
+                    AdRecordService.add(business_id, ad_post_url=AD_POST_URL, creator_id=user_ad_manager.id)
+
+            result = AdRecordService.get_count_for_all_businesses_since_date(since=now - timedelta(days=20))
+            assert result == {businesses.bicycles.id: 2,
+                              businesses.donuts.id: 3,
+                              businesses.ice_cream.id: 1}
