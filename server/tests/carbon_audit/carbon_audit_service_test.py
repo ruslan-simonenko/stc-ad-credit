@@ -7,32 +7,26 @@ from src.business.business_service import BusinessService
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
 from src.persistence.schema.business import Business
 from src.persistence.schema.carbon_audit import CarbonAudit
-from src.persistence.schema.user import User
-from src.user.user_service import UserService
-from src.user.user_types import UserRole
 from tests.app_fixtures import AutoAppContextFixture
 from tests.persistence.db_test import DatabaseTest
+from tests.user.user_fixtures import UserFixtures
 
 
-class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture):
+class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture, UserFixtures):
     AUDIT_REPORT_URL = 'https://reports.seethroughcarbon.org/report-19365'
     AUDIT_SCORE = 85
 
-    @pytest.fixture(autouse=True)
-    def current_user(self, auto_app_context) -> User:
-        return UserService.add_user('test@gmail.com', [UserRole.ADMIN])
-
     @pytest.fixture
-    def business(self, current_user) -> Business:
-        return BusinessService.add(name='Test Business', facebook_url=None, creator_id=current_user.id)
+    def business(self, users) -> Business:
+        return BusinessService.add(name='Test Business', facebook_url=None, creator_id=users.admin.id)
 
-    def test_add_carbon_audit(self, current_user: User, business: Business):
+    def test_add_carbon_audit(self, users, business: Business):
         carbon_audit = CarbonAuditService.add(
             business_id=business.id,
             score=self.AUDIT_SCORE,
             report_date=date.today(),
             report_url=self.AUDIT_REPORT_URL,
-            creator_id=current_user.id
+            creator_id=users.admin.id
         )
         assert carbon_audit.business_id == business.id
         assert carbon_audit.score == self.AUDIT_SCORE
@@ -40,7 +34,7 @@ class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture):
         assert carbon_audit.report_url == self.AUDIT_REPORT_URL
         assert datetime.utcnow() - carbon_audit.created_at < timedelta(minutes=1)
 
-    def test_add_multiple_audits_for_a_single_business(self, current_user: User, business: Business):
+    def test_add_multiple_audits_for_a_single_business(self, users, business: Business):
         for score, report_date in [
             (70, date.today() - timedelta(days=60)),
             (60, date.today() - timedelta(days=30)),
@@ -51,7 +45,7 @@ class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture):
                 score=score,
                 report_date=report_date,
                 report_url=self.AUDIT_REPORT_URL,
-                creator_id=current_user.id
+                creator_id=users.admin.id
             )
             assert carbon_audit.business_id == business.id
             assert carbon_audit.score == score
@@ -61,13 +55,13 @@ class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture):
 
     class TestGet:
         @pytest.fixture()
-        def carbon_audits(self, current_user, business) -> List[CarbonAudit]:
+        def carbon_audits(self, users, business) -> List[CarbonAudit]:
             return [CarbonAuditService.add(
                 business_id=business.id,
                 score=score,
                 report_date=report_date,
                 report_url=TestCarbonAuditService.AUDIT_REPORT_URL + str(index),
-                creator_id=current_user.id
+                creator_id=users.admin.id
             ) for index, (score, report_date) in enumerate([
                 (70, date.today() - timedelta(days=60)),
                 (60, date.today() - timedelta(days=30)),
@@ -82,7 +76,7 @@ class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture):
             actual_carbon_audit = CarbonAuditService.get_latest_for_business(business.id)
             assert actual_carbon_audit == carbon_audits[-1]
 
-        def test_get_latest_for_business__none_available(self, current_user: User):
-            unaudited_business = BusinessService.add('Greens on the Hills', None, current_user.id)
+        def test_get_latest_for_business__none_available(self, users):
+            unaudited_business = BusinessService.add('Greens on the Hills', None, users.admin.id)
             actual_carbon_audit = CarbonAuditService.get_latest_for_business(unaudited_business.id)
             assert actual_carbon_audit is None

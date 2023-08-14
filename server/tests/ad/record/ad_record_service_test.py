@@ -8,61 +8,51 @@ from src.ad.record.ad_record_service import AdRecordService
 from src.business.business_service import BusinessService
 from src.persistence.schema.ad_record import AdRecord
 from src.persistence.schema.business import Business
-from src.persistence.schema.user import User
-from src.user.user_service import UserService
-from src.user.user_types import UserRole
 from src.utils.clock import Clock
 from tests.app_fixtures import AutoAppContextFixture
 from tests.persistence.db_test import DatabaseTest
+from tests.user.user_fixtures import UserFixtures
 
 AD_POST_URL = 'https://facebook.com/groups/salisbury-noticeboard/posts/1643638762794779/'
 
 
-class TestAdRecordService(DatabaseTest, AutoAppContextFixture):
+class TestAdRecordService(DatabaseTest, AutoAppContextFixture, UserFixtures):
     AD_POST_URL = 'https://facebook.com/groups/salisbury-noticeboard/posts/1643638762794779/'
 
-    @pytest.fixture(autouse=True)
-    def user_admin(self, auto_app_context) -> User:
-        return UserService.add_user('admin@stc.com', [UserRole.ADMIN])
-
-    @pytest.fixture(autouse=True)
-    def user_ad_manager(self, auto_app_context) -> User:
-        return UserService.add_user('ad-manager@stc.com', [UserRole.AD_MANAGER])
-
     @pytest.fixture
-    def business(self, user_admin) -> Business:
-        return BusinessService.add(name='Test Business', facebook_url=None, creator_id=user_admin.id)
+    def business(self, users) -> Business:
+        return BusinessService.add(name='Test Business', facebook_url=None, creator_id=users.admin.id)
 
-    def test_add_ad_record(self, user_ad_manager: User, business: Business):
+    def test_add_ad_record(self, users, business: Business):
         ad_record = AdRecordService.add(
             business_id=business.id,
             ad_post_url=TestAdRecordService.AD_POST_URL,
-            creator_id=user_ad_manager.id,
+            creator_id=users.ad_manager.id,
         )
         assert ad_record.business_id == business.id
         assert ad_record.ad_post_url == TestAdRecordService.AD_POST_URL
-        assert ad_record.created_by == user_ad_manager.id
+        assert ad_record.created_by == users.ad_manager.id
         assert datetime.utcnow() - ad_record.created_at < timedelta(minutes=1)
 
-    def test_add_multiple_records_for_a_business(self, user_ad_manager: User, business: Business):
+    def test_add_multiple_records_for_a_business(self, users, business: Business):
         for ad_post_url_suffix in ['a', 'b', 'c']:
             ad_record = AdRecordService.add(
                 business_id=business.id,
                 ad_post_url=TestAdRecordService.AD_POST_URL + ad_post_url_suffix,
-                creator_id=user_ad_manager.id,
+                creator_id=users.ad_manager.id,
             )
             assert ad_record.business_id == business.id
             assert ad_record.ad_post_url == TestAdRecordService.AD_POST_URL + ad_post_url_suffix
-            assert ad_record.created_by == user_ad_manager.id
+            assert ad_record.created_by == users.ad_manager.id
             assert datetime.utcnow() - ad_record.created_at < timedelta(minutes=1)
 
     class TestGetAll:
         @pytest.fixture
-        def ad_records(self, user_ad_manager: User, business: Business) -> List[AdRecord]:
+        def ad_records(self, users, business: Business) -> List[AdRecord]:
             return [AdRecordService.add(
                 business_id=business.id,
                 ad_post_url=TestAdRecordService.AD_POST_URL + ad_post_url_suffix,
-                creator_id=user_ad_manager.id,
+                creator_id=users.ad_manager.id,
             ) for ad_post_url_suffix in ['a', 'b', 'c', 'd', 'e']]
 
         def test_get_all(self, ad_records: List[AdRecord]):
@@ -72,14 +62,14 @@ class TestAdRecordService(DatabaseTest, AutoAppContextFixture):
     class TestGetCountForBusinessSinceDate:
 
         @pytest.fixture(autouse=True)
-        def ad_records(self, user_ad_manager: User, business: Business, monkeypatch: MonkeyPatch):
+        def ad_records(self, users, business: Business, monkeypatch: MonkeyPatch):
             current_time = datetime.utcnow()
             for days_ago in [120, 100, 90, 70, 50, 44, 37, 32, 11, 3]:
                 monkeypatch.setattr(Clock, 'now', lambda: current_time - timedelta(days=days_ago))
                 AdRecordService.add(
                     business_id=business.id,
                     ad_post_url=TestAdRecordService.AD_POST_URL,
-                    creator_id=user_ad_manager.id,
+                    creator_id=users.ad_manager.id,
                 )
             monkeypatch.undo()
 
@@ -103,20 +93,20 @@ class TestAdRecordService(DatabaseTest, AutoAppContextFixture):
             actual_count = AdRecordService.get_count_for_business_since_date(business_id=business.id, since=since_time)
             assert actual_count == expected_count
 
-        def test_businesses_are_isolated(self, business: Business, user_admin: User, user_ad_manager: User):
+        def test_businesses_are_isolated(self, business: Business, users):
             other_business = BusinessService.add(name='Awesome carpet cleaners', facebook_url=None,
-                                                 creator_id=user_admin.id)
+                                                 creator_id=users.admin.id)
             for i in range(3):
                 AdRecordService.add(
                     business_id=business.id,
                     ad_post_url=TestAdRecordService.AD_POST_URL,
-                    creator_id=user_ad_manager.id,
+                    creator_id=users.ad_manager.id,
                 )
             for i in range(2):
                 AdRecordService.add(
                     business_id=other_business.id,
                     ad_post_url=TestAdRecordService.AD_POST_URL,
-                    creator_id=user_ad_manager.id,
+                    creator_id=users.ad_manager.id,
                 )
 
             since_time = datetime.utcnow() - timedelta(minutes=1)
@@ -135,12 +125,12 @@ class TestAdRecordService(DatabaseTest, AutoAppContextFixture):
             ice_cream: Business
 
         @pytest.fixture
-        def businesses(self, user_admin: User) -> Businesses:
+        def businesses(self, users) -> Businesses:
             business_bicycles = BusinessService.add(name='Bicycles Business', facebook_url=None,
-                                                    creator_id=user_admin.id)
-            business_donuts = BusinessService.add(name='Donuts Business', facebook_url=None, creator_id=user_admin.id)
+                                                    creator_id=users.admin.id)
+            business_donuts = BusinessService.add(name='Donuts Business', facebook_url=None, creator_id=users.admin.id)
             business_ice_cream = BusinessService.add(name='Ice Cream Business', facebook_url=None,
-                                                     creator_id=user_admin.id)
+                                                     creator_id=users.admin.id)
             return self.Businesses(donuts=business_donuts,
                                    ice_cream=business_ice_cream,
                                    bicycles=business_bicycles)
@@ -151,14 +141,14 @@ class TestAdRecordService(DatabaseTest, AutoAppContextFixture):
                               businesses.donuts.id: 0,
                               businesses.ice_cream.id: 0}
 
-        def test_get_count(self, businesses: Businesses, user_ad_manager: User, monkeypatch: MonkeyPatch):
+        def test_get_count(self, businesses: Businesses, users, monkeypatch: MonkeyPatch):
             now = datetime.utcnow()
             for business_id, records_days_ago in {businesses.bicycles.id: [30, 15, 10],
                                                   businesses.donuts.id: [50, 7, 5, 1],
                                                   businesses.ice_cream.id: [100, 80, 12]}.items():
                 for days_ago in records_days_ago:
                     monkeypatch.setattr(Clock, 'now', lambda: now - timedelta(days=days_ago))
-                    AdRecordService.add(business_id, ad_post_url=AD_POST_URL, creator_id=user_ad_manager.id)
+                    AdRecordService.add(business_id, ad_post_url=AD_POST_URL, creator_id=users.ad_manager.id)
 
             result = AdRecordService.get_count_for_all_businesses_since_date(since=now - timedelta(days=20))
             assert result == {businesses.bicycles.id: 2,

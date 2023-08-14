@@ -8,3 +8,10 @@ class AutoAppContextFixture:
     def auto_app_context(self):
         with app.app_context():
             yield
+
+
+class AppContextFixture:
+    @pytest.fixture
+    def app_context(self):
+        with app.app_context():
+            yield
