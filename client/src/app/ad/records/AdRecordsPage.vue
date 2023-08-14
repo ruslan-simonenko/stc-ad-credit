@@ -10,8 +10,8 @@
 <script setup lang="ts">
 import AdRecordAddForm from "./AdRecordAddForm.vue";
 import AdRecordsTable from "./AdRecordsTable.vue";
-import {useAuthStore} from "../../auth/auth-store.ts";
-import {UserRole} from "../../user/user.ts";
+import {useAuthStore} from "../../../auth/auth-store.ts";
+import {UserRole} from "../../../user/user.ts";
 import {computed} from "vue";
 
 const authStore = useAuthStore();

@@ -7,8 +7,8 @@ import {UserRole} from "../user/user.ts";
 import DisabledUserPage from "../user/DisabledUserPage.vue";
 import BusinessesPage from "../app/business/BusinessesPage.vue";
 import {useRoutingStore} from "./routing-store.ts";
-import AdRecordsPage from "../app/ad-records/AdRecordsPage.vue";
-import AdStrategyPage from "../app/ad-strategy/AdStrategyPage.vue";
+import AdRecordsPage from "../app/ad/records/AdRecordsPage.vue";
+import AdStrategyPage from "../app/ad/strategy/AdStrategyPage.vue";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();

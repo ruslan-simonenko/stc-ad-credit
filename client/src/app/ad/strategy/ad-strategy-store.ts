@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive} from "vue";
-import {useApiClientAxios} from "../../api/api-client-axios.ts";
+import {useApiClientAxios} from "../../../api/api-client-axios.ts";
 import {AdStrategy, AdStrategySchema} from "./ad-strategy-types.ts";
 
 

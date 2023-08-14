@@ -20,14 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import {User, UserRole} from "../../user/user.ts";
+import {User, UserRole} from "../../../user/user.ts";
 import {AdRecord} from "./ad-records-types.ts";
-import {useBusinessStore} from "../business/business-store.ts";
+import {useBusinessStore} from "../../business/business-store.ts";
 import {onMounted} from "vue";
 import {useAdRecordsStore} from "./ad-records-store.ts";
-import {Business} from "../business/business-types.ts";
-import {useUserStore} from "../../user/user-store.ts";
-import {useAuthStore} from "../../auth/auth-store.ts";
+import {Business} from "../../business/business-types.ts";
+import {useUserStore} from "../../../user/user-store.ts";
+import {useAuthStore} from "../../../auth/auth-store.ts";
 
 const businessStore = useBusinessStore();
 const adRecordsStore = useAdRecordsStore();
