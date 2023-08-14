@@ -1,15 +1,15 @@
-from src.ad_credit.ad_strategy import AD_ALLOWANCE, CarbonAuditRating, CARBON_RATING_MIN_SCORE, \
+from src.ad.strategy.ad_strategy import AD_ALLOWANCE, CarbonAuditRating, CARBON_RATING_MIN_SCORE, \
     AD_RATE_LIMIT_WINDOW_DURATION
-from src.ad_record.ad_record_service import AdRecordService
+from src.ad.record.ad_record_service import AdRecordService
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
 from src.utils.clock import Clock
 
 
-class AdCreditService:
+class AdAllowanceService:
 
     @staticmethod
     def get_allowance(business_id: int) -> int:
-        rating = AdCreditService._get_rating(business_id)
+        rating = AdAllowanceService._get_rating(business_id)
         return AD_ALLOWANCE[rating]
 
     @staticmethod
@@ -20,7 +20,7 @@ class AdCreditService:
 
     @staticmethod
     def get_remaining_allowance(business_id: int) -> int:
-        return AdCreditService.get_allowance(business_id) - AdCreditService.get_used_allowance(business_id)
+        return AdAllowanceService.get_allowance(business_id) - AdAllowanceService.get_used_allowance(business_id)
 
     @staticmethod
     def _get_rating(business_id: int) -> CarbonAuditRating:

@@ -2,9 +2,9 @@ from http import HTTPStatus
 
 from flask import Blueprint, jsonify, request
 
-from src.ad_credit.ad_credit_service import AdCreditService
-from src.ad_record.ad_record_dto import AdRecordDTO, AdRecordAddFormDTO, AdRecordsDTO, ErrorResponse
-from src.ad_record.ad_record_service import AdRecordService
+from src.ad.allowance.ad_allowance_service import AdAllowanceService
+from src.ad.record.ad_record_dto import AdRecordDTO, AdRecordAddFormDTO, AdRecordsDTO, ErrorResponse
+from src.ad.record.ad_record_service import AdRecordService
 from src.auth.auth_bp import auth_role
 from src.auth.auth_service import AuthService
 from src.user.user_types import UserRole
@@ -24,7 +24,7 @@ def get_all():
 def add():
     form = AdRecordAddFormDTO.model_validate(request.get_json())
 
-    if AdCreditService.get_remaining_allowance(form.business_id) <= 0:
+    if AdAllowanceService.get_remaining_allowance(form.business_id) <= 0:
         return jsonify(ErrorResponse(message='Insufficient ad allowance')), HTTPStatus.FORBIDDEN
 
     record = AdRecordService.add(

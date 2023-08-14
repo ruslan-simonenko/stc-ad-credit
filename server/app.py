@@ -5,8 +5,8 @@ from flask import Flask
 from flask.json.provider import DefaultJSONProvider
 from pydantic import BaseModel
 
-from src.ad_credit.ad_strategy_bp import ad_strategy_bp
-from src.ad_record.ad_record_bp import ad_record_bp
+from src.ad.strategy.ad_strategy_bp import ad_strategy_bp
+from src.ad.record.ad_record_bp import ad_record_bp
 from src.auth.auth_bp import auth_bp
 from src.business.business_bp import business_bp
 from src.carbon_audit.carbon_audit_bp import carbon_audit_bp

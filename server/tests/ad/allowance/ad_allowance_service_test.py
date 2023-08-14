@@ -4,15 +4,15 @@ from unittest.mock import Mock
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from src.ad_credit.ad_credit_service import AdCreditService
-from src.ad_credit.ad_strategy import AD_ALLOWANCE, CarbonAuditRating, CARBON_RATING_MIN_SCORE
+from src.ad.allowance.ad_allowance_service import AdAllowanceService
+from src.ad.strategy.ad_strategy import AD_ALLOWANCE, CarbonAuditRating, CARBON_RATING_MIN_SCORE
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
 from src.persistence.schema.carbon_audit import CarbonAudit
 
 BUSINESS_ID = 10
 
 
-class TestAdCreditService:
+class TestAdAllowanceService:
 
     @pytest.mark.parametrize('latest_audit_score, expected_rating', [
         # No audits
@@ -39,4 +39,4 @@ class TestAdCreditService:
             return audit
 
         monkeypatch.setattr(CarbonAuditService, 'get_latest', mock_get_latest_audit)
-        assert AdCreditService.get_allowance(BUSINESS_ID) == AD_ALLOWANCE[expected_rating]
+        assert AdAllowanceService.get_allowance(BUSINESS_ID) == AD_ALLOWANCE[expected_rating]

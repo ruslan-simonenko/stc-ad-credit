@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify
 
-from src.ad_credit.ad_strategy import CARBON_RATING_MIN_SCORE, CarbonAuditRating, AD_ALLOWANCE, \
+from src.ad.strategy.ad_strategy import CARBON_RATING_MIN_SCORE, CarbonAuditRating, AD_ALLOWANCE, \
     AD_RATE_LIMIT_WINDOW_DURATION
-from src.ad_credit.ad_strategy_dto import AdStrategyDTO
+from src.ad.strategy.ad_strategy_dto import AdStrategyDTO
 from src.auth.auth_bp import auth_role
 from src.user.user_types import UserRole
 

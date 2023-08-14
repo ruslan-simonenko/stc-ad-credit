@@ -6,9 +6,9 @@ from _pytest.monkeypatch import MonkeyPatch
 from flask.testing import FlaskClient
 
 from app import app
-from src.ad_credit.ad_credit_service import AdCreditService
-from src.ad_record.ad_record_dto import AdRecordAddFormDTO, AdRecordDTO, AdRecordsDTO, ErrorResponse
-from src.ad_record.ad_record_service import AdRecordService
+from src.ad.allowance.ad_allowance_service import AdAllowanceService
+from src.ad.record.ad_record_dto import AdRecordAddFormDTO, AdRecordDTO, AdRecordsDTO, ErrorResponse
+from src.ad.record.ad_record_service import AdRecordService
 from src.auth.auth_service import AuthService
 from src.business.business_service import BusinessService
 from src.persistence.schema.business import Business
@@ -119,4 +119,4 @@ class TestAdRecordEndpoint(DatabaseTest):
 
     @staticmethod
     def mock_ad_allowance(monkeypatch: MonkeyPatch, value: int):
-        monkeypatch.setattr(AdCreditService, 'get_remaining_allowance', lambda business_id: value)
+        monkeypatch.setattr(AdAllowanceService, 'get_remaining_allowance', lambda business_id: value)

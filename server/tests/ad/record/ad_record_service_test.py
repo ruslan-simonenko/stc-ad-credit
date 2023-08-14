@@ -5,7 +5,7 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 from app import app
-from src.ad_record.ad_record_service import AdRecordService
+from src.ad.record.ad_record_service import AdRecordService
 from src.business.business_service import BusinessService
 from src.persistence.schema.ad_record import AdRecord
 from src.persistence.schema.business import Business
