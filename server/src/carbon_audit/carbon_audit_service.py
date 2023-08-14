@@ -1,7 +1,8 @@
 from datetime import datetime, date
-from typing import List, Optional, Dict
+from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, join, and_, null
+from sqlalchemy.orm import aliased
 
 from src.persistence.schema import db
 from src.persistence.schema.carbon_audit import CarbonAudit
@@ -31,6 +32,16 @@ class CarbonAuditService:
     def get_latest_for_business(business_id: int) -> Optional[CarbonAudit]:
         query = select(CarbonAudit) \
             .where(CarbonAudit.business_id == business_id) \
-            .order_by(CarbonAudit.created_at.desc())\
+            .order_by(CarbonAudit.report_date.desc()) \
             .limit(1)
         return db.session.execute(query).scalars().first()
+
+    @staticmethod
+    def get_latest() -> List[CarbonAudit]:
+        later_carbon_audit = aliased(CarbonAudit)
+        query = select(CarbonAudit) \
+            .select_from(join(CarbonAudit, later_carbon_audit,
+                              onclause=and_(CarbonAudit.business_id == later_carbon_audit.business_id,
+                                            CarbonAudit.report_date < later_carbon_audit.report_date), isouter=True)) \
+            .where(later_carbon_audit.id == null())  # no later report is found for this business
+        return db.session.execute(query).scalars().all()

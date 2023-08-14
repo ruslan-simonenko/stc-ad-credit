@@ -73,7 +73,26 @@ class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture, BusinessFixtur
             actual_carbon_audit = CarbonAuditService.get_latest_for_business(business.id)
             assert actual_carbon_audit == carbon_audits[-1]
 
-        def test_get_latest_for_business__none_available(self, users):
-            unaudited_business = BusinessService.add('Greens on the Hills', None, users.admin.id)
-            actual_carbon_audit = CarbonAuditService.get_latest_for_business(unaudited_business.id)
+        def test_get_latest_for_business__none_available(self, business):
+            actual_carbon_audit = CarbonAuditService.get_latest_for_business(business.id)
             assert actual_carbon_audit is None
+
+        def test_get_latest_for_all_businesses(self, businesses, users):
+            expected_latest_audits = []
+            for business_id, audit_scores in {
+                businesses.apple.id: [30, 60, 90],
+                businesses.banana.id: [10, 5],
+                businesses.pear.id: []
+            }.items():
+                for index, audit_score in enumerate(audit_scores):
+                    added_audit = CarbonAuditService.add(
+                        business_id=business_id,
+                        score=audit_score,
+                        report_date=date.today() + timedelta(days=index - 100),
+                        report_url=TestCarbonAuditService.AUDIT_REPORT_URL,
+                        creator_id=users.carbon_auditor.id
+                    )
+                    if index == len(audit_scores) - 1:
+                        expected_latest_audits.append(added_audit)
+            actual_latest_audits = CarbonAuditService.get_latest()
+            assert set(actual_latest_audits) == set(expected_latest_audits)
