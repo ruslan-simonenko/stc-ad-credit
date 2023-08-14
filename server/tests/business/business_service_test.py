@@ -3,8 +3,6 @@ from datetime import datetime, timedelta
 import pytest
 
 from src.business.business_service import BusinessService
-from src.user.user_service import UserService
-from src.user.user_types import UserRole
 from tests.app_fixtures import AutoAppContextFixture
 from tests.persistence.db_test import DatabaseTest
 from tests.user.user_fixtures import UserFixtures

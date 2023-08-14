@@ -8,17 +8,14 @@ from src.carbon_audit.carbon_audit_service import CarbonAuditService
 from src.persistence.schema.business import Business
 from src.persistence.schema.carbon_audit import CarbonAudit
 from tests.app_fixtures import AutoAppContextFixture
+from tests.business.business_fixtures import BusinessFixtures
 from tests.persistence.db_test import DatabaseTest
 from tests.user.user_fixtures import UserFixtures
 
 
-class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture, UserFixtures):
+class TestCarbonAuditService(DatabaseTest, AutoAppContextFixture, BusinessFixtures, UserFixtures):
     AUDIT_REPORT_URL = 'https://reports.seethroughcarbon.org/report-19365'
     AUDIT_SCORE = 85
-
-    @pytest.fixture
-    def business(self, users) -> Business:
-        return BusinessService.add(name='Test Business', facebook_url=None, creator_id=users.admin.id)
 
     def test_add_carbon_audit(self, users, business: Business):
         carbon_audit = CarbonAuditService.add(
