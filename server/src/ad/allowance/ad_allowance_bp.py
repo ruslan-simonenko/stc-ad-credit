@@ -9,7 +9,7 @@ ad_allowance_bp = Blueprint('ad_allowance', __name__, url_prefix='/ad-allowances
 
 
 @ad_allowance_bp.route('/', methods=['get'])
-@auth_role(UserRole.ADMIN, UserRole.AD_MANAGER)
+@auth_role(UserRole.ADMIN, UserRole.CARBON_AUDITOR, UserRole.AD_MANAGER)
 def get_all():
     allowances = AdAllowanceService.get_for_all_businesses()
     dtos = [AdAllowanceDTO(business_id=business_id, allowance=allowance.full, used_allowance=allowance.used)
