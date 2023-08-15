@@ -7,7 +7,8 @@ from _pytest.monkeypatch import MonkeyPatch
 from src.ad.allowance.ad_allowance_service import AdAllowanceService
 from src.ad.allowance.ad_allowance_types import AdAllowance
 from src.ad.record.ad_record_service import AdRecordService
-from src.ad.strategy.ad_strategy import AD_ALLOWANCE, CarbonAuditRating, CARBON_RATING_MIN_SCORE
+from src.ad.strategy.ad_strategy import AD_ALLOWANCE, CARBON_RATING_MIN_SCORE
+from src.carbon_audit.carbon_audit_types import CarbonAuditRating
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
 from src.persistence.schema.carbon_audit import CarbonAudit
 

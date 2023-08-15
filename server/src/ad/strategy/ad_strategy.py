@@ -1,14 +1,7 @@
 from datetime import timedelta
-from enum import Enum
 from typing import Dict
 
-
-class CarbonAuditRating(Enum):
-    UNKNOWN = 'UNKNOWN'
-    LOW = 'LOW'
-    MEDIUM = 'MEDIUM'
-    HIGH = 'HIGH'
-
+from src.carbon_audit.carbon_audit_types import CarbonAuditRating
 
 CARBON_RATING_MIN_SCORE: Dict[CarbonAuditRating, int] = {
     CarbonAuditRating.MEDIUM: 50,
