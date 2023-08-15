@@ -2,7 +2,10 @@
   <q-form ref='form' @submit="onSubmit" @reset="onReset">
     <BusinessSelector v-model="business" :rules="businessValidators"/>
     <q-input label="Ad Post URL" v-model="adPostURL" type="url" :rules="adPostURLValidators"/>
-    <div>Ads remaining: {{ remainingAds ?? '-' }}</div>
+    <div class="row q-gutter-x-md">
+      <div>Ads remaining: {{ remainingAds ?? '-' }}</div>
+      <BusinessProfileLink v-if="business != null" :businessID="business.id"/>
+    </div>
     <q-btn label="Submit" type="submit" color="primary"/>
   </q-form>
 </template>
@@ -14,7 +17,7 @@ import {QForm} from "quasar";
 import {useAdRecordsStore} from "./ad-records-store.ts";
 import BusinessSelector from "../../business/components/BusinessSelector.vue";
 import {useAdAllowanceStore} from "../allowance/ad-allowance-store.ts";
-import {number} from "zod";
+import BusinessProfileLink from "../../business/components/BusinessProfileLink.vue";
 
 const form = ref<QForm>()
 const adRecordsStore = useAdRecordsStore();
@@ -28,7 +31,10 @@ const remainingAds = computed<number | null>(() => {
   const allowance = adAllowanceStore.data.indexed[business.value.id];
   return allowance.allowance - allowance.used_allowance;
 })
-const businessValidators = [() => remainingAds.value > 0 || 'Ad allowance exhausted!']
+const businessValidators = [
+    fieldRequiredValidator,
+    () => remainingAds.value! > 0 || 'Ad allowance exhausted!'
+]
 
 const adPostURL = ref<string | null>(null)
 const adPostURLValidators = [fieldRequiredValidator]
