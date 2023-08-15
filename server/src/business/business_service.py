@@ -27,3 +27,7 @@ class BusinessService:
     @staticmethod
     def get_all() -> List[Business]:
         return db.session.execute(select(Business)).scalars().all()
+
+    @staticmethod
+    def get_by_id_or_throw(business_id: int) -> Business:
+        return db.session.execute(select(Business).where(Business.id == business_id)).scalars().one()

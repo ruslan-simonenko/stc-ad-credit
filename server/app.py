@@ -10,6 +10,7 @@ from src.ad.strategy.ad_strategy_bp import ad_strategy_bp
 from src.ad.record.ad_record_bp import ad_record_bp
 from src.auth.auth_bp import auth_bp
 from src.business.business_bp import business_bp
+from src.business.profile.business_profile_bp import business_profile_bp
 from src.carbon_audit.carbon_audit_bp import carbon_audit_bp
 from src.config import EnvironmentConstantsKeys
 from src.persistence.database import database_bp
@@ -45,6 +46,7 @@ def configure_app(app_: Flask):
     app_.register_blueprint(auth_bp)
     app_.register_blueprint(database_bp)
     app_.register_blueprint(user_bp)
+    business_bp.register_blueprint(business_profile_bp)
     app_.register_blueprint(business_bp)
     app_.register_blueprint(carbon_audit_bp)
     app_.register_blueprint(ad_record_bp)
