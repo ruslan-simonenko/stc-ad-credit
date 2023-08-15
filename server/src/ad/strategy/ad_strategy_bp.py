@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify
 
-from src.ad.strategy.ad_strategy import CARBON_RATING_MIN_SCORE, AD_ALLOWANCE, \
+from src.ad.strategy.ad_strategy import AD_ALLOWANCE, \
     AD_RATE_LIMIT_WINDOW_DURATION
-from src.carbon_audit.carbon_audit_types import CarbonAuditRating
 from src.ad.strategy.ad_strategy_dto import AdStrategyDTO
 from src.auth.auth_bp import auth_role
+from src.carbon_audit.rating.carbon_audit_rating_service import CARBON_RATING_MIN_SCORE
+from src.carbon_audit.rating.carbon_audit_rating_types import CarbonAuditRating
 from src.user.user_types import UserRole
 
 ad_strategy_bp = Blueprint('ad_strategy', __name__, url_prefix='/ad-strategy')

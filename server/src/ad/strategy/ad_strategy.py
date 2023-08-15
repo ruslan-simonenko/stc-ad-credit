@@ -1,12 +1,7 @@
 from datetime import timedelta
 from typing import Dict
 
-from src.carbon_audit.carbon_audit_types import CarbonAuditRating
-
-CARBON_RATING_MIN_SCORE: Dict[CarbonAuditRating, int] = {
-    CarbonAuditRating.MEDIUM: 50,
-    CarbonAuditRating.HIGH: 70,
-}
+from src.carbon_audit.rating.carbon_audit_rating_types import CarbonAuditRating
 
 AD_ALLOWANCE: Dict[CarbonAuditRating, int] = {
     CarbonAuditRating.UNKNOWN: 1,

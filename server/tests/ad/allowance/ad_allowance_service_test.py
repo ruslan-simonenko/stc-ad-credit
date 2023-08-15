@@ -7,9 +7,10 @@ from _pytest.monkeypatch import MonkeyPatch
 from src.ad.allowance.ad_allowance_service import AdAllowanceService
 from src.ad.allowance.ad_allowance_types import AdAllowance
 from src.ad.record.ad_record_service import AdRecordService
-from src.ad.strategy.ad_strategy import AD_ALLOWANCE, CARBON_RATING_MIN_SCORE
-from src.carbon_audit.carbon_audit_types import CarbonAuditRating
+from src.ad.strategy.ad_strategy import AD_ALLOWANCE
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
+from src.carbon_audit.rating.carbon_audit_rating_service import CARBON_RATING_MIN_SCORE, CarbonAuditRatingService
+from src.carbon_audit.rating.carbon_audit_rating_types import CarbonAuditRating
 from src.persistence.schema.carbon_audit import CarbonAudit
 
 BUSINESS_ID = 10
@@ -17,30 +18,20 @@ BUSINESS_ID = 10
 
 class TestAdAllowanceService:
 
-    @pytest.mark.parametrize('latest_audit_score, expected_rating', [
-        # No audits
-        (None, CarbonAuditRating.UNKNOWN),
-        # Single audit
-        (0, CarbonAuditRating.LOW),
-        (CARBON_RATING_MIN_SCORE[CarbonAuditRating.MEDIUM] - 1, CarbonAuditRating.LOW),
-        (CARBON_RATING_MIN_SCORE[CarbonAuditRating.MEDIUM], CarbonAuditRating.MEDIUM),
-        (CARBON_RATING_MIN_SCORE[CarbonAuditRating.HIGH] - 1, CarbonAuditRating.MEDIUM),
-        (CARBON_RATING_MIN_SCORE[CarbonAuditRating.HIGH], CarbonAuditRating.HIGH),
-        (CARBON_RATING_MIN_SCORE[CarbonAuditRating.HIGH] + 50, CarbonAuditRating.HIGH),
-    ])
-    def test_get_allowance(self,
-                           monkeypatch: MonkeyPatch,
-                           latest_audit_score: Optional[int],
-                           expected_rating: CarbonAuditRating):
-        def mock_get_latest_audit(business_id: int) -> Optional[CarbonAudit]:
-            if business_id != BUSINESS_ID:
-                return None
-            if latest_audit_score is None:
-                return None
-            return carbon_audit_mock(score=latest_audit_score)
+    def test_get_allowance(self, monkeypatch: MonkeyPatch):
+        audit = Mock()
+
+        def mock_get_latest_audit(business_id: int) -> CarbonAudit:
+            assert business_id == BUSINESS_ID
+            return audit
+
+        def mock_get_for_audit(audit_: CarbonAudit) -> CarbonAuditRating:
+            assert audit_ is audit
+            return CarbonAuditRating.MEDIUM
 
         monkeypatch.setattr(CarbonAuditService, 'get_latest_for_business', mock_get_latest_audit)
-        assert AdAllowanceService.get_allowance(BUSINESS_ID) == AD_ALLOWANCE[expected_rating]
+        monkeypatch.setattr(CarbonAuditRatingService, 'get_for_audit', mock_get_for_audit)
+        assert AdAllowanceService.get_allowance(BUSINESS_ID) == AD_ALLOWANCE[CarbonAuditRating.MEDIUM]
 
     def test_get_for_all_businesses(self, monkeypatch: MonkeyPatch):
         monkeypatch.setattr(CarbonAuditService, 'get_latest', lambda: [
