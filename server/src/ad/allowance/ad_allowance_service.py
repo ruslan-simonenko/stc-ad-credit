@@ -12,20 +12,12 @@ from src.utils.clock import Clock
 class AdAllowanceService:
 
     @staticmethod
-    def get_allowance(business_id: int) -> int:
-        latest_audit = CarbonAuditService.get_latest_for_business(business_id)
-        rating = CarbonAuditRatingService.get_for_audit(latest_audit)
-        return AD_ALLOWANCE[rating]
-
-    @staticmethod
-    def get_used_allowance(business_id: int) -> int:
-        return AdRecordService.get_count_for_business_since_date(
+    def get_for_business(business_id) -> AdAllowance:
+        full = AD_ALLOWANCE[CarbonAuditRatingService.get_for_business(business_id)]
+        used = AdRecordService.get_count_for_business_since_date(
             business_id,
             since=AdAllowanceService._get_rate_limit_window_start())
-
-    @staticmethod
-    def get_remaining_allowance(business_id: int) -> int:
-        return AdAllowanceService.get_allowance(business_id) - AdAllowanceService.get_used_allowance(business_id)
+        return AdAllowance(full=full, used=used)
 
     @staticmethod
     def get_for_all_businesses() -> Dict[int, AdAllowance]:

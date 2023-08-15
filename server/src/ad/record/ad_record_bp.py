@@ -24,7 +24,7 @@ def get_all():
 def add():
     form = AdRecordAddFormDTO.model_validate(request.get_json())
 
-    if AdAllowanceService.get_remaining_allowance(form.business_id) <= 0:
+    if AdAllowanceService.get_for_business(form.business_id).remaining <= 0:
         return jsonify(ErrorResponse(message='Insufficient ad allowance')), HTTPStatus.FORBIDDEN
 
     record = AdRecordService.add(

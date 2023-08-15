@@ -18,21 +18,6 @@ BUSINESS_ID = 10
 
 class TestAdAllowanceService:
 
-    def test_get_allowance(self, monkeypatch: MonkeyPatch):
-        audit = Mock()
-
-        def mock_get_latest_audit(business_id: int) -> CarbonAudit:
-            assert business_id == BUSINESS_ID
-            return audit
-
-        def mock_get_for_audit(audit_: CarbonAudit) -> CarbonAuditRating:
-            assert audit_ is audit
-            return CarbonAuditRating.MEDIUM
-
-        monkeypatch.setattr(CarbonAuditService, 'get_latest_for_business', mock_get_latest_audit)
-        monkeypatch.setattr(CarbonAuditRatingService, 'get_for_audit', mock_get_for_audit)
-        assert AdAllowanceService.get_allowance(BUSINESS_ID) == AD_ALLOWANCE[CarbonAuditRating.MEDIUM]
-
     def test_get_for_all_businesses(self, monkeypatch: MonkeyPatch):
         monkeypatch.setattr(CarbonAuditService, 'get_latest', lambda: [
             carbon_audit_mock(business_id=1, score=CARBON_RATING_MIN_SCORE[CarbonAuditRating.HIGH]),
