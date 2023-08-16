@@ -20,6 +20,9 @@ def setup_database(state: BlueprintSetupState):
     else:
         raise ValueError(f'Unsupported {EnvironmentConstantsKeys.APP_ENV}: {app_env}')
     state.app.config['SQLALCHEMY_DATABASE_URI'] = db_path
+    state.app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_recycle': 150,  # Must be smaller than MySQL's `SHOW GLOBAL VARIABLES LIKE 'wait_timeout';`
+    }
     state.app.config['SQLALCHEMY_ECHO'] = True
     db.init_app(state.app)
 
