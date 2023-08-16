@@ -20,7 +20,7 @@
    5. Afterwards:
       1. To stop database: `docker stop stc-mysql`
       2. To restart database: `docker start stc-mysql`
-5. Run Flask Server: `flask --debug run`
+5. Run Flask Server: `export APP_ENV=dev && flask --debug run`
 ## Hosting deployment
 1. Go to [hosting](https://krystal.uk/client/clientarea.php)
 2. Launch cPanel

@@ -3,3 +3,7 @@ class EnvironmentConstantsKeys:
     GOOGLE_LOGIN_CLIENT_ID = 'GOOGLE_LOGIN_CLIENT_ID'
     JWT_SECRET_KEY = 'JWT_SECRET_KEY'
     APP_ENV = 'APP_ENV'
+    DB_USER = 'DB_USER'
+    DB_PASSWORD = 'DB_PASSWORD'
+    DB_HOST = 'DB_HOST'
+    DB_NAME = 'DB_NAME'

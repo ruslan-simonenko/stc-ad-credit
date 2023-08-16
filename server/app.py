@@ -16,9 +16,9 @@ from src.persistence.database import database_bp
 from src.user.user_bp import user_bp
 from src.user.user_service import UserService
 
-if os.environ.get(EnvironmentConstantsKeys.APP_ENV) == 'test':
-    load_dotenv('.env.test')
-else:
+env = os.environ.get(EnvironmentConstantsKeys.APP_ENV)
+load_dotenv(f'.env.{env}')
+if env != 'test':
     load_dotenv('.env.local')
 
 
