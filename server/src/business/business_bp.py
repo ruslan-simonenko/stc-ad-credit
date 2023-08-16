@@ -5,9 +5,11 @@ from src.auth.auth_service import AuthService
 from src.business.business_dto import BusinessDTO, BusinessesGetAllResponse, BusinessAddForm, \
     BusinessOperationSuccessResponse
 from src.business.business_service import BusinessService
+from src.business.profile.business_profile_bp import business_profile_bp
 from src.user.user_types import UserRole
 
 business_bp = Blueprint('business', __name__, url_prefix='/businesses')
+business_bp.register_blueprint(business_profile_bp)
 
 
 @business_bp.route('/', methods=['get'])
