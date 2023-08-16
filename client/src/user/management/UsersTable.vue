@@ -28,12 +28,13 @@ import {User, UserRole} from "../user.ts";
 import {onMounted} from "vue";
 import {useAuthStore} from "../../auth/auth-store.ts";
 import {useRouter} from "vue-router";
+import {QTableProps} from "quasar";
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const router = useRouter();
 
-const columns = [
+const columns: QTableProps['columns'] = [
   {name: 'name', label: 'Name', align: 'left', field: (user: User) => user.name},
   {name: 'email', label: 'E-mail', align: 'left', field: (user: User) => user.email},
   {
@@ -43,7 +44,7 @@ const columns = [
     field: (user: User) => user.roles,
     format: (roles: Array<UserRole>) => roles.join(', ')
   },
-  {name: 'actions', label: 'Actions', align: 'left'},
+  {name: 'actions', label: 'Actions', align: 'left', field: (user: User) => user},
 ]
 
 const loginAs = async (user: User) => {

@@ -16,12 +16,13 @@ import {useBusinessStore} from "../business/business-store.ts";
 import {Business} from "../business/business-types.ts";
 import {computed, onMounted} from "vue";
 import {useCarbonAuditStore} from "./carbon-audit-store.ts";
+import {QTableProps} from "quasar";
 
 
 const businessStore = useBusinessStore();
 const auditStore = useCarbonAuditStore();
 
-const columns = [
+const columns: QTableProps['columns'] = [
   {
     name: 'business',
     label: 'Business',

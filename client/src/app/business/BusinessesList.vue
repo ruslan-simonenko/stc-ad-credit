@@ -25,6 +25,7 @@ import {Business} from "./business-types.ts";
 import {useAdAllowanceStore} from "../ad/allowance/ad-allowance-store.ts";
 import {AdAllowance} from "../ad/allowance/ad-allowance-types.ts";
 import {useAdStrategyStore} from "../ad/strategy/ad-strategy-store.ts";
+import {QTableProps} from "quasar";
 
 const businessStore = useBusinessStore();
 const auditStore = useCarbonAuditStore();
@@ -33,7 +34,7 @@ const adStrategyStore = useAdStrategyStore();
 
 const loading = computed<boolean>(() => businessStore.all.fetching || auditStore.all.fetching || adAllowanceStore.data.fetching || adStrategyStore.data.fetching)
 
-const columns = [
+const columns: QTableProps['columns'] = [
   {
     name: 'business',
     label: 'Business',

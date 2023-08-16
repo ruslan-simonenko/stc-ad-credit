@@ -28,13 +28,14 @@ import {useAdRecordsStore} from "./ad-records-store.ts";
 import {Business} from "../../business/business-types.ts";
 import {useUserStore} from "../../../user/user-store.ts";
 import {useAuthStore} from "../../../auth/auth-store.ts";
+import {QTableProps} from "quasar";
 
 const businessStore = useBusinessStore();
 const adRecordsStore = useAdRecordsStore();
 const userStore = useUserStore();
 const authStore = useAuthStore();
 
-const columns = [
+const columns: QTableProps['columns'] = [
   {
     name: 'business',
     label: 'Business',

@@ -25,7 +25,7 @@ const scoreValidators = [
   (value: number) => value >= 0 || 'Must be greater or equal to 0',
   (value: number) => value <= 100 || 'Must be lower or equal to 100',
 ]
-const reportDate = ref<Date | null>(null)
+const reportDate = ref<string | null>(null)
 const reportDateValidators = [
   fieldRequiredValidator,
   (value: string) => Date.now() >= Date.parse(value) || 'Can not be in future'
@@ -37,7 +37,7 @@ const onSubmit = async () => {
   await carbonAuditStore.add({
     business_id: business.value!.id,
     score: score.value!,
-    report_date: reportDate.value!,
+    report_date: new Date(reportDate.value!),
     report_url: reportUrl.value!,
   })
 }
