@@ -127,8 +127,6 @@ def auth_role(*allowed_roles: UserRole):
 @auth_bp.route('/login-as', methods=['POST'])
 @auth_role(UserRole.ADMIN)
 def login_as():
-    if os.environ.get(EnvironmentConstantsKeys.APP_ENV, 'prod') not in ['dev', 'test']:
-        abort(404)
     login_request = LoginAsRequest.model_validate(request.get_json())
     user = UserService.get_user_by_id(login_request.user_id)
     if not user:
