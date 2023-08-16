@@ -12,7 +12,7 @@ ad_strategy_bp = Blueprint('ad_strategy', __name__, url_prefix='/ad-strategy')
 
 
 @ad_strategy_bp.route('/', methods=['get'])
-@auth_role(UserRole.ADMIN, UserRole.AD_MANAGER)
+@auth_role(UserRole.ADMIN, UserRole.CARBON_AUDITOR, UserRole.AD_MANAGER)
 def get():
     return jsonify(AdStrategyDTO(
         rating_medium_min_score=CARBON_RATING_MIN_SCORE[CarbonAuditRating.MEDIUM],
