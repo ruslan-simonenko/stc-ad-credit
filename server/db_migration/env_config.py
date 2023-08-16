@@ -18,10 +18,10 @@ def update_config_from_env(config: Config) -> Config:
     logger = logging.getLogger('db_migration.env_config')
 
     app_env = Environment(os.environ.get('APP_ENV', 'prod'))
-    load_dotenv(f'env.{app_env}')
-    load_dotenv(f'env.local')
+    load_dotenv(f'.env.{app_env.value}')
+    load_dotenv(f'.env.local')
     logger.info('Preparing database for %s environment.', app_env.value)
-    if app_env == Environment.PROD:
+    if app_env in [Environment.PROD, Environment.DEV]:
         user = os.environ['DB_USER']
         password = os.environ['DB_PASSWORD']
         host = os.environ['DB_HOST']
