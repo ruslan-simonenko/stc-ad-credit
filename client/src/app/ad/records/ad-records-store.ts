@@ -22,7 +22,7 @@ export const useAdRecordsStore = defineStore("adRecords", () => {
                 headers: {'Content-Type': 'application/json'}
             })
             all.items = response.data.records
-                .map(record => AdRecordSchema.parse(record))
+                .map((record: any) => AdRecordSchema.parse(record))
                 .sort((a: AdRecord, b: AdRecord) => b.created_at.getTime() - a.created_at.getTime())
         } finally {
             all.fetching = false

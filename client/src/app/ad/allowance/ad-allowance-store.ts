@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {reactive} from "vue";
 import {useApiClientAxios} from "../../../api/api-client-axios.ts";
-import {AdAllowances, AdAllowanceSchema} from "./ad-allowance-types.ts";
+import {AdAllowance, AdAllowances, AdAllowanceSchema} from "./ad-allowance-types.ts";
 
 
 export const useAdAllowanceStore = defineStore("adAllowance", () => {
@@ -19,8 +19,8 @@ export const useAdAllowanceStore = defineStore("adAllowance", () => {
                 headers: {'Content-Type': 'application/json'}
             })
             data.indexed = response.data.items
-                .map(record => AdAllowanceSchema.parse(record))
-                .reduce((accumulator, adAllowance) => {
+                .map((record: any) => AdAllowanceSchema.parse(record))
+                .reduce((accumulator: { [business_id: number]: AdAllowance }, adAllowance: AdAllowance) => {
                     accumulator[adAllowance.business_id] = adAllowance;
                     return accumulator;
                 }, {})

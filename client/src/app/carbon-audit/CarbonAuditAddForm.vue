@@ -1,7 +1,7 @@
 <template>
   <q-form @submit="onSubmit" class="q-gutter-md form">
     <BusinessSelector v-model="business"/>
-    <q-input label="Score [0-100]" v-model="score" type="number" :rules="scoreValidators"/>
+    <q-input label="Score [0-100]" v-model.number="score" type="number" :rules="scoreValidators"/>
     <q-input label="Date" v-model="reportDate" type="date" :rules="reportDateValidators"/>
     <q-input label="Report URL" v-model="reportUrl" type="url" :rules="reportUrlValidators"/>
     <q-btn label="Submit" type="submit" color="primary"/>
@@ -28,17 +28,17 @@ const scoreValidators = [
 const reportDate = ref<Date | null>(null)
 const reportDateValidators = [
   fieldRequiredValidator,
-  (value: Date) => Date.now() >= Date.parse(value) || 'Can not be in future'
+  (value: string) => Date.now() >= Date.parse(value) || 'Can not be in future'
 ]
 const reportUrl = ref<string | null>(null)
 const reportUrlValidators = [fieldRequiredValidator]
 
 const onSubmit = async () => {
   await carbonAuditStore.add({
-    business_id: business.value.id,
-    score: score.value,
-    report_date: reportDate.value,
-    report_url: reportUrl.value,
+    business_id: business.value!.id,
+    score: score.value!,
+    report_date: reportDate.value!,
+    report_url: reportUrl.value!,
   })
 }
 </script>

@@ -4,7 +4,7 @@
             :loading="businessStore.all.fetching"
             :options="businessStore.all.items"
             :rules="businessValidators">
-    <template v-slot:option="{ itemProps, opt }: {opt: Business}">
+    <template v-slot:option="{ itemProps, opt }: {itemProps: any, opt: Business}">
       <q-item v-bind="itemProps">
         <q-item-section>
           <q-item-label>{{ opt.name }}</q-item-label>
@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import {Business} from "../business-types.ts";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted} from "vue";
 import {useBusinessStore} from "../business-store.ts";
 import {fieldRequiredValidator} from "../../../utils/form-validators.ts";
 

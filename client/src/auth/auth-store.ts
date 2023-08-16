@@ -13,7 +13,7 @@ export const useAuthStore = defineStore("auth", () => {
     })
     const accessToken = useLocalStorage<string | null>('auth.accessToken', null)
     const isAuthenticated = computed<boolean>(() => user.value != null)
-    const hasRole = (role: UserRole) => user.value?.roles.includes(role)
+    const hasRole = (role: UserRole): boolean => user.value?.roles.includes(role) ?? false
 
     const loginWithGoogle = async (googleToken: string) => {
         const response = await apiClient.post('/auth/login', {

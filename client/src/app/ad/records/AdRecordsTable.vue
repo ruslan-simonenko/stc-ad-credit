@@ -39,14 +39,14 @@ const columns = [
     name: 'business',
     label: 'Business',
     align: 'left',
-    field: (record: AdRecord): Business => businessStore.all.items.find(business => business.id == record.business_id)
+    field: (record: AdRecord): Business => businessStore.all.items.find(business => business.id == record.business_id)!
   },
   {name: 'ad_post_url', label: 'Ad', align: 'left', field: (record: AdRecord): string => record.ad_post_url},
   {
     name: 'creator',
     label: 'Created By',
     align: 'left',
-    field: (record: AdRecord): User => userStore.all.items.find(user => user.id == record.creator_id)
+    field: (record: AdRecord): User => userStore.all.items.find(user => user.id == record.creator_id)!
   },
   {
     name: 'timestamp',

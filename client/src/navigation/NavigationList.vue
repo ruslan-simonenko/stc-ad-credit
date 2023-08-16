@@ -3,10 +3,10 @@
     <q-item v-for="route in visibleRoutes" :active="route.name === currentRoute.name" v-ripple
             clickable @click="router.push({name: route.name})">
       <q-item-section avatar>
-        <q-icon :name="route.meta.navigation!.icon"/>
+        <q-icon :name="route.meta!.navigation!.icon"/>
       </q-item-section>
       <q-item-section>
-        {{ route.meta.navigation!.label }}
+        {{ route.meta!.navigation!.label }}
       </q-item-section>
     </q-item>
   </q-list>

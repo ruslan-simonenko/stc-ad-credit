@@ -51,10 +51,10 @@ const columns = [
       if (score == null) {
         icon = 'question_mark'
         color = 'grey'
-      } else if (score >= strategy.rating_high_min_score) {
+      } else if (score >= strategy!.rating_high_min_score) {
         icon = 'sentiment_satisfied'
         color = 'green'
-      } else if (score >= strategy.rating_medium_min_score) {
+      } else if (score >= strategy!.rating_medium_min_score) {
         icon = 'sentiment_neutral'
         color = 'amber'
       } else {
