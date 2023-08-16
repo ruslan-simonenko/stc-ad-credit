@@ -17,11 +17,18 @@ class Environment(Enum):
 def update_config_from_env(config: Config) -> Config:
     logger = logging.getLogger('db_migration.env_config')
 
-    load_dotenv('.env.local')
     app_env = Environment(os.environ.get('APP_ENV', 'prod'))
+    load_dotenv(f'env.{app_env}')
+    load_dotenv(f'env.local')
     logger.info('Preparing database for %s environment.', app_env.value)
-
-    db_path = f'../instance/{app_env.value}.db'
+    if app_env == Environment.PROD:
+        user = os.environ['DB_USER']
+        password = os.environ['DB_PASSWORD']
+        host = os.environ['DB_HOST']
+        name = os.environ['DB_NAME']
+        db_path = f'mysql+mysqlconnector://{user}:{password}@{host}/{name}'
+    else:
+        db_path = f'sqlite:///../instance/{app_env.value}.db'
     config.set_main_option(APP_ENV_CONFIG_KEY, app_env.value)
     config.set_main_option('sqlalchemy.url', config.get_main_option('sqlalchemy.url').format(db_path=db_path))
     return config

@@ -8,8 +8,6 @@ Create Date: 2023-08-11 18:33:39.343745+00:00
 from typing import Any
 
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision = '3dad1b95543f'
@@ -20,12 +18,12 @@ depends_on = None
 
 def upgrade(is_dev: bool, **kw: Any) -> None:
     op.execute('''
-    INSERT INTO "role" (name)
+    INSERT INTO role(name)
     VALUES ('Ad Manager')
     ''')
 
 
 def downgrade(is_dev: bool, **kw: Any) -> None:
     op.execute('''
-    DELETE FROM "role" WHERE name = 'ad_manager'
+    DELETE FROM role WHERE name = 'ad_manager'
     ''')

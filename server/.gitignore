@@ -3,3 +3,4 @@ venv/
 
 .env.local
 instance/*.db
+instance/mysql
