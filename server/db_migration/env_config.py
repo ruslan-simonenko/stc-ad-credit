@@ -26,7 +26,7 @@ def update_config_from_env(config: Config) -> Config:
         password = os.environ['DB_PASSWORD']
         host = os.environ['DB_HOST']
         name = os.environ['DB_NAME']
-        db_path = f'mysql+mysqlconnector://{user}:{password}@{host}/{name}'
+        db_path = f'mysql+pymysql://{user}:{password}@{host}/{name}'
     else:
         db_path = f'sqlite:///../instance/{app_env.value}.db'
     config.set_main_option(APP_ENV_CONFIG_KEY, app_env.value)

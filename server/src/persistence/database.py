@@ -14,7 +14,7 @@ def setup_database(state: BlueprintSetupState):
         password = os.environ[EnvironmentConstantsKeys.DB_PASSWORD]
         host = os.environ[EnvironmentConstantsKeys.DB_HOST]
         name = os.environ[EnvironmentConstantsKeys.DB_NAME]
-        db_path = f'mysql+mysqlconnector://{user}:{password}@{host}/{name}'
+        db_path = f'mysql+pymysql://{user}:{password}@{host}/{name}'
     elif app_env == 'test':
         db_path = 'sqlite:///:memory:'
     else:
@@ -22,6 +22,7 @@ def setup_database(state: BlueprintSetupState):
     state.app.config['SQLALCHEMY_DATABASE_URI'] = db_path
     state.app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_recycle': 150,  # Must be smaller than MySQL's `SHOW GLOBAL VARIABLES LIKE 'wait_timeout';`
+        'pool_pre_ping': True,
     }
     state.app.config['SQLALCHEMY_ECHO'] = True
     db.init_app(state.app)
