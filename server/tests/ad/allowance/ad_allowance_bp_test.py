@@ -1,27 +1,23 @@
 from typing import Dict
 
-import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from flask.testing import FlaskClient
 
 from src.ad.allowance.ad_allowance_dto import AdAllowancesDTO, AdAllowanceDTO
 from src.ad.allowance.ad_allowance_service import AdAllowanceService
 from src.ad.allowance.ad_allowance_types import AdAllowance
-from src.auth.auth_service import AuthService
 from tests.app_fixtures import AutoAppContextFixture
+from tests.auth.auth_fixtures import AuthFixtures
 from tests.persistence.db_test import DatabaseTest
 from tests.user.user_fixtures import UserFixtures
 
 
-class TestAdAllowanceEndpoint(DatabaseTest, AutoAppContextFixture, UserFixtures):
-    @pytest.fixture
-    def access_headers(self, users) -> Dict[str, str]:
-        access_token = AuthService.create_access_token(users.ad_manager.id)
-        return {'Authorization': f'Bearer {access_token}'}
+class TestAdAllowanceEndpoint(DatabaseTest, AutoAppContextFixture, AuthFixtures, UserFixtures):
 
     def test_get_all(self,
                      client: FlaskClient,
-                     access_headers: Dict[str, str],
+                     users,
+                     access_headers_for,
                      monkeypatch: MonkeyPatch):
         monkeypatch.setattr(AdAllowanceService, 'get_for_all_businesses', lambda: {
             1: AdAllowance(full=10, used=5),
@@ -29,7 +25,7 @@ class TestAdAllowanceEndpoint(DatabaseTest, AutoAppContextFixture, UserFixtures)
             3: AdAllowance(full=1, used=0)
         })
 
-        response = client.get('/ad-allowances/', headers=access_headers)
+        response = client.get('/ad-allowances/', headers=access_headers_for(users.ad_manager))
 
         assert response.status_code == 200
         actual_data = AdAllowancesDTO.model_validate(response.json)
