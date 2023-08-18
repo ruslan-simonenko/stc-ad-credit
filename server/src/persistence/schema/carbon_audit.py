@@ -6,11 +6,11 @@ from . import db
 class CarbonAudit(db.Model):
     __tablename__ = 'carbon_audit'
     id = db.Column(db.Integer, primary_key=True)
-    business_id = db.Column(db.ForeignKey('business.id'), nullable=False)
+    business_id = db.Column(db.ForeignKey('business.id'), nullable=False, index=True)
     score = db.Column(db.Integer, nullable=False)
     report_date = db.Column(db.Date, nullable=False)
     report_url = db.Column(db.String(2048), nullable=False)
-    created_by = db.Column(db.ForeignKey('user.id'), nullable=False)
+    created_by = db.Column(db.ForeignKey('user.id'), nullable=False, index=True)
     created_at = db.Column(db.DateTime, nullable=False)
     business = db.relationship('Business', primaryjoin='CarbonAudit.business_id == Business.id', backref='carbon_audits')
     user = db.relationship('User', primaryjoin='CarbonAudit.created_by == User.id', backref='carbon_audits')

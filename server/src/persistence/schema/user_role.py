@@ -6,8 +6,8 @@ from . import db
 class UserRole(db.Model):
     __tablename__ = 'user_role'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.ForeignKey('user.id'), nullable=False)
-    role_id = db.Column(db.ForeignKey('role.id'), nullable=False)
+    user_id = db.Column(db.ForeignKey('user.id'), nullable=False, index=True)
+    role_id = db.Column(db.ForeignKey('role.id'), nullable=False, index=True)
     role = db.relationship('Role', primaryjoin='UserRole.role_id == Role.id', backref='user_roles')
     user = db.relationship('User', primaryjoin='UserRole.user_id == User.id', backref='user_roles')
     '>>> manual class code section:'
