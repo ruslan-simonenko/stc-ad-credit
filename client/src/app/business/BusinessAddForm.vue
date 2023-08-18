@@ -19,15 +19,21 @@ import {BusinessRegistrationType} from "./business-types.ts";
 const businessStore = useBusinessStore();
 
 const name = ref<string>('')
-const facebookLink = ref<string>('')
 const registrationType = ref<BusinessRegistrationType>(BusinessRegistrationType.NI)
 const registrationNumber = ref<string>('')
 const email = ref<string>('')
+const facebookLink = ref<string>('')
 
 const registrationTypes = Object.values(BusinessRegistrationType).map(type => ({label: type, value: type}))
 
 const onSubmit = async () => {
-  await businessStore.add({name: name.value, facebook_url: facebookLink.value})
+  await businessStore.add({
+    name: name.value,
+    registration_number: registrationNumber.value,
+    registration_type: registrationType.value,
+    email: email.value,
+    facebook_url: facebookLink.value
+  })
   resetForm()
 }
 

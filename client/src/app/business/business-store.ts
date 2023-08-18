@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive} from "vue";
-import {Business, BusinessAddFormDTO, Businesses} from "./business-types.ts";
+import {Business, BusinessAddFormDTO, Businesses, BusinessSchema} from "./business-types.ts";
 import {useApiClientAxios} from "../../api/api-client-axios.ts";
 
 
@@ -19,7 +19,8 @@ export const useBusinessStore = defineStore("business", () => {
             const response = await apiClient.get('/businesses/', {
                 headers: {'Content-Type': 'application/json'}
             })
-            all.items = response.data.businesses.sort((a: Business, b: Business) => b.id - a.id)
+            all.items = response.data.businesses.map((business: any) => BusinessSchema.parse(business))
+                .sort((a: Business, b: Business) => b.id - a.id)
             all.error = false
         } catch (e) {
             all.error = true
