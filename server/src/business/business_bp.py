@@ -23,10 +23,11 @@ def get_all():
 @auth_role(UserRole.ADMIN, UserRole.BUSINESS_MANAGER)
 def add():
     form = BusinessAddForm.model_validate(request.get_json())
-    trimmed_name = str.strip(form.name)
-    trimmed_facebook_url = str.strip(form.facebook_url)
     business = BusinessService.add(
-        name=trimmed_name,
-        facebook_url=trimmed_facebook_url if trimmed_facebook_url else None,
+        name=form.name,
+        registration_type=form.registration_type,
+        registration_number=form.registration_number,
+        email=form.email,
+        facebook_url=form.facebook_url,
         creator_id=AuthService.get_current_user_id_or_throw())
     return jsonify(BusinessOperationSuccessResponse(business=BusinessDTO.from_entity(business)))
