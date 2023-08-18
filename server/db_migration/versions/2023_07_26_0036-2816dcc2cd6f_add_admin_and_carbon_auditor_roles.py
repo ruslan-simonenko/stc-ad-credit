@@ -28,4 +28,7 @@ def upgrade(is_dev: bool, **kw: Any) -> None:
 def downgrade(is_dev: bool, **kw: Any) -> None:
     meta = MetaData()
     meta.reflect(bind=op.get_bind(), only=('role',))
+    op.execute("DELETE FROM user_role "
+               "WHERE role_id IN "
+               "(SELECT role.id FROM role WHERE role.name IN ('Admin', 'Carbon Auditor'))")
     op.execute("DELETE FROM role WHERE name IN ('Admin', 'Carbon Auditor')")

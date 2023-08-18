@@ -24,6 +24,9 @@ def upgrade(is_dev: bool, **kw: Any) -> None:
 
 
 def downgrade(is_dev: bool, **kw: Any) -> None:
+    op.execute("DELETE FROM user_role "
+               "WHERE role_id IN "
+               "(SELECT id FROM role WHERE name = 'Ad Manager')")
     op.execute('''
     DELETE FROM role WHERE name = 'Ad Manager'
     ''')
