@@ -15,3 +15,8 @@ export interface Businesses {
     fetching: boolean,
     error: boolean,
 }
+
+
+export enum BusinessRegistrationType {
+    CRN = "CRN", VAT = "VAT", NI = "NI"
+}
