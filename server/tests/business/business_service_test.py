@@ -4,6 +4,7 @@ import pytest
 
 from src.business.business_service import BusinessService
 from tests.app_fixtures import AutoAppContextFixture
+from tests.business.business_test_utils import BusinessTestUtils
 from tests.persistence.db_test import DatabaseTest
 from tests.user.user_fixtures import UserFixtures
 
@@ -15,20 +16,18 @@ class TestBusinessService(DatabaseTest, AutoAppContextFixture, UserFixtures):
         ('test business', 'https://www.facebook.com/groups/seethroughnews/'),
     ])
     def test_add_business(self, users, name, facebook_url):
-        business = BusinessService.add(name=name, facebook_url=facebook_url, creator_id=users.admin.id)
+        business = BusinessService.add(name=name, facebook_url=facebook_url, creator_id=users.business_manager.id)
         assert business.name == name
         assert business.facebook_url == facebook_url
-        assert business.created_by == users.admin.id
+        assert business.created_by == users.business_manager.id
         assert datetime.utcnow() - business.created_at < timedelta(minutes=1)
 
     def test_add_business_duplicate_name(self, users):
-        BusinessService.add(name='test business', facebook_url=None, creator_id=users.admin.id)
+        BusinessTestUtils.add_business(users.business_manager, name='test business')
         with pytest.raises(ValueError, match='Business name is already in use'):
-            BusinessService.add(name='test business', facebook_url=None, creator_id=users.admin.id)
+            BusinessTestUtils.add_business(users.business_manager, name='test business')
 
     def test_get_all_businesses(self, users):
-        biz_a = BusinessService.add('test biz a', facebook_url=None, creator_id=users.admin.id)
-        biz_b = BusinessService.add('test biz b', facebook_url='https://facebook.com/apage', creator_id=users.admin.id)
-        biz_c = BusinessService.add('test biz c', facebook_url=None, creator_id=users.admin.id)
+        expected_businesses = {BusinessTestUtils.add_business(users.business_manager) for _ in range(3)}
         actual_businesses = BusinessService.get_all()
-        assert set(actual_businesses) == {biz_a, biz_b, biz_c}
+        assert set(actual_businesses) == expected_businesses
