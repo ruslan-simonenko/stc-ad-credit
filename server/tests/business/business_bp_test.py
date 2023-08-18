@@ -1,5 +1,3 @@
-from typing import Dict
-
 from flask.testing import FlaskClient
 
 from app import app
@@ -17,7 +15,7 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
 
     def test_add(self, client: FlaskClient, users, access_headers_for):
         form = BusinessAddForm(name='Fabulous Pastries', facebook_url='https://facebook.com/best-pastries')
-        response = client.post('/businesses', json=form, headers=access_headers_for(users.admin))
+        response = client.post('/businesses', json=form, headers=access_headers_for(users.business_manager))
 
         assert response.status_code == 200
         with patched_dto_for_comparison(BusinessDTO):
@@ -33,16 +31,16 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
         with app.app_context():
             business_dutch = BusinessService.add(name='Fabulous Dutch Pastries',
                                                  facebook_url='https://facebook.com/best-dutch-pastries',
-                                                 creator_id=users.admin.id)
+                                                 creator_id=users.business_manager.id)
             business_welsh = BusinessService.add(name='Awesome Welsh Cuisine',
                                                  facebook_url='https://facebook.com/the-welsh-cuisine',
-                                                 creator_id=users.admin.id)
+                                                 creator_id=users.business_manager.id)
             businesses_dtos = [
                 BusinessDTO.from_entity(business_dutch),
                 BusinessDTO.from_entity(business_welsh)
             ]
 
-        response = client.get('/businesses', headers=access_headers_for(users.admin))
+        response = client.get('/businesses', headers=access_headers_for(users.business_manager))
 
         assert response.status_code == 200
         with patched_dto_for_comparison(BusinessDTO):

@@ -25,5 +25,5 @@ def upgrade(is_dev: bool, **kw: Any) -> None:
 
 def downgrade(is_dev: bool, **kw: Any) -> None:
     op.execute('''
-    DELETE FROM role WHERE name = 'ad_manager'
+    DELETE FROM role WHERE name = 'Ad Manager'
     ''')

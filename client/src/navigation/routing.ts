@@ -26,16 +26,19 @@ const doNotNavigateIfNotDisabled = () => {
 const redirectFromHome = () => {
     const authStore = useAuthStore()
     if (authStore.isAuthenticated) {
-        if (authStore.user!.roles.includes(UserRole.ADMIN)) {
+        const roles = authStore.user!.roles;
+        if (roles.includes(UserRole.ADMIN)) {
             return {name: 'Admin'}
-        } else if (authStore.user!.roles.includes(UserRole.CARBON_AUDITOR)) {
+        } else if (roles.includes(UserRole.BUSINESS_MANAGER)) {
+            return {name: 'Businesses'}
+        } else if (roles.includes(UserRole.CARBON_AUDITOR)) {
             return {name: 'CarbonAudit'}
-        } else if (authStore.user!.roles.includes(UserRole.AD_MANAGER)) {
+        } else if (roles.includes(UserRole.AD_MANAGER)) {
             return {name: 'AdRecords'}
-        } else if (authStore.user!.roles.length === 0) {
+        } else if (roles.length === 0) {
             return {name: 'DisabledUser'}
         }
-        throw new Error('Unsupported role: ' + authStore.user!.roles)
+        throw new Error('Unsupported role: ' + roles)
     } else {
         return {name: 'Login'}
     }
@@ -81,7 +84,7 @@ const routes: RouteRecordRaw[] = [
         name: 'Businesses', path: '/businesses', component: BusinessesPage, meta: {
             auth: {
                 required: true,
-                authorizedRoles: [UserRole.ADMIN, UserRole.CARBON_AUDITOR],
+                authorizedRoles: [UserRole.ADMIN, UserRole.BUSINESS_MANAGER],
             },
             navigation: {
                 icon: 'storefront',

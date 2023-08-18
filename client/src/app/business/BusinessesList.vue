@@ -6,7 +6,7 @@
       :columns="columns"
       :loading="loading"
       row-key="id">
-    <template v-slot:body-cell-score="props">
+    <template v-if="authStore.hasRole(UserRole.ADMIN)" v-slot:body-cell-score="props">
       <q-td :props="props">
         <div class="row inline items-end">
           <div v-if="props.value.score != null" style="margin-right: .5em">{{ props.value.score }}</div>
@@ -26,7 +26,10 @@ import {useAdAllowanceStore} from "../ad/allowance/ad-allowance-store.ts";
 import {AdAllowance} from "../ad/allowance/ad-allowance-types.ts";
 import {useAdStrategyStore} from "../ad/strategy/ad-strategy-store.ts";
 import {QTableProps} from "quasar";
+import {useAuthStore} from "../../auth/auth-store.ts";
+import {UserRole} from "../../user/user.ts";
 
+const authStore = useAuthStore();
 const businessStore = useBusinessStore();
 const auditStore = useCarbonAuditStore();
 const adAllowanceStore = useAdAllowanceStore();
@@ -41,7 +44,7 @@ const columns: QTableProps['columns'] = [
     align: 'left',
     field: (row: Business) => row.name,
   },
-  {
+  ...(authStore.hasRole(UserRole.ADMIN) ? [{
     name: 'score',
     label: 'Carbon Audit Score',
     field: (row: Business) => auditStore.all.items.find(audit => audit.business_id === row.id)?.score,
@@ -65,12 +68,12 @@ const columns: QTableProps['columns'] = [
       return {score, icon, color}
     }
   },
-  {
-    name: 'allowance',
-    label: 'Ads Used',
-    field: (row: Business) => adAllowanceStore.data.indexed[row.id],
-    format: (value: AdAllowance | null): string => value != null ? `${value.used_allowance} / ${value.allowance}` : ''
-  },
+    {
+      name: 'allowance',
+      label: 'Ads Used',
+      field: (row: Business) => adAllowanceStore.data.indexed[row.id],
+      format: (value: AdAllowance | null): string => value != null ? `${value.used_allowance} / ${value.allowance}` : ''
+    }] : []),
   {
     name: 'facebook_url',
     label: 'Facebook URL',
@@ -81,9 +84,11 @@ const columns: QTableProps['columns'] = [
 
 onMounted(() => {
   businessStore.fetch()
-  auditStore.fetch()
-  adAllowanceStore.fetch()
-  adStrategyStore.fetch()
+  if (authStore.hasRole(UserRole.ADMIN)) {
+    auditStore.fetch()
+    adAllowanceStore.fetch()
+    adStrategyStore.fetch()
+  }
 });
 </script>
 

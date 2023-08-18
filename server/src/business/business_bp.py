@@ -13,14 +13,14 @@ business_bp.register_blueprint(business_profile_bp)
 
 
 @business_bp.route('/', methods=['get'])
-@auth_role(UserRole.ADMIN, UserRole.CARBON_AUDITOR, UserRole.AD_MANAGER)
+@auth_role(UserRole.ADMIN, UserRole.AD_MANAGER, UserRole.CARBON_AUDITOR, UserRole.BUSINESS_MANAGER)
 def get_all():
     businesses = [BusinessDTO.from_entity(business) for business in BusinessService.get_all()]
     return jsonify(BusinessesGetAllResponse(businesses=businesses))
 
 
 @business_bp.route('/', methods=['post'])
-@auth_role(UserRole.ADMIN, UserRole.CARBON_AUDITOR)
+@auth_role(UserRole.ADMIN, UserRole.BUSINESS_MANAGER)
 def add():
     form = BusinessAddForm.model_validate(request.get_json())
     trimmed_name = str.strip(form.name)
