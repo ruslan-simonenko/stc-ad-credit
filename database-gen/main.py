@@ -2,7 +2,7 @@ from src.package_updater import PackageUpdater
 
 
 def main():
-    PackageUpdater(database_uri='sqlite:///../server/instance/dev.db',
+    PackageUpdater(database_uri=f'mysql+pymysql://stc:stc@localhost/stc',
                    target_folder='../server/src/persistence/schema/').create_or_update()
 
 
