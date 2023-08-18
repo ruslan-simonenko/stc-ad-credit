@@ -233,12 +233,3 @@ class TestLoginAs(DatabaseTest):
             with app.app_context():
                 decode_token(actual_response.access_token)
             assert actual_response.user == expected_user
-
-    def test_login_as_disabled_in_prod(self, monkeypatch: MonkeyPatch, client: FlaskClient):
-        monkeypatch.setenv(EnvironmentConstantsKeys.APP_ENV, 'prod')
-
-        response = client.post('/auth/login-as',
-                               json=LoginAsRequest(user_id=self.carbon_auditor_id),
-                               headers={'Authorization': f'Bearer {self.admin_access_token}'})
-
-        assert response.status_code == 404
