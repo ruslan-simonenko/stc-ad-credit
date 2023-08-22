@@ -6,6 +6,12 @@
       :loading="userStore.all.fetching"
       :rows-per-page-options="[10, 25, 50, 100]"
   >
+    <template v-slot:top>
+      <div class="text-h6">Users</div>
+      <q-btn label="Add" v-if="authStore.hasRole(UserRole.ADMIN)"
+             color="primary" class="q-ml-sm"
+             @click="goToUserAddPage"/>
+    </template>
     <template v-slot:body-cell-name="props">
       <q-td :props="props" class="q-gutter-xs">
         <q-avatar square size="3rem">
@@ -33,6 +39,8 @@ import {QTableProps} from "quasar";
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const router = useRouter();
+
+const goToUserAddPage = () => router.push({name: 'UserAdd'});
 
 const columns: QTableProps['columns'] = [
   {name: 'name', label: 'Name', align: 'left', field: (user: User) => user.name},

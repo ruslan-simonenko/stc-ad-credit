@@ -24,6 +24,8 @@ import {fieldRequiredValidator} from "../../utils/form-validators.ts";
 
 const userStore = useUserStore();
 
+const emit = defineEmits(['added']);
+
 const email = ref<string>('')
 const roles = ref<Array<UserRole>>([])
 const roleOptions = Object.values(UserRole).map(role => ({label: role, value: role}))
@@ -33,6 +35,7 @@ const emailValidators = [fieldRequiredValidator];
 const onSubmit = async () => {
   await userStore.add({email: email.value, roles: roles.value})
   resetForm()
+  emit('added');
 }
 
 const resetForm = () => {

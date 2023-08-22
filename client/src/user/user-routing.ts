@@ -3,6 +3,8 @@ import DisabledUserPage from "./DisabledUserPage.vue";
 import AdminPage from "../app/admin/AdminPage.vue";
 import {UserRole} from "./user.ts";
 import {useAuthStore} from "../auth/auth-store.ts";
+import BusinessAddPage from "../app/business/add/BusinessAddPage.vue";
+import UserAddPage from "./management/UserAddPage.vue";
 
 
 const doNotNavigateIfNotDisabled = () => {
@@ -29,6 +31,15 @@ const USER_ROUTES: RouteRecordRaw[] = [
             navigationMenu: {type: 'entry', entry: {icon: 'manage_accounts', label: 'Users'}}
         }
     },
+    {
+        name: 'UserAdd', path: '/users/add', component: UserAddPage, meta: {
+            auth: {
+                required: true,
+                authorizedRoles: [UserRole.ADMIN]
+            },
+            navigationMenu: {type: 'linked', routeName: 'Admin'}
+        }
+    }
 ];
 
 export default USER_ROUTES
