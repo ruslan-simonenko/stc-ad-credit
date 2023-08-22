@@ -17,6 +17,8 @@ import {fieldRequiredValidator} from "../../../utils/form-validators.ts";
 
 const carbonAuditStore = useCarbonAuditStore();
 
+const emit = defineEmits(['added']);
+
 const business = ref<Business | null>(null)
 const score = ref<number | null>(null)
 
@@ -40,6 +42,7 @@ const onSubmit = async () => {
     report_date: new Date(reportDate.value!),
     report_url: reportUrl.value!,
   })
+  emit('added');
 }
 </script>
 

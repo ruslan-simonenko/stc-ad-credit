@@ -1,6 +1,7 @@
 <template>
-  <CarbonAuditAddForm/>
-  <CarbonAuditsHistory/>
+  <q-page padding>
+    <CarbonAuditsHistory/>
+  </q-page>
 </template>
 
 <script setup lang="ts">
