@@ -1,16 +1,13 @@
 import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
 import LoginPage from "../auth/LoginPage.vue";
-import AdminPage from "../app/admin/AdminPage.vue";
 import {useAuthStore} from "../auth/auth-store.ts";
-import CarbonAuditPage from "../app/carbon-audit/CarbonAuditPage.vue";
 import {UserRole} from "../user/user.ts";
-import DisabledUserPage from "../user/DisabledUserPage.vue";
 import {useRoutingStore} from "./routing-store.ts";
-import AdRecordsPage from "../app/ad/records/AdRecordsPage.vue";
 import AdStrategyPage from "../app/ad/strategy/AdStrategyPage.vue";
 import BUSINESS_ROUTES from "../app/business/business-routing.ts";
 import CARBON_AUDIT_ROUTES from "../app/carbon-audit/carbon-audit-routing.ts";
 import AD_RECORD_ROUTES from "../app/ad/records/ad-records-routing.ts";
+import USER_ROUTES from "../user/user-routing.ts";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();
@@ -18,11 +15,6 @@ const navigateToHomeIfAuthenticated = () => {
         return {name: 'Home'}
     }
     return true
-}
-
-const doNotNavigateIfNotDisabled = () => {
-    const authStore = useAuthStore();
-    return authStore.user?.roles.length === 0;
 }
 
 const redirectFromHome = () => {
@@ -49,24 +41,7 @@ const redirectFromHome = () => {
 const routes: RouteRecordRaw[] = [
     {name: 'Home', path: '/', redirect: redirectFromHome},
     {name: "Login", path: '/login', beforeEnter: navigateToHomeIfAuthenticated, component: LoginPage},
-    {
-        name: 'DisabledUser',
-        path: '/disabled',
-        beforeEnter: doNotNavigateIfNotDisabled,
-        component: DisabledUserPage,
-        meta: {
-            auth: {required: true}
-        }
-    },
-    {
-        name: 'Admin', path: '/admin', component: AdminPage, meta: {
-            auth: {
-                required: true,
-                authorizedRoles: [UserRole.ADMIN],
-            },
-            navigationMenu: {type: 'entry', entry: {icon: 'manage_accounts', label: 'Users'}}
-        }
-    },
+    ...USER_ROUTES,
     ...BUSINESS_ROUTES,
     ...CARBON_AUDIT_ROUTES,
     ...AD_RECORD_ROUTES,
