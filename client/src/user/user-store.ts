@@ -23,7 +23,7 @@ export const useUserStore = defineStore("user", () => {
         return apiClient.get('/users/manageable/', {
             headers: {'Content-Type': 'application/json'}
         }).then((response) => {
-            all.items = response.data.users.sort((a: User, b: User) => b.id - a.id)
+            all.items = response.data.objects.sort((a: User, b: User) => b.id - a.id)
             all.fetching = false
             all.error = false
         }).catch(() => {
@@ -40,7 +40,7 @@ export const useUserStore = defineStore("user", () => {
         const response = await apiClient.put(`/users/${userID}`, {
             roles: enabled ? [UserRole.CARBON_AUDITOR] : []
         })
-        const updatedUser = response.data.user;
+        const updatedUser = response.data.object;
         const itemIndex = all.items.findIndex((user) => user.id === userID)
         all.items[itemIndex] = updatedUser
     }

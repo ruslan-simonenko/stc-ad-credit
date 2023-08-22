@@ -19,7 +19,7 @@ export const useCarbonAuditStore = defineStore("carbonAudit", () => {
             const response = await apiClient.get('/carbon_audits/', {
                 headers: {'Content-Type': 'application/json'}
             })
-            all.items = response.data.audits.sort((a: CarbonAudit, b: CarbonAudit) => b.id - a.id)
+            all.items = response.data.objects.sort((a: CarbonAudit, b: CarbonAudit) => b.id - a.id)
             all.error = false
         } catch (e) {
             all.error = true
@@ -29,7 +29,7 @@ export const useCarbonAuditStore = defineStore("carbonAudit", () => {
     }
 
     const add = async (newCarbonAudit: CarbonAuditAddFormDTO) => {
-        await apiClient.post('/carbon_audits/', newCarbonAudit,{
+        await apiClient.post('/carbon_audits/', newCarbonAudit, {
             headers: {'Content-Type': 'application/json'}
         })
         await fetch();

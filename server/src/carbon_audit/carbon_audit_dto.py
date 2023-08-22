@@ -44,18 +44,6 @@ class CarbonAuditDTO(BaseModel, DTODataComparable):
                    report_url=entity.report_url)
 
 
-class CarbonAuditsGetResponse(BaseModel):
-    audits: FrozenSet[CarbonAuditDTO]
-
-    def __hash__(self) -> int:
-        return self.audits.__hash__()
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, CarbonAuditsGetResponse):
-            return False
-        return self.audits == other.audits
-
-
 class CarbonAuditAddForm(BaseModel):
     business_id: int
     score: int

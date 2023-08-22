@@ -2,8 +2,9 @@ from datetime import datetime, timedelta
 
 from flask.testing import FlaskClient
 
-from src.carbon_audit.carbon_audit_dto import CarbonAuditDTO, CarbonAuditsGetResponse, CarbonAuditAddForm
+from src.carbon_audit.carbon_audit_dto import CarbonAuditDTO, CarbonAuditAddForm
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
+from src.utils.dto import ResponseWithObjects, ResponseWithObject
 from tests.app_fixtures import AutoAppContextFixture
 from tests.auth.auth_fixtures import AuthFixtures
 from tests.business.business_test_utils import BusinessTestUtils
@@ -27,8 +28,8 @@ class TestCarbonAuditEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppC
 
             assert response.status_code == 200
             with patched_dto_for_comparison(CarbonAuditDTO):
-                actual_data = CarbonAuditDTO.model_validate(response.json)
-                expected_data = CarbonAuditDTO(
+                actual_data = ResponseWithObject[CarbonAuditDTO].model_validate(response.json)
+                expected_audit = CarbonAuditDTO(
                     id=0,
                     business_id=business.id,
                     creator_id=users.admin.id,
@@ -36,7 +37,7 @@ class TestCarbonAuditEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppC
                     report_date=datetime.utcnow().date(),
                     report_url='https://reports.stc.org/10',
                 )
-                assert actual_data == expected_data
+                assert actual_data.object == expected_audit
 
     class TestGetAll:
         def test_get_audits(self, client: FlaskClient, users, access_headers_for):
@@ -46,7 +47,7 @@ class TestCarbonAuditEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppC
                 score=score,
                 report_date=report_date,
                 report_url='https://reports.stc.org/10',
-                creator_id=users.admin.id,
+                creator_id=users.carbon_auditor.id,
             ) for score, report_date in [
                 (84, datetime.utcnow().date() - timedelta(days=90)),
                 (91, datetime.utcnow().date() - timedelta(days=60)),
@@ -58,7 +59,7 @@ class TestCarbonAuditEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppC
 
             assert response.status_code == 200
             with patched_dto_for_comparison(CarbonAuditDTO):
-                actual_data = CarbonAuditsGetResponse.model_validate(response.json)
-                expected_data = CarbonAuditsGetResponse(
-                    audits=frozenset([CarbonAuditDTO.from_entity(audit) for audit in audits]))
+                actual_data = ResponseWithObjects[CarbonAuditDTO].model_validate(response.json)
+                expected_data = ResponseWithObjects[CarbonAuditDTO](
+                    objects=frozenset([CarbonAuditDTO.from_entity(audit) for audit in audits]))
                 assert actual_data == expected_data
