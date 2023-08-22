@@ -6,9 +6,10 @@ from flask.testing import FlaskClient
 
 from src.ad.allowance.ad_allowance_service import AdAllowanceService
 from src.ad.allowance.ad_allowance_types import AdAllowance
-from src.ad.record.ad_record_dto import AdRecordAddFormDTO, AdRecordDTO, AdRecordsDTO, ErrorResponse
+from src.ad.record.ad_record_dto import AdRecordAddFormDTO, AdRecordDTO
 from src.ad.record.ad_record_service import AdRecordService
 from src.persistence.schema.business import Business
+from src.utils.dto import ResponseWithObject, ErrorResponse, ResponseWithObjects
 from tests.app_fixtures import AutoAppContextFixture
 from tests.auth.auth_fixtures import AuthFixtures
 from tests.business.business_fixtures import BusinessFixtures
@@ -40,15 +41,15 @@ class TestAdRecordEndpoint(DatabaseTest, BusinessFixtures, AuthFixtures, UserFix
 
             assert response.status_code == 200
             with patched_dto_for_comparison(AdRecordDTO):
-                actual_data = AdRecordDTO.model_validate(response.json)
-                expected_data = AdRecordDTO(
+                actual_data = ResponseWithObject[AdRecordDTO].model_validate(response.json)
+                expected_record = AdRecordDTO(
                     id=0,
                     business_id=business.id,
                     ad_post_url=AD_POST_URL,
                     creator_id=users.ad_manager.id,
                     created_at=datetime(year=1000, month=1, day=1),
                 )
-                assert actual_data == expected_data
+                assert actual_data.object == expected_record
 
         def test_insufficient_ad_allowance(self,
                                            client: FlaskClient,
@@ -84,9 +85,9 @@ class TestAdRecordEndpoint(DatabaseTest, BusinessFixtures, AuthFixtures, UserFix
 
             assert response.status_code == 200
             with patched_dto_for_comparison(AdRecordDTO):
-                actual_data = AdRecordsDTO.model_validate(response.json)
-                expected_data = AdRecordsDTO(
-                    records=frozenset([AdRecordDTO.from_entity(record) for record in ad_records]))
+                actual_data = ResponseWithObjects[AdRecordDTO].model_validate(response.json)
+                expected_data = ResponseWithObjects[AdRecordDTO](
+                    objects=frozenset([AdRecordDTO.from_entity(record) for record in ad_records]))
                 assert actual_data == expected_data
 
     @staticmethod

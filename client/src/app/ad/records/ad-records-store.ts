@@ -21,7 +21,7 @@ export const useAdRecordsStore = defineStore("adRecords", () => {
             const response = await apiClient.get('/ad-records/', {
                 headers: {'Content-Type': 'application/json'}
             })
-            all.items = response.data.records
+            all.items = response.data.objects
                 .map((record: any) => AdRecordSchema.parse(record))
                 .sort((a: AdRecord, b: AdRecord) => b.created_at.getTime() - a.created_at.getTime())
         } finally {
@@ -34,7 +34,7 @@ export const useAdRecordsStore = defineStore("adRecords", () => {
             const response = await apiClient.post('/ad-records/', newRecord, {
                 headers: {'Content-Type': 'application/json'}
             })
-            const createdRecord = AdRecordSchema.parse(response.data);
+            const createdRecord = AdRecordSchema.parse(response.data.object);
             all.items.unshift(createdRecord)
         } catch (e) {
             await fetch()

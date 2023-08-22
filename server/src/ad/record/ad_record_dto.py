@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, FrozenSet
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -40,30 +40,6 @@ class AdRecordDTO(BaseModel, DTODataComparable):
                    created_at=entity.created_at)
 
 
-class AdRecordsDTO(BaseModel):
-    records: FrozenSet[AdRecordDTO]
-
-    def __hash__(self) -> int:
-        return self.records.__hash__()
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, AdRecordsDTO):
-            return False
-        return self.records == other.records
-
-
 class AdRecordAddFormDTO(BaseModel):
     business_id: int
     ad_post_url: str
-
-
-class ErrorResponse(BaseModel):
-    message: str
-
-    def __hash__(self) -> int:
-        return self.message.__hash__()
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, ErrorResponse):
-            return False
-        return self.message == other.message
