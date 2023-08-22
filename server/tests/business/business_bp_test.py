@@ -1,8 +1,12 @@
-from flask.testing import FlaskClient
+from typing import List
 
-from app import app
-from src.business.business_dto import BusinessAddForm, BusinessDTO
+import pytest
+from flask.testing import FlaskClient
+from pydantic import ValidationError
+
+from src.business.business_dto import BusinessAddForm, BusinessDTO, BusinessDTOPublic
 from src.business.business_types import BusinessRegistrationType
+from src.persistence.schema.business import Business
 from src.utils.dto import ResponseWithObject, ResponseWithObjects
 from tests.app_fixtures import AutoAppContextFixture
 from tests.auth.auth_fixtures import AuthFixtures
@@ -35,18 +39,39 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
             )
             assert created_business == expected_business
 
-    def test_get_all(self, client: FlaskClient, users, access_headers_for):
-        with app.app_context():
-            businesses_dtos = [
-                BusinessDTO.from_entity(BusinessTestUtils.add_business(creator=users.business_manager))
-                for _ in range(3)
-            ]
+    class TestGetAll:
+        @pytest.fixture
+        def businesses(self, users) -> List[Business]:
+            return [BusinessTestUtils.add_business(creator=users.business_manager) for _ in range(3)]
 
-        response = client.get('/businesses', headers=access_headers_for(users.business_manager))
+        def test_business_manager(self, client: FlaskClient, users, access_headers_for, businesses):
+            response = client.get('/businesses', headers=access_headers_for(users.business_manager))
 
-        assert response.status_code == 200
-        with patched_dto_for_comparison(BusinessDTO):
-            actual_data = ResponseWithObjects[BusinessDTO].model_validate(response.json)
-            expected_data = ResponseWithObjects[BusinessDTO](objects=frozenset(businesses_dtos))
-            assert actual_data == expected_data
-            assert len({business.id for business in actual_data.objects}) == len(businesses_dtos)
+            assert response.status_code == 200
+            with patched_dto_for_comparison(BusinessDTO):
+                actual_data = ResponseWithObjects[BusinessDTO].model_validate(response.json)
+                expected_data = ResponseWithObjects[BusinessDTO](
+                    objects=frozenset([BusinessDTO.from_entity(e) for e in businesses]))
+                assert actual_data == expected_data
+                assert len({business.id for business in actual_data.objects}) == len(businesses)
+
+        @pytest.mark.parametrize('user_key', ['ad_manager', 'admin', 'carbon_auditor'])
+        def test_other_roles(self, client: FlaskClient, users, access_headers_for, businesses, user_key):
+            response = client.get('/businesses', headers=access_headers_for(getattr(users, user_key)))
+
+            assert response.status_code == 200
+            with patched_dto_for_comparison(BusinessDTOPublic):
+                actual_data = ResponseWithObjects[BusinessDTOPublic].model_validate(response.json)
+                expected_data = ResponseWithObjects[BusinessDTOPublic](
+                    objects=frozenset([BusinessDTOPublic.from_entity(e) for e in businesses]))
+                assert actual_data == expected_data
+                assert len({business.id for business in actual_data.objects}) == len(businesses)
+
+        @pytest.mark.parametrize('user_key', ['ad_manager', 'admin', 'carbon_auditor'])
+        def test_sensitive_fields_not_sent_to_other_roles(self, client: FlaskClient, users, access_headers_for,
+                                                          businesses, user_key):
+            response = client.get('/businesses', headers=access_headers_for(getattr(users, user_key)))
+
+            assert response.status_code == 200
+            with pytest.raises(ValidationError):
+                ResponseWithObjects[BusinessDTO].model_validate(response.json)
