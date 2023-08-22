@@ -4,7 +4,8 @@
       <q-btn flat round dense icon="menu" class="q-mr-sm" @click="navigationPanelVisible = !navigationPanelVisible">
       </q-btn>
       <q-separator dark vertical inset/>
-      <q-toolbar-title>STC Ad Credit</q-toolbar-title>
+      <q-img src="https://www.seethroughcarbon.org/favicon.ico" width="2.5em" class="q-ml-md"></q-img>
+      <q-toolbar-title>STC - Ad Credit</q-toolbar-title>
       <UserInfoButton></UserInfoButton>
     </q-toolbar>
   </q-header>
