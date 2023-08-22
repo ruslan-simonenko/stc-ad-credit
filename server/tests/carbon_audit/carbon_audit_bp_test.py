@@ -2,11 +2,11 @@ from datetime import datetime, timedelta
 
 from flask.testing import FlaskClient
 
-from src.business.business_service import BusinessService
 from src.carbon_audit.carbon_audit_dto import CarbonAuditDTO, CarbonAuditsGetResponse, CarbonAuditAddForm
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
 from tests.app_fixtures import AutoAppContextFixture
 from tests.auth.auth_fixtures import AuthFixtures
+from tests.business.business_test_utils import BusinessTestUtils
 from tests.persistence.db_test import DatabaseTest
 from tests.user.user_fixtures import UserFixtures
 from tests.utils.dto_comparison_utils import patched_dto_for_comparison
@@ -15,7 +15,7 @@ from tests.utils.dto_comparison_utils import patched_dto_for_comparison
 class TestCarbonAuditEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppContextFixture):
     class TestAdd:
         def test_add_audit(self, client: FlaskClient, users, access_headers_for):
-            business = BusinessService.add("Mitchel's Bicycle Rental", facebook_url=None, creator_id=users.admin.id)
+            business = BusinessTestUtils.add_business(users.business_manager)
             form = CarbonAuditAddForm(
                 business_id=business.id,
                 score=50,
@@ -40,7 +40,7 @@ class TestCarbonAuditEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppC
 
     class TestGetAll:
         def test_get_audits(self, client: FlaskClient, users, access_headers_for):
-            business = BusinessService.add("Mitchel's Bicycle Rental", facebook_url=None, creator_id=users.admin.id)
+            business = BusinessTestUtils.add_business(users.business_manager)
             audits = [CarbonAuditService.add(
                 business_id=business.id,
                 score=score,

@@ -8,10 +8,10 @@ from src.ad.allowance.ad_allowance_service import AdAllowanceService
 from src.ad.allowance.ad_allowance_types import AdAllowance
 from src.ad.record.ad_record_dto import AdRecordAddFormDTO, AdRecordDTO, AdRecordsDTO, ErrorResponse
 from src.ad.record.ad_record_service import AdRecordService
-from src.business.business_service import BusinessService
 from src.persistence.schema.business import Business
 from tests.app_fixtures import AutoAppContextFixture
 from tests.auth.auth_fixtures import AuthFixtures
+from tests.business.business_fixtures import BusinessFixtures
 from tests.persistence.db_test import DatabaseTest
 from tests.user.user_fixtures import UserFixtures
 from tests.utils.dto_comparison_utils import patched_dto_for_comparison
@@ -19,11 +19,7 @@ from tests.utils.dto_comparison_utils import patched_dto_for_comparison
 AD_POST_URL = 'https://facebook.com/groups/salisbury-noticeboard/posts/1643638762794779/'
 
 
-class TestAdRecordEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppContextFixture):
-
-    @pytest.fixture
-    def business(self, users) -> Business:
-        return BusinessService.add("Mitchel's Bicycle Rental", facebook_url=None, creator_id=users.admin.id)
+class TestAdRecordEndpoint(DatabaseTest, BusinessFixtures, AuthFixtures, UserFixtures, AutoAppContextFixture):
 
     @pytest.fixture(autouse=True)
     def huge_ad_allowance(self, monkeypatch: MonkeyPatch):

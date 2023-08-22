@@ -2,8 +2,8 @@ from typing import NamedTuple
 
 import pytest
 
-from src.business.business_service import BusinessService
 from src.persistence.schema.business import Business
+from tests.business.business_test_utils import BusinessTestUtils
 from tests.user.user_fixtures import UserFixtures
 
 
@@ -15,11 +15,11 @@ class BusinessFixtures(UserFixtures):
 
     @pytest.fixture
     def business(self, users) -> Business:
-        return BusinessService.add(name='Apple', facebook_url=None, creator_id=users.admin.id)
+        return BusinessTestUtils.add_business(users.business_manager, name='Apple')
 
     @pytest.fixture
     def businesses(self, users) -> Businesses:
-        apple = BusinessService.add(name='Apple', facebook_url=None, creator_id=users.admin.id)
-        banana = BusinessService.add(name='Banana', facebook_url=None, creator_id=users.admin.id)
-        pear = BusinessService.add(name='Pear', facebook_url=None, creator_id=users.admin.id)
+        apple = BusinessTestUtils.add_business(users.business_manager, name='Apple')
+        banana = BusinessTestUtils.add_business(users.business_manager, name='Banana')
+        pear = BusinessTestUtils.add_business(users.business_manager, name='Pear')
         return self.Businesses(apple, banana, pear)
