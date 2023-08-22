@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import AdRecordAddForm from "./AdRecordAddForm.vue";
+import AdRecordAddForm from "./add/AdRecordAddForm.vue";
 import AdRecordsTable from "./AdRecordsTable.vue";
 import {useAuthStore} from "../../../auth/auth-store.ts";
 import {UserRole} from "../../../user/user.ts";
