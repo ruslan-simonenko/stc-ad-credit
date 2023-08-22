@@ -5,10 +5,10 @@ import {useAuthStore} from "../auth/auth-store.ts";
 import CarbonAuditPage from "../app/carbon-audit/CarbonAuditPage.vue";
 import {UserRole} from "../user/user.ts";
 import DisabledUserPage from "../user/DisabledUserPage.vue";
-import BusinessesPage from "../app/business/BusinessesPage.vue";
 import {useRoutingStore} from "./routing-store.ts";
 import AdRecordsPage from "../app/ad/records/AdRecordsPage.vue";
 import AdStrategyPage from "../app/ad/strategy/AdStrategyPage.vue";
+import BUSINESS_ROUTES from "../app/business/business-routing.ts";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();
@@ -81,18 +81,6 @@ const routes: RouteRecordRaw[] = [
         }
     },
     {
-        name: 'Businesses', path: '/businesses', component: BusinessesPage, meta: {
-            auth: {
-                required: true,
-                authorizedRoles: [UserRole.ADMIN, UserRole.BUSINESS_MANAGER],
-            },
-            navigationMenu: {
-                icon: 'storefront',
-                label: 'Businesses'
-            }
-        }
-    },
-    {
         name: 'AdRecords', path: '/ad-records', component: AdRecordsPage, meta: {
             auth: {
                 required: true,
@@ -116,6 +104,7 @@ const routes: RouteRecordRaw[] = [
             }
         }
     },
+    ...BUSINESS_ROUTES
 ]
 
 export const appRouter = createRouter({
