@@ -14,7 +14,7 @@ const BUSINESS_ROUTES: RouteRecordRaw[] = [
         }
     },
     {
-        name: 'AddBusiness', path: '/businesses/add', component: BusinessAddPage, meta: {
+        name: 'BusinessAdd', path: '/businesses/add', component: BusinessAddPage, meta: {
             auth: {
                 required: true,
                 authorizedRoles: [UserRole.BUSINESS_MANAGER]
