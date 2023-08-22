@@ -1,11 +1,11 @@
 import email_normalize
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, request
 
 from src.auth.auth_bp import auth_role
-from src.user.user_dto import UserInfoDTO, UsersGetManageableResponse, UserAddForm, UserOperationSuccessResponse, \
-    UserAddFailedResponse, UserUpdateRequest
+from src.user.user_dto import UserInfoDTO, UserAddForm, UserUpdateForm
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
+from src.utils.dto import ResponseWithObjects, ErrorResponse, ResponseWithObject
 
 user_bp = Blueprint('user', __name__, url_prefix='/users')
 
@@ -14,7 +14,7 @@ user_bp = Blueprint('user', __name__, url_prefix='/users')
 @auth_role(UserRole.ADMIN)
 def get_manageable_users():
     users = [UserInfoDTO.from_entity(user) for user in UserService.get_users()]
-    return jsonify(UsersGetManageableResponse(users=users))
+    return jsonify(ResponseWithObjects[UserInfoDTO](objects=users))
 
 
 @user_bp.route('/', methods=['post'])
@@ -24,20 +24,20 @@ async def add_user():
     try:
         normalized_email = await normalize_email(form.email)
     except EmailNormalizationError as e:
-        return jsonify(UserAddFailedResponse(message=f'Email validation failed: {str(e)}')), 400
+        return jsonify(ErrorResponse(message=f'Email validation failed: {str(e)}')), 400
     user = UserService.add_user(normalized_email, form.roles)
-    return jsonify(UserOperationSuccessResponse(user=UserInfoDTO.from_entity(user)))
+    return jsonify(ResponseWithObject[UserInfoDTO](object=UserInfoDTO.from_entity(user)))
 
 
 @user_bp.route('/<int:user_id>', methods=['put'])
 @auth_role(UserRole.ADMIN)
 async def update_user(user_id):
-    update = UserUpdateRequest.model_validate(request.get_json())
+    update = UserUpdateForm.model_validate(request.get_json())
     if update.roles is not None:
         user = UserService.set_user_roles(user_id, update.roles)
     else:
         user = UserService.get_user_by_id(user_id)
-    return jsonify(UserOperationSuccessResponse(user=UserInfoDTO.from_entity(user)))
+    return jsonify(ResponseWithObject[UserInfoDTO](object=UserInfoDTO.from_entity(user)))
 
 
 async def normalize_email(email: str) -> str:

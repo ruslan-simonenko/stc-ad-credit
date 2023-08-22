@@ -7,10 +7,10 @@ from flask.testing import FlaskClient
 from app import app
 from src.auth.auth_service import AuthService
 from src.user import user_bp
-from src.user.user_dto import UserInfoDTO, UsersGetManageableResponse, UserAddForm, UserOperationSuccessResponse, \
-    UserUpdateRequest
+from src.user.user_dto import UserInfoDTO, UserAddForm, UserUpdateForm
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
+from src.utils.dto import ResponseWithObjects, ResponseWithObject
 from tests.persistence.db_test import DatabaseTest
 from tests.utils.dto_comparison_utils import patched_dto_for_comparison
 
@@ -52,12 +52,12 @@ class TestUserEndpoint:
 
             assert response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                actual_response = UsersGetManageableResponse.model_validate(response.json)
-                expected_response = UsersGetManageableResponse(
-                    users=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
-                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
-                           UserInfoDTO(id=0, email=ANOTHER_ADMIN_EMAIL, roles=[UserRole.ADMIN]),
-                           UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
+                actual_response = ResponseWithObjects[UserInfoDTO].model_validate(response.json)
+                expected_response = ResponseWithObjects[UserInfoDTO](
+                    objects=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                             UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                             UserInfoDTO(id=0, email=ANOTHER_ADMIN_EMAIL, roles=[UserRole.ADMIN]),
+                             UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
                 assert actual_response == expected_response
 
         def test_returns_users_without_roles(self, client: FlaskClient, access_headers: Dict[str, str]):
@@ -69,11 +69,11 @@ class TestUserEndpoint:
 
             assert response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                actual_response = UsersGetManageableResponse.model_validate(response.json)
-                expected_response = UsersGetManageableResponse(
-                    users=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[]),
-                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
-                           UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
+                actual_response = ResponseWithObjects[UserInfoDTO].model_validate(response.json)
+                expected_response = ResponseWithObjects[UserInfoDTO](
+                    objects=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[]),
+                             UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                             UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
                 assert actual_response == expected_response
 
     class TestAddUser(DatabaseTest):
@@ -85,9 +85,9 @@ class TestUserEndpoint:
 
             assert response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                actual_response = UserOperationSuccessResponse.model_validate(response.json)
-                expected_response = UserOperationSuccessResponse(
-                    user=UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]))
+                actual_response = ResponseWithObject[UserInfoDTO].model_validate(response.json)
+                expected_response = ResponseWithObject[UserInfoDTO](
+                    object=UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]))
                 assert actual_response == expected_response
 
         def test_email_normalization(self, client: FlaskClient, access_headers: Dict[str, str],
@@ -103,9 +103,9 @@ class TestUserEndpoint:
 
             assert response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                actual_response = UserOperationSuccessResponse.model_validate(response.json)
-                expected_response = UserOperationSuccessResponse(
-                    user=UserInfoDTO(id=0, email=normalize_email(USER_A_EMAIL), roles=[UserRole.CARBON_AUDITOR]))
+                actual_response = ResponseWithObject[UserInfoDTO].model_validate(response.json)
+                expected_response = ResponseWithObject[UserInfoDTO](
+                    object=UserInfoDTO(id=0, email=normalize_email(USER_A_EMAIL), roles=[UserRole.CARBON_AUDITOR]))
                 assert actual_response == expected_response
 
     class TestAddAndGetUsers(DatabaseTest):
@@ -119,13 +119,13 @@ class TestUserEndpoint:
 
             assert response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                actual_response = UsersGetManageableResponse.model_validate(response.json)
-                expected_response = UsersGetManageableResponse(
-                    users=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
-                           UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
-                           UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
+                actual_response = ResponseWithObjects[UserInfoDTO].model_validate(response.json)
+                expected_response = ResponseWithObjects[UserInfoDTO](
+                    objects=[UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                             UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.CARBON_AUDITOR]),
+                             UserInfoDTO(id=0, email=CURRENT_ADMIN_EMAIL, roles=[UserRole.ADMIN])])
                 assert actual_response == expected_response
-                actual_users = list(actual_response.users)
+                actual_users = list(actual_response.objects)
                 assert actual_users[0].id != actual_users[1].id
 
     class TestUpdateUser(DatabaseTest):
@@ -135,11 +135,11 @@ class TestUserEndpoint:
 
             disable_response = client.put(
                 f'/users/{user_id}',
-                json=UserUpdateRequest(roles=[]),
+                json=UserUpdateForm(roles=[]),
                 headers=access_headers)
 
             assert disable_response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                user_after_update = UserOperationSuccessResponse.model_validate(disable_response.json).user
+                user_after_update = ResponseWithObject[UserInfoDTO].model_validate(disable_response.json).object
                 expected_user = UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[])
                 assert user_after_update == expected_user
