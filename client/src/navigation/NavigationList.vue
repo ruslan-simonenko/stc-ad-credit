@@ -1,6 +1,6 @@
 <template>
   <q-list padding class="menu-list">
-    <q-item v-for="route in visibleRoutes" :active="route.name === currentRoute.name" v-ripple
+    <q-item v-for="route in visibleRoutes" :active="currentRouteName == route.name" v-ripple
             clickable @click="router.push({name: route.name})">
       <q-item-section avatar>
         <q-icon :name="getNavMenuEntry(route).icon"/>
@@ -12,7 +12,14 @@
   </q-list>
 </template>
 <script setup lang="ts">
-import {RouteRecordRaw, useRoute, useRouter} from "vue-router";
+import {
+  _RouteLocationBase,
+  RouteLocationNormalizedLoaded,
+  RouteRecordName,
+  RouteRecordRaw,
+  useRoute,
+  useRouter
+} from "vue-router";
 import {computed} from "vue";
 import {useRoutingStore} from "./routing-store.ts";
 
@@ -25,7 +32,17 @@ const visibleRoutes = computed(() =>
         .filter(route => {
           const supportsNavigation = route.meta?.navigationMenu?.type === 'entry'
           return supportsNavigation && routingStore.passesAuthGuards(route)
-        }))
+        }));
+
+const currentRouteName = computed<RouteRecordName | null>(() => {
+  const currentRouteNavigationMenu = currentRoute.meta.navigationMenu;
+  if (currentRouteNavigationMenu?.type === 'entry') {
+    return currentRoute.name ?? null
+  } else if (currentRouteNavigationMenu?.type === 'linked') {
+    return currentRouteNavigationMenu.routeName
+  }
+  return null;
+});
 
 const getNavMenuEntry = (route: RouteRecordRaw) => {
   const navMenu = route.meta!.navigationMenu!;

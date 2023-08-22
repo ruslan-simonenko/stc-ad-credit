@@ -1,6 +1,7 @@
 import BusinessesPage from "./BusinessesPage.vue";
 import {UserRole} from "../../user/user.ts";
 import {RouteRecordRaw} from "vue-router";
+import BusinessAddPage from "./add/BusinessAddPage.vue";
 
 const BUSINESS_ROUTES: RouteRecordRaw[] = [
     {
@@ -9,9 +10,18 @@ const BUSINESS_ROUTES: RouteRecordRaw[] = [
                 required: true,
                 authorizedRoles: [UserRole.ADMIN, UserRole.BUSINESS_MANAGER],
             },
-            navigationMenu: {type: 'entry', entry: {icon: 'storefront', label: 'Businesses'}}
+            navigationMenu: {type:'entry', entry: {icon: 'storefront', label: 'Businesses'}}
         }
     },
+    {
+        name: 'AddBusiness', path: '/businesses/add', component: BusinessAddPage, meta: {
+            auth: {
+                required: true,
+                authorizedRoles: [UserRole.BUSINESS_MANAGER]
+            },
+            navigationMenu: {type: 'linked', routeName: 'Businesses'}
+        }
+    }
 ];
 
 export default BUSINESS_ROUTES
