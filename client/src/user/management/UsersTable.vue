@@ -1,6 +1,6 @@
 <template>
   <q-table
-      title="Users"
+      flat bordered
       :rows="userStore.all.items"
       :columns="columns"
       :loading="userStore.all.fetching"

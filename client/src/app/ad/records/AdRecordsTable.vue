@@ -1,6 +1,6 @@
 <template>
   <q-table
-      title="Users"
+      flat bordered
       :rows="adRecordsStore.all.items"
       :columns="columns"
       :rows-per-page-options="[10, 25, 50, 100]"
