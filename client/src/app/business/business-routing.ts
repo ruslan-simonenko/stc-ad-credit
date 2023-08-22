@@ -9,10 +9,7 @@ const BUSINESS_ROUTES: RouteRecordRaw[] = [
                 required: true,
                 authorizedRoles: [UserRole.ADMIN, UserRole.BUSINESS_MANAGER],
             },
-            navigationMenu: {
-                icon: 'storefront',
-                label: 'Businesses'
-            }
+            navigationMenu: {type: 'entry', entry: {icon: 'storefront', label: 'Businesses'}}
         }
     },
 ];

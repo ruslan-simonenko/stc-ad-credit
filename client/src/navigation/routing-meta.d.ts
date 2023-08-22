@@ -9,8 +9,11 @@ declare module 'vue-router' {
             authorizedRoles?: Array<UserRole>,
         },
         navigationMenu?: {
-            icon: string,
-            label: string,
+            type: 'entry'
+            entry: { icon: string, label: string }
+        } | {
+            type: 'linked'
+            routeName: string
         },
     }
 }
