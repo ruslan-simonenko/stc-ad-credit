@@ -10,6 +10,7 @@ import AdRecordsPage from "../app/ad/records/AdRecordsPage.vue";
 import AdStrategyPage from "../app/ad/strategy/AdStrategyPage.vue";
 import BUSINESS_ROUTES from "../app/business/business-routing.ts";
 import CARBON_AUDIT_ROUTES from "../app/carbon-audit/carbon-audit-routing.ts";
+import AD_RECORD_ROUTES from "../app/ad/records/ad-records-routing.ts";
 
 const navigateToHomeIfAuthenticated = () => {
     const authStore = useAuthStore();
@@ -68,15 +69,7 @@ const routes: RouteRecordRaw[] = [
     },
     ...BUSINESS_ROUTES,
     ...CARBON_AUDIT_ROUTES,
-    {
-        name: 'AdRecords', path: '/ad-records', component: AdRecordsPage, meta: {
-            auth: {
-                required: true,
-                authorizedRoles: [UserRole.ADMIN, UserRole.AD_MANAGER],
-            },
-            navigationMenu: {type: 'entry', entry: {icon: 'list_alt', label: 'Ad Records'}}
-        }
-    },
+    ...AD_RECORD_ROUTES,
     {
         name: 'AdStrategy', path: '/ad-strategy', component: AdStrategyPage, meta: {
             auth: {
