@@ -18,7 +18,7 @@ export const useAdAllowanceStore = defineStore("adAllowance", () => {
             const response = await apiClient.get('/ad-allowances/', {
                 headers: {'Content-Type': 'application/json'}
             })
-            data.indexed = response.data.items
+            data.indexed = response.data.objects
                 .map((record: any) => AdAllowanceSchema.parse(record))
                 .reduce((accumulator: { [business_id: number]: AdAllowance }, adAllowance: AdAllowance) => {
                     accumulator[adAllowance.business_id] = adAllowance;
