@@ -62,7 +62,7 @@ const routes: RouteRecordRaw[] = [
                 required: true,
                 authorizedRoles: [UserRole.ADMIN],
             },
-            navigation: {
+            navigationMenu: {
                 icon: 'manage_accounts',
                 label: 'Users'
             }
@@ -74,7 +74,7 @@ const routes: RouteRecordRaw[] = [
                 required: true,
                 authorizedRoles: [UserRole.CARBON_AUDITOR],
             },
-            navigation: {
+            navigationMenu: {
                 icon: 'co2',
                 label: 'Carbon Audit'
             }
@@ -86,7 +86,7 @@ const routes: RouteRecordRaw[] = [
                 required: true,
                 authorizedRoles: [UserRole.ADMIN, UserRole.BUSINESS_MANAGER],
             },
-            navigation: {
+            navigationMenu: {
                 icon: 'storefront',
                 label: 'Businesses'
             }
@@ -98,7 +98,7 @@ const routes: RouteRecordRaw[] = [
                 required: true,
                 authorizedRoles: [UserRole.ADMIN, UserRole.AD_MANAGER],
             },
-            navigation: {
+            navigationMenu: {
                 icon: 'list_alt',
                 label: 'Ad Records'
             }
@@ -110,7 +110,7 @@ const routes: RouteRecordRaw[] = [
                 required: true,
                 authorizedRoles: [UserRole.ADMIN, UserRole.AD_MANAGER],
             },
-            navigation: {
+            navigationMenu: {
                 icon: 'tune',
                 label: 'Ad Strategy'
             }

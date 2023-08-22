@@ -8,7 +8,7 @@ declare module 'vue-router' {
             required: boolean,
             authorizedRoles?: Array<UserRole>,
         },
-        navigation?: {
+        navigationMenu?: {
             icon: string,
             label: string,
         },

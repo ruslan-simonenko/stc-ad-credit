@@ -3,10 +3,10 @@
     <q-item v-for="route in visibleRoutes" :active="route.name === currentRoute.name" v-ripple
             clickable @click="router.push({name: route.name})">
       <q-item-section avatar>
-        <q-icon :name="route.meta!.navigation!.icon"/>
+        <q-icon :name="route.meta!.navigationMenu!.icon"/>
       </q-item-section>
       <q-item-section>
-        {{ route.meta!.navigation!.label }}
+        {{ route.meta!.navigationMenu!.label }}
       </q-item-section>
     </q-item>
   </q-list>
@@ -24,7 +24,7 @@ const visibleRoutes = computed(() =>
     router.options.routes
         .filter(route => {
           // noinspection JSIncompatibleTypesComparison
-          const supportsNavigation = route.meta?.navigation !== undefined
+          const supportsNavigation = route.meta?.navigationMenu !== undefined
           return supportsNavigation && routingStore.passesAuthGuards(route)
         }))
 </script>
