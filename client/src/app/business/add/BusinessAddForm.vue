@@ -13,8 +13,8 @@
 
 <script setup lang="ts">
 import {ref} from "vue";
-import {useBusinessStore} from "./business-store.ts";
-import {BusinessRegistrationType} from "./business-types.ts";
+import {useBusinessStore} from "../business-store.ts";
+import {BusinessRegistrationType} from "../business-types.ts";
 
 const businessStore = useBusinessStore();
 

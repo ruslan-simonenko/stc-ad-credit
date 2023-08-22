@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import BusinessAddForm from "../BusinessAddForm.vue";
+import BusinessAddForm from "./BusinessAddForm.vue";
 </script>
 
 <style scoped>
