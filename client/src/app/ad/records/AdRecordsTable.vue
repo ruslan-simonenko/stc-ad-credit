@@ -6,6 +6,12 @@
       :rows-per-page-options="[10, 25, 50, 100]"
       :visible-columns="visibleColumns"
   >
+    <template v-slot:top>
+      <div class="text-h6">Ad Records</div>
+      <q-btn label="Add" v-if="authStore.hasRole(UserRole.AD_MANAGER)"
+             color="primary" class="q-ml-sm"
+             @click="goToAdRecordAddPage"/>
+    </template>
     <template v-slot:body-cell-business="props">
       <q-td :props="props">
         {{ props.value.name }}
@@ -29,11 +35,17 @@ import {Business} from "../../business/business-types.ts";
 import {useUserStore} from "../../../user/user-store.ts";
 import {useAuthStore} from "../../../auth/auth-store.ts";
 import {QTableProps} from "quasar";
+import {useRouter} from "vue-router";
 
 const businessStore = useBusinessStore();
 const adRecordsStore = useAdRecordsStore();
 const userStore = useUserStore();
 const authStore = useAuthStore();
+
+const router = useRouter();
+
+const goToAdRecordAddPage = () => router.push({name: 'AdRecordAdd'});
+
 
 const columns: QTableProps['columns'] = [
   {

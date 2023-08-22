@@ -23,6 +23,8 @@ const form = ref<QForm>()
 const adRecordsStore = useAdRecordsStore();
 const adAllowanceStore = useAdAllowanceStore();
 
+const emit = defineEmits(['added']);
+
 const business = ref<Business | null>(null)
 const remainingAds = computed<number | null>(() => {
   if (business.value == null) {
@@ -45,6 +47,7 @@ const onSubmit = async () => {
     ad_post_url: adPostURL.value!
   })
   form.value!.reset()
+  emit('added');
 };
 
 const onReset = () => {
