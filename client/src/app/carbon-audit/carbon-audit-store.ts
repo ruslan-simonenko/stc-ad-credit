@@ -1,17 +1,21 @@
 import {defineStore} from "pinia";
-import {reactive} from "vue";
+import {reactive, watch} from "vue";
 import {CarbonAudit, CarbonAuditAddFormDTO, CarbonAudits} from "./carbon-audit-types.ts";
 import {useApiClientAxios} from "../../api/api-client-axios.ts";
+import {useAuthStore} from "../../auth/auth-store.ts";
 
 
 export const useCarbonAuditStore = defineStore("carbonAudit", () => {
     const apiClient = useApiClientAxios();
+    const authStore = useAuthStore();
 
     const all = reactive<CarbonAudits>({
         items: [],
         fetching: false,
         error: false,
     })
+
+    watch(() => authStore.user, () => all.items = [])
 
     const fetch = async () => {
         all.fetching = true

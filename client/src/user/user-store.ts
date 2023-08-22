@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {reactive} from "vue";
+import {reactive, watch} from "vue";
 import {User, UserAddFormDTO, UserRole, Users} from "./user.ts";
 import {useApiClientAxios} from "../api/api-client-axios.ts";
 import {useAuthStore} from "../auth/auth-store.ts";
@@ -14,6 +14,8 @@ export const useUserStore = defineStore("user", () => {
         fetching: false,
         error: false,
     })
+
+    watch(() => authStore.user, () => all.items = [])
 
     const fetch = async () => {
         if (!authStore.hasRole(UserRole.ADMIN)) {

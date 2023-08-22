@@ -1,19 +1,23 @@
 import {defineStore} from "pinia";
-import {reactive} from "vue";
+import {reactive, watch} from "vue";
 import {useApiClientAxios} from "../../../api/api-client-axios.ts";
 import {AdRecord, AdRecordAddFormDTO, AdRecords, AdRecordSchema} from "./ad-records-types.ts";
 import {useAdAllowanceStore} from "../allowance/ad-allowance-store.ts";
+import {useAuthStore} from "../../../auth/auth-store.ts";
 
 
 export const useAdRecordsStore = defineStore("adRecords", () => {
     const apiClient = useApiClientAxios();
 
     const adAllowanceStore = useAdAllowanceStore();
+    const authStore = useAuthStore();
 
     const all = reactive<AdRecords>({
         items: [],
         fetching: false,
     })
+
+    watch(() => authStore.user, () => all.items = [])
 
     const fetch = async () => {
         all.fetching = true

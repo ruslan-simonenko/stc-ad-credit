@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {reactive} from "vue";
+import {reactive, watch} from "vue";
 import {
     Business,
     BusinessAddFormDTO,
@@ -20,6 +20,10 @@ export const useBusinessStore = defineStore("business", () => {
         items: [],
         fetching: false,
         error: false,
+    })
+
+    watch(() => authStore.user, () => {
+        all.items = []
     })
 
     const fetch = async () => {
