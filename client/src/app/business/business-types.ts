@@ -5,21 +5,35 @@ export enum BusinessRegistrationType {
     CRN = "CRN", VAT = "VAT", NI = "NI"
 }
 
-
-export const BusinessSchema = z.object({
+export const BusinessDTOSchema = z.object({
     id: z.number(),
     name: z.string(),
     registration_type: z.nativeEnum(BusinessRegistrationType),
     registration_number: z.string(),
     email: z.string().nullable(),
     facebook_url: z.string().nullable(),
-}).partial({
-    registration_type: true,
-    registration_number: true,
-    email: true,
 })
 
-export type Business = z.TypeOf<typeof BusinessSchema>
+export const BusinessDTOPublicSchema = BusinessDTOSchema.omit({
+    registration_type: true,
+    registration_number: true,
+    email: true
+})
+
+export type BusinessDTO = z.TypeOf<typeof BusinessDTOSchema>
+export type BusinessDTOPublic = z.TypeOf<typeof BusinessDTOPublicSchema>
+
+
+export type Business = {
+    id: number,
+    name: string,
+    facebook_url: string | null,
+    sensitive?: {
+        registration_type: BusinessRegistrationType,
+        registration_number: string,
+        email: string | null,
+    }
+}
 
 export const BusinessAddFormDTOSchema = z.object({
     name: z.string(),

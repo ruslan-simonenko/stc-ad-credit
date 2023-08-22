@@ -37,50 +37,75 @@ const adStrategyStore = useAdStrategyStore();
 
 const loading = computed<boolean>(() => businessStore.all.fetching || auditStore.all.fetching || adAllowanceStore.data.fetching || adStrategyStore.data.fetching)
 
-const columns: QTableProps['columns'] = [
-  {
-    name: 'business',
-    label: 'Business',
-    align: 'left',
-    field: (row: Business) => row.name,
-  },
-  ...(authStore.hasRole(UserRole.ADMIN) ? [{
-    name: 'score',
-    label: 'Carbon Audit Score',
-    field: (row: Business) => auditStore.all.items.find(audit => audit.business_id === row.id)?.score,
-    format: (score: number | null): { score: number | null, icon: string, color: string } => {
-      const strategy = adStrategyStore.data.strategy;
-      let icon: string
-      let color: string
-      if (score == null) {
-        icon = 'question_mark'
-        color = 'grey'
-      } else if (score >= strategy!.rating_high_min_score) {
-        icon = 'sentiment_satisfied'
-        color = 'green'
-      } else if (score >= strategy!.rating_medium_min_score) {
-        icon = 'sentiment_neutral'
-        color = 'amber'
-      } else {
-        icon = 'sentiment_dissatisfied'
-        color = 'red'
+const prepareColumns = (): QTableProps['columns'] => {
+
+  const businessManagerColumns: QTableProps['columns'] = authStore.hasRole(UserRole.BUSINESS_MANAGER) ? [
+    {
+      name: 'registration',
+      label: 'Registration',
+      align: 'left',
+      field: (row: Business) => row.sensitive,
+      format: (sensitiveData: Business['sensitive']) => `${sensitiveData!.registration_type} ${sensitiveData!.registration_number}`
+    },
+    {
+      name: 'email',
+      label: 'Contact Email',
+      align: 'left',
+      field: (row: Business) => row.sensitive,
+      format: (sensitiveData: Business['sensitive']) => `${sensitiveData!.email}`
+    },
+  ] : [];
+
+  const adminColumns: QTableProps['columns'] = authStore.hasRole(UserRole.ADMIN) ? [
+    {
+      name: 'score',
+      label: 'Carbon Audit Score',
+      field: (row: Business) => auditStore.all.items.find(audit => audit.business_id === row.id)?.score,
+      format: (score: number | null): { score: number | null, icon: string, color: string } => {
+        const strategy = adStrategyStore.data.strategy;
+        let icon: string
+        let color: string
+        if (score == null) {
+          icon = 'question_mark'
+          color = 'grey'
+        } else if (score >= strategy!.rating_high_min_score) {
+          icon = 'sentiment_satisfied'
+          color = 'green'
+        } else if (score >= strategy!.rating_medium_min_score) {
+          icon = 'sentiment_neutral'
+          color = 'amber'
+        } else {
+          icon = 'sentiment_dissatisfied'
+          color = 'red'
+        }
+        return {score, icon, color}
       }
-      return {score, icon, color}
-    }
-  },
+    },
     {
       name: 'allowance',
       label: 'Ads Used',
       field: (row: Business) => adAllowanceStore.data.indexed[row.id],
       format: (value: AdAllowance | null): string => value != null ? `${value.used_allowance} / ${value.allowance}` : ''
-    }] : []),
-  {
-    name: 'facebook_url',
-    label: 'Facebook URL',
-    align: 'left',
-    field: (row: Business) => row.facebook_url,
-  }
-]
+    }] : [];
+  return [
+    {
+      name: 'business',
+      label: 'Business',
+      align: 'left',
+      field: (row: Business) => row.name,
+    },
+    ...adminColumns,
+    {
+      name: 'facebook_url',
+      label: 'Facebook URL',
+      align: 'left',
+      field: (row: Business) => row.facebook_url,
+    },
+    ...businessManagerColumns
+  ];
+}
+
+const columns: QTableProps['columns'] = prepareColumns();
 
 onMounted(() => {
   businessStore.fetch()
