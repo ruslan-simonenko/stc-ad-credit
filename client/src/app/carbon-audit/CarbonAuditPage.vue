@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import CarbonAuditAddForm from "./CarbonAuditAddForm.vue";
+import CarbonAuditAddForm from "./add/CarbonAuditAddForm.vue";
 import CarbonAuditsHistory from "./CarbonAuditsHistory.vue";
 </script>
 
