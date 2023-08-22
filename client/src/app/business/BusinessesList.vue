@@ -6,6 +6,12 @@
       :columns="columns"
       :loading="loading"
       row-key="id">
+    <template v-slot:top>
+      <div class="text-h6">Businesses</div>
+      <q-btn label="Add" v-if="authStore.hasRole(UserRole.BUSINESS_MANAGER)" :disable="loading"
+             color="primary" class="q-ml-sm"
+             @click="goToBusinessAddPage"/>
+    </template>
     <template v-if="authStore.hasRole(UserRole.ADMIN)" v-slot:body-cell-score="props">
       <q-td :props="props">
         <div class="row inline items-end">
@@ -28,12 +34,17 @@ import {useAdStrategyStore} from "../ad/strategy/ad-strategy-store.ts";
 import {QTableProps} from "quasar";
 import {useAuthStore} from "../../auth/auth-store.ts";
 import {UserRole} from "../../user/user.ts";
+import {useRouter} from "vue-router";
 
 const authStore = useAuthStore();
 const businessStore = useBusinessStore();
 const auditStore = useCarbonAuditStore();
 const adAllowanceStore = useAdAllowanceStore();
 const adStrategyStore = useAdStrategyStore();
+
+const router = useRouter();
+
+const goToBusinessAddPage = () => router.push({name: 'BusinessAdd'});
 
 const loading = computed<boolean>(() => businessStore.all.fetching || auditStore.all.fetching || adAllowanceStore.data.fetching || adStrategyStore.data.fetching)
 
@@ -89,8 +100,8 @@ const prepareColumns = (): QTableProps['columns'] => {
     }] : [];
   return [
     {
-      name: 'business',
-      label: 'Business',
+      name: 'name',
+      label: 'Name',
       align: 'left',
       field: (row: Business) => row.name,
     },
