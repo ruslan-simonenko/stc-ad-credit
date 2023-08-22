@@ -19,7 +19,7 @@ export const useBusinessStore = defineStore("business", () => {
             const response = await apiClient.get('/businesses/', {
                 headers: {'Content-Type': 'application/json'}
             })
-            all.items = response.data.businesses.map((business: any) => BusinessSchema.parse(business))
+            all.items = response.data.objects.map((business: any) => BusinessSchema.parse(business))
                 .sort((a: Business, b: Business) => b.id - a.id)
             all.error = false
         } catch (e) {

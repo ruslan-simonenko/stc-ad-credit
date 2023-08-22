@@ -1,9 +1,9 @@
 from flask.testing import FlaskClient
 
 from app import app
-from src.business.business_dto import BusinessAddForm, BusinessDTO, BusinessOperationSuccessResponse, \
-    BusinessesGetAllResponse
+from src.business.business_dto import BusinessAddForm, BusinessDTO
 from src.business.business_types import BusinessRegistrationType
+from src.utils.dto import ResponseWithObject, ResponseWithObjects
 from tests.app_fixtures import AutoAppContextFixture
 from tests.auth.auth_fixtures import AuthFixtures
 from tests.business.business_test_utils import BusinessTestUtils
@@ -24,15 +24,15 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
 
         assert response.status_code == 200
         with patched_dto_for_comparison(BusinessDTO):
-            created_business = BusinessOperationSuccessResponse.model_validate(response.json)
-            expected_business = BusinessOperationSuccessResponse(business=BusinessDTO(
+            created_business = ResponseWithObject[BusinessDTO].model_validate(response.json).object
+            expected_business = BusinessDTO(
                 id=0,
                 name=form.name,
                 registration_type=form.registration_type,
                 registration_number=form.registration_number,
                 email=form.email,
                 facebook_url=form.facebook_url
-            ))
+            )
             assert created_business == expected_business
 
     def test_get_all(self, client: FlaskClient, users, access_headers_for):
@@ -46,7 +46,7 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
 
         assert response.status_code == 200
         with patched_dto_for_comparison(BusinessDTO):
-            actual_data = BusinessesGetAllResponse.model_validate(response.json)
-            expected_data = BusinessesGetAllResponse(businesses=frozenset(businesses_dtos))
+            actual_data = ResponseWithObjects[BusinessDTO].model_validate(response.json)
+            expected_data = ResponseWithObjects[BusinessDTO](objects=frozenset(businesses_dtos))
             assert actual_data == expected_data
-            assert len({business.id for business in actual_data.businesses}) == len(businesses_dtos)
+            assert len({business.id for business in actual_data.objects}) == len(businesses_dtos)

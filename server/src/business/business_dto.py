@@ -1,4 +1,4 @@
-from typing import FrozenSet, Any, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -43,33 +43,9 @@ class BusinessDTO(BaseModel, DTODataComparable):
                    facebook_url=entity.facebook_url)
 
 
-class BusinessesGetAllResponse(BaseModel):
-    businesses: FrozenSet[BusinessDTO]
-
-    def __hash__(self) -> int:
-        return self.users.__hash__()
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, BusinessesGetAllResponse):
-            return False
-        return self.businesses == other.businesses
-
-
 class BusinessAddForm(BaseModel):
     name: str
     registration_type: BusinessRegistrationType
     registration_number: str
     email: Optional[str]
     facebook_url: Optional[str]
-
-
-class BusinessOperationSuccessResponse(BaseModel):
-    business: BusinessDTO
-
-    def __hash__(self) -> int:
-        return self.business.__hash__()
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, BusinessOperationSuccessResponse):
-            return False
-        return self.business == other.business
