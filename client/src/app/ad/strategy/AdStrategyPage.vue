@@ -8,7 +8,7 @@
           <thead>
           <tr>
             <th class="text-left">Rating</th>
-            <th class="text-right">Carbon Audit Score Required</th>
+            <th class="text-right"><div class="row inline text-center">Carbon Audit<br/>Score Required</div></th>
             <th class="text-right">Ad Allowance</th>
           </tr>
           </thead>
