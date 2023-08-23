@@ -1,12 +1,12 @@
 <template>
   <q-page padding>
-    <UserAddForm @added="returnToPreviousPage"/>
+    <UserForm :id="$route.params.id != null ? parseInt($route.params.id) : undefined" @submit="returnToPreviousPage"/>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import {useRouter} from "vue-router";
-import UserAddForm from "./UserAddForm.vue";
+import UserForm from "./UserForm.vue";
 
 const router = useRouter();
 

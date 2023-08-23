@@ -3,8 +3,7 @@ import DisabledUserPage from "./DisabledUserPage.vue";
 import AdminPage from "../app/admin/AdminPage.vue";
 import {UserRole} from "./user.ts";
 import {useAuthStore} from "../auth/auth-store.ts";
-import UserAddPage from "./management/UserAddPage.vue";
-import UserEditPage from "./management/UserEditPage.vue";
+import UserPage from "./management/UserPage.vue";
 
 
 const doNotNavigateIfNotDisabled = () => {
@@ -32,7 +31,7 @@ const USER_ROUTES: RouteRecordRaw[] = [
         }
     },
     {
-        name: 'UserAdd', path: '/users/add', component: UserAddPage, meta: {
+        name: 'UserAdd', path: '/users/add', component: UserPage, meta: {
             auth: {
                 required: true,
                 authorizedRoles: [UserRole.ADMIN]
@@ -41,7 +40,7 @@ const USER_ROUTES: RouteRecordRaw[] = [
         }
     },
     {
-        name: 'UserEdit', path: '/users/:id/edit', component: UserEditPage, meta: {
+        name: 'UserEdit', path: '/users/:id/edit', component: UserPage, meta: {
             auth: {
                 required: true,
                 authorizedRoles: [UserRole.ADMIN]
