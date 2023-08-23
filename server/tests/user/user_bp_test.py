@@ -129,17 +129,17 @@ class TestUserEndpoint:
                 assert actual_users[0].id != actual_users[1].id
 
     class TestUpdateUser(DatabaseTest):
-        def test_update_roles(self, client: FlaskClient, access_headers: Dict[str, str]):
+
+        def test_update(self, client: FlaskClient, access_headers: Dict[str, str]):
             with app.app_context():
                 user_id = UserService.add_user(USER_A_EMAIL, [UserRole.CARBON_AUDITOR]).id
 
-            disable_response = client.put(
-                f'/users/{user_id}',
-                json=UserUpdateForm(roles=[]),
-                headers=access_headers)
+            response = client.put(f'/users/{user_id}',
+                                  json=UserUpdateForm(email=USER_B_EMAIL, roles=[UserRole.ADMIN]),
+                                  headers=access_headers)
 
-            assert disable_response.status_code == 200
+            assert response.status_code == 200
             with patched_dto_for_comparison(UserInfoDTO):
-                user_after_update = ResponseWithObject[UserInfoDTO].model_validate(disable_response.json).object
-                expected_user = UserInfoDTO(id=0, email=USER_A_EMAIL, roles=[])
+                user_after_update = ResponseWithObject[UserInfoDTO].model_validate(response.json).object
+                expected_user = UserInfoDTO(id=0, email=USER_B_EMAIL, roles=[UserRole.ADMIN])
                 assert user_after_update == expected_user

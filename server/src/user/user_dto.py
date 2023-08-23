@@ -46,4 +46,5 @@ class UserAddForm(BaseModel):
 
 
 class UserUpdateForm(BaseModel):
-    roles: Optional[List[UserRole]]
+    email: Optional[str] = None
+    roles: Optional[List[UserRole]] = None

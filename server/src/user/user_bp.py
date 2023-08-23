@@ -32,11 +32,15 @@ async def add_user():
 @user_bp.route('/<int:user_id>', methods=['put'])
 @auth_role(UserRole.ADMIN)
 async def update_user(user_id):
-    update = UserUpdateForm.model_validate(request.get_json())
-    if update.roles is not None:
-        user = UserService.set_user_roles(user_id, update.roles)
-    else:
-        user = UserService.get_user_by_id(user_id)
+    form = UserUpdateForm.model_validate(request.get_json())
+    try:
+        if form.email is not None:
+            normalized_email = await normalize_email(form.email)
+        else:
+            normalized_email = None
+    except EmailNormalizationError as e:
+        return jsonify(ErrorResponse(message=f'Email validation failed: {str(e)}')), 400
+    user = UserService.update_user(user_id, email=normalized_email, roles=form.roles)
     return jsonify(ResponseWithObject[UserInfoDTO](object=UserInfoDTO.from_entity(user)))
 
 
