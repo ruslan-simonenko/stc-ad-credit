@@ -1,6 +1,7 @@
 <template>
   <q-table
       flat bordered
+      :grid="$q.screen.lt.md"
       :rows="rows"
       :columns="columns"
       :rows-per-page-options="[10, 25, 50, 100]"
@@ -12,6 +13,22 @@
       <q-btn label="Add" v-if="authStore.hasRole(UserRole.AD_MANAGER)"
              color="primary" class="q-ml-sm"
              @click="goToAdRecordAddPage"/>
+    </template>
+    <template v-slot:item="props">
+      <div class="q-pa-xs col-xs-12 col-sm-6">
+        <q-card bordered flat>
+          <q-card-section horizontal>
+            <q-list class="col" dense>
+              <q-item v-for="column in props.cols" :key="column.name">
+                <q-item-section>
+                  <q-item-label caption>{{ column.label }}</q-item-label>
+                  <q-item-label>{{ column.value }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+      </div>
     </template>
   </q-table>
 </template>
