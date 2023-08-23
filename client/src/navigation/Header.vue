@@ -14,7 +14,7 @@
       show-if-above
       bordered
       :width="200"
-      :breakpoint="500">
+      :breakpoint="800">
     <NavigationList/>
   </q-drawer>
 </template>

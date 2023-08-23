@@ -1,6 +1,7 @@
 <template>
   <q-table
       flat bordered
+      :grid="$q.screen.lt.md"
       :rows="userStore.all.items"
       :columns="columns"
       :loading="userStore.all.fetching"
@@ -24,6 +25,34 @@
       <q-td :props="props">
         <q-btn v-if="authStore.hasRole(UserRole.ADMIN)" @click="loginAs(props.row!)">Login as</q-btn>
       </q-td>
+    </template>
+    <!-- Grid mode -->
+    <template v-slot:item="props">
+      <div class="q-pa-xs col-xs-12 col-sm-6 grid-style-transition">
+        <q-card bordered flat>
+          <q-card-section horizontal>
+            <q-list class="col" dense>
+              <q-item v-for="column in props.cols.filter(column => column.name != 'actions')" :key="column.name">
+                <q-item-section>
+                  <q-item-label caption>{{ column.label }}</q-item-label>
+                  <q-item-label>{{ column.value }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <q-card-actions v-if="authStore.hasRole(UserRole.ADMIN)" vertical>
+              <q-btn round flat icon="more_vert">
+                <q-menu auto-close anchor="bottom end" self="top end">
+                  <q-list>
+                    <q-item clickable @click="loginAs(props.row!)">
+                      <q-item-section>Login as</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </q-card-actions>
+          </q-card-section>
+        </q-card>
+      </div>
     </template>
   </q-table>
 </template>
