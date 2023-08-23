@@ -28,7 +28,7 @@
     </template>
     <!-- Grid mode -->
     <template v-slot:item="props">
-      <div class="q-pa-xs col-xs-12 col-sm-6 grid-style-transition">
+      <div class="q-pa-xs col-xs-12 col-sm-6">
         <q-card bordered flat>
           <q-card-section horizontal>
             <q-list class="col" dense>
