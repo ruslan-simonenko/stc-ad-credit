@@ -45,9 +45,3 @@ const onSubmit = async () => {
   emit('added');
 }
 </script>
-
-<style scoped>
-.form {
-  width: 350px
-}
-</style>
