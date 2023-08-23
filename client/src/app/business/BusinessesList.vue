@@ -1,7 +1,7 @@
 <template class="relative-position">
   <q-table
       flat bordered
-      title="Businesses"
+      :grid="$q.screen.lt.md"
       :rows="businessStore.all.items"
       :columns="columns"
       :loading="loading"
@@ -19,6 +19,28 @@
           <q-icon :name="props.value.icon" :color="props.value.color" size="2em"/>
         </div>
       </q-td>
+    </template>
+    <template v-slot:item="props">
+      <div class="q-pa-xs col-xs-12 col-sm-6">
+        <q-card bordered flat>
+          <q-card-section horizontal>
+            <q-list class="col" dense>
+              <q-item v-for="column in props.cols" :key="column.name">
+                <q-item-section>
+                  <q-item-label caption>{{ column.label }}</q-item-label>
+                  <q-item-label v-if="column.name != Columns.SCORE">{{ column.value }}</q-item-label>
+                  <template v-else>
+                    <div class="row inline items-center">
+                      <q-icon :name="column.value.icon" :color="column.value.color" size="2em"/>
+                      <div v-if="column.value.score != null" class="q-ml-xs">{{ column.value.score }}</div>
+                    </div>
+                  </template>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+      </div>
     </template>
   </q-table>
 </template>
@@ -48,18 +70,29 @@ const goToBusinessAddPage = () => router.push({name: 'BusinessAdd'});
 
 const loading = computed<boolean>(() => businessStore.all.fetching || auditStore.all.fetching || adAllowanceStore.data.fetching || adStrategyStore.data.fetching)
 
+enum Columns {
+  NAME = 'name',
+  REGISTRATION = 'registration',
+  EMAIL = 'email',
+  SCORE = 'score',
+  ALLOWANCE = 'allowance',
+  FACEBOOK_URL = 'facebook_url',
+}
+
+const ColumnsOrder: Array<string> = [Columns.NAME, Columns.FACEBOOK_URL, Columns.SCORE, Columns.ALLOWANCE, Columns.REGISTRATION, Columns.EMAIL];
+
 const prepareColumns = (): QTableProps['columns'] => {
 
   const businessManagerColumns: QTableProps['columns'] = authStore.hasRole(UserRole.BUSINESS_MANAGER) ? [
     {
-      name: 'registration',
+      name: Columns.REGISTRATION,
       label: 'Registration',
       align: 'left',
       field: (row: Business) => row.sensitive,
       format: (sensitiveData: Business['sensitive']) => `${sensitiveData!.registration_type} ${sensitiveData!.registration_number}`
     },
     {
-      name: 'email',
+      name: Columns.EMAIL,
       label: 'Contact Email',
       align: 'left',
       field: (row: Business) => row.sensitive,
@@ -69,7 +102,7 @@ const prepareColumns = (): QTableProps['columns'] => {
 
   const adminColumns: QTableProps['columns'] = authStore.hasRole(UserRole.ADMIN) ? [
     {
-      name: 'score',
+      name: Columns.SCORE,
       label: 'Carbon Audit Score',
       field: (row: Business) => auditStore.all.items.find(audit => audit.business_id === row.id)?.score,
       format: (score: number | null): { score: number | null, icon: string, color: string } => {
@@ -93,27 +126,29 @@ const prepareColumns = (): QTableProps['columns'] => {
       }
     },
     {
-      name: 'allowance',
+      name: Columns.ALLOWANCE,
       label: 'Ads Used',
       field: (row: Business) => adAllowanceStore.data.indexed[row.id],
       format: (value: AdAllowance | null): string => value != null ? `${value.used_allowance} / ${value.allowance}` : ''
     }] : [];
-  return [
+  const columns: QTableProps['columns'] = [
     {
-      name: 'name',
+      name: Columns.NAME,
       label: 'Name',
       align: 'left',
       field: (row: Business) => row.name,
     },
-    ...adminColumns,
     {
-      name: 'facebook_url',
+      name: Columns.FACEBOOK_URL,
       label: 'Facebook URL',
       align: 'left',
       field: (row: Business) => row.facebook_url,
     },
+    ...adminColumns,
     ...businessManagerColumns
   ];
+  columns.sort((colA, colB) => ColumnsOrder.indexOf(colA.name) - ColumnsOrder.indexOf(colB.name))
+  return columns;
 }
 
 const columns: QTableProps['columns'] = prepareColumns();
