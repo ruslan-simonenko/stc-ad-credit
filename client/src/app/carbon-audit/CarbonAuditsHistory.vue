@@ -1,11 +1,10 @@
 <template>
   <q-table
-      class="carbon-audits-table"
       flat bordered
-      title="Carbon Audits"
       :rows="rows"
       :columns="columns"
-      row-key="name"
+      row-key="id"
+      :loading="loading"
   >
     <template v-slot:top>
       <div class="text-h6">Carbon Audits</div>
@@ -36,6 +35,8 @@ const router = useRouter();
 
 const goToCarbonAuditAddPage = () => router.push({name: 'CarbonAuditAdd'});
 
+const loading = computed(() => businessStore.all.fetching || auditStore.all.fetching)
+
 const columns: QTableProps['columns'] = [
   {
     name: 'business',
@@ -62,7 +63,7 @@ const columns: QTableProps['columns'] = [
   }
 ]
 
-const rows = computed(() => auditStore.all.items)
+const rows = computed(() => loading.value ? [] : auditStore.all.items)
 
 onMounted(() => {
   auditStore.fetch()
