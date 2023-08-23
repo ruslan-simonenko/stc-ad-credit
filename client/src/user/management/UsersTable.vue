@@ -23,7 +23,10 @@
     </template>
     <template v-slot:body-cell-actions="props">
       <q-td :props="props">
-        <q-btn v-if="authStore.hasRole(UserRole.ADMIN)" @click="loginAs(props.row!)">Login as</q-btn>
+        <div v-if="authStore.hasRole(UserRole.ADMIN)" class="row inline q-gutter-x-sm">
+          <q-btn @click="edit(props.row!)">Edit</q-btn>
+          <q-btn @click="loginAs(props.row!)">Login as</q-btn>
+        </div>
       </q-td>
     </template>
     <!-- Grid mode -->
@@ -43,6 +46,9 @@
               <q-btn round flat icon="more_vert">
                 <q-menu auto-close anchor="bottom end" self="top end">
                   <q-list>
+                    <q-item clickable @click="edit(props.row!)">
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
                     <q-item clickable @click="loginAs(props.row!)">
                       <q-item-section>Login as</q-item-section>
                     </q-item>
@@ -89,6 +95,9 @@ const loginAs = async (user: User) => {
   await router.push({name: "Home"})
 }
 
+const edit = async (user: User) => {
+  await router.push({name: "UserEdit", params: {id: user.id}})
+};
 
 onMounted(() => {
   userStore.fetch()
