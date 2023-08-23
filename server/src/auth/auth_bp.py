@@ -83,7 +83,7 @@ def login():
     except KeyError as e:
         return jsonify(LoginError(f'User profile not accessible, field not found: {str(e)}')), 400
     if user.avatar_url != google_picture or user.name != google_name:
-        user = UserService.update_user(user, avatar_url=google_picture, name=google_name)
+        user = UserService.update_user(user.id, avatar_url=google_picture, name=google_name)
     access_token = AuthService.create_access_token(user.id)
     return jsonify(LoginResponse(
         user=UserInfoDTO.from_entity(user),

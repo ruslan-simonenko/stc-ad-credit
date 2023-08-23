@@ -1,6 +1,6 @@
 from typing import Iterable, List, Optional
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 
 from src.persistence.schema import db
 from src.persistence.schema.role import Role
@@ -29,7 +29,7 @@ class UserService:
             for user_role in user.user_roles:
                 db.session.delete(user_role)
             UserService._add_user_roles(user, roles)
-            db.session.commit()
+        db.session.refresh(user)
         return UserService.get_user_by_id(user_id)
 
     @staticmethod
@@ -67,15 +67,19 @@ class UserService:
         return [UserRole(role.name) for role in user.roles]
 
     @staticmethod
-    def update_user(user: User, avatar_url: str, name: str) -> User:
-        db.session.execute(
-            update(User).where(User.email == user.email).values({
-                User.name: name,
-                User.avatar_url: avatar_url
-            })
-        )
-        db.session.commit()
-        return UserService.get_user(user.email)
+    def update_user(user_id: int, email: Optional[str] = None, roles: Optional[List[UserRole]] = None,
+                    avatar_url: Optional[str] = None, name: Optional[str] = None) -> User:
+        with db.session.begin_nested():
+            user = UserService.get_user_by_id(user_id)
+            if email is not None:
+                user.email = email
+            if roles is not None:
+                UserService.set_user_roles(user.id, roles)
+            if avatar_url is not None:
+                user.avatar_url = avatar_url
+            if name is not None:
+                user.name = name
+        return UserService.get_user_by_id(user_id)
 
     @staticmethod
     def setup_admin(email: str) -> None:

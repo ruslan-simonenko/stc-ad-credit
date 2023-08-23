@@ -77,6 +77,32 @@ class TestUserService(DatabaseTest, AutoAppContextFixture):
             assert UserService.get_user_roles(user_a.email) == [UserRole.ADMIN, UserRole.CARBON_AUDITOR]
             assert UserService.get_user_roles(user_b.email) == [UserRole.CARBON_AUDITOR]
 
+    class TestUpdate:
+        def test_update_email(self):
+            user = UserService.add_user('user@gmail.com', [UserRole.CARBON_AUDITOR])
+
+            updated_user = UserService.update_user(user.id, email='user-new@gmail.com')
+            assert updated_user.email == 'user-new@gmail.com'
+            assert _get_user_roles(updated_user) == [UserRole.CARBON_AUDITOR]
+
+        def test_update_roles(self):
+            user = UserService.add_user('user@gmail.com', [UserRole.CARBON_AUDITOR])
+
+            updated_user = UserService.update_user(user.id, roles=[UserRole.ADMIN])
+            assert updated_user.email == 'user@gmail.com'
+            assert _get_user_roles(updated_user) == [UserRole.ADMIN]
+
+        def test_update_avatar_and_name(self):
+            user = UserService.add_user('user@gmail.com', [UserRole.ADMIN])
+            updated_user = UserService.update_user(
+                user.id,
+                name='Bilbo Baggins',
+                avatar_url='https://avatars.com/smaug-slayer')
+            assert updated_user.email == 'user@gmail.com'
+            assert _get_user_roles(updated_user) == [UserRole.ADMIN]
+            assert updated_user.name == 'Bilbo Baggins'
+            assert updated_user.avatar_url == 'https://avatars.com/smaug-slayer'
+
 
 def _get_user_roles(user: User) -> Iterable[UserRole]:
     return [UserRole(role.name) for role in user.roles]
