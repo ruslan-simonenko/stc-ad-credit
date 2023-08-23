@@ -19,6 +19,11 @@ export interface UserAddFormDTO {
     roles: Array<UserRole>,
 }
 
+export interface UserUpdateFormDTO {
+    email: string,
+    roles: Array<UserRole>,
+}
+
 export interface Users {
     items: User[],
     fetching: boolean,

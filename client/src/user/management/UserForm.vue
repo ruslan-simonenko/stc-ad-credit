@@ -50,9 +50,9 @@ const emailValidators = [fieldRequiredValidator];
 
 const onSubmit = async () => {
   if (props.id == null) {
-    await userStore.add(data)
+    await userStore.add(data);
   } else {
-    console.log('updated', props.id, data.email, data.roles);
+    await userStore.update(props.id, data);
   }
   resetForm()
   emit('submit');

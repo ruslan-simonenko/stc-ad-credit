@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive, watch} from "vue";
-import {User, UserAddFormDTO, UserRole, Users} from "./user.ts";
+import {User, UserAddFormDTO, UserRole, Users, UserUpdateFormDTO} from "./user.ts";
 import {useApiClientAxios} from "../api/api-client-axios.ts";
 import {useAuthStore} from "../auth/auth-store.ts";
 
@@ -38,10 +38,8 @@ export const useUserStore = defineStore("user", () => {
         return apiClient.post('/users/', newUser).finally(() => fetch())
     }
 
-    const setEnabled = async (userID: number, enabled: boolean) => {
-        const response = await apiClient.put(`/users/${userID}`, {
-            roles: enabled ? [UserRole.CARBON_AUDITOR] : []
-        })
+    const update = async (userID: number, update: UserUpdateFormDTO) => {
+        const response = await apiClient.put(`/users/${userID}`, update);
         const updatedUser = response.data.object;
         const itemIndex = all.items.findIndex((user) => user.id === userID)
         all.items[itemIndex] = updatedUser
@@ -51,6 +49,6 @@ export const useUserStore = defineStore("user", () => {
         all,
         fetch,
         add,
-        setEnabled,
+        update,
     }
 })
