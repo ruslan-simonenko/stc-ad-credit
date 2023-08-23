@@ -25,6 +25,14 @@ def setup_database(state: BlueprintSetupState):
         'pool_pre_ping': True,
     }
     state.app.config['SQLALCHEMY_ECHO'] = True
+
+    @state.app.teardown_request
+    def session_commit_on_request_completed(exception=None):
+        if exception is None:
+            db.session.commit()
+        else:
+            db.session.rollback()
+
     db.init_app(state.app)
 
 
