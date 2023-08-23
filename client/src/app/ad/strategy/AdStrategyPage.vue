@@ -15,7 +15,7 @@
           <tbody>
           <tr v-for="row in rows">
             <td class="text-left">
-              <q-icon :name="row.icon" :color="row.color" size="4em"/>
+              <CarbonAuditSentimentIcon :score="row.minScore" size="4em"/>
             </td>
             <td class="text-right">
               {{ row.minScore }}
@@ -34,39 +34,32 @@
 <script setup lang="ts">
 import {computed, onMounted} from "vue";
 import {useAdStrategyStore} from "./ad-strategy-store.ts";
+import CarbonAuditSentimentIcon from "../../carbon-audit/components/CarbonAuditSentimentIcon.vue";
 
 const adStrategyStore = useAdStrategyStore();
 
-type RatingData = { icon: string, color: string, minScore: number | null, adAllowance: number }
+type RatingData = { minScore: number | null, adAllowance: number }
 
 const rows = computed<Array<RatingData>>(() => {
   const strategy = adStrategyStore.data.strategy;
   return strategy ? [
     {
       rating: 'high',
-      icon: 'sentiment_satisfied',
-      color: 'green',
       minScore: strategy.rating_high_min_score,
       adAllowance: strategy.ads_allowance_high_rating
     },
     {
       rating: 'medium',
-      icon: 'sentiment_neutral',
-      color: 'amber',
       minScore: strategy.rating_medium_min_score,
       adAllowance: strategy.ads_allowance_medium_rating
     },
     {
       rating: 'low',
-      icon: 'sentiment_dissatisfied',
-      color: 'red',
       minScore: 0,
       adAllowance: strategy.ads_allowance_low_rating
     },
     {
       rating: 'unknown',
-      icon: 'question_mark',
-      color: 'grey',
       minScore: null,
       adAllowance: strategy.ads_allowance_unknown_rating
     },

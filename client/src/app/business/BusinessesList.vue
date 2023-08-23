@@ -15,8 +15,8 @@
     <template v-if="authStore.hasRole(UserRole.ADMIN)" v-slot:body-cell-score="props">
       <q-td :props="props">
         <div class="row inline items-end">
-          <div v-if="props.value.score != null" style="margin-right: .5em">{{ props.value.score }}</div>
-          <q-icon :name="props.value.icon" :color="props.value.color" size="2em"/>
+          <div v-if="props.value != null" style="margin-right: .5em">{{ props.value }}</div>
+          <CarbonAuditSentimentIcon :score="props.value" size="2em"/>
         </div>
       </q-td>
     </template>
@@ -31,8 +31,8 @@
                   <q-item-label v-if="column.name != Columns.SCORE">{{ column.value }}</q-item-label>
                   <template v-else>
                     <div class="row inline items-center">
-                      <q-icon :name="column.value.icon" :color="column.value.color" size="2em"/>
-                      <div v-if="column.value.score != null" class="q-ml-xs">{{ column.value.score }}</div>
+                      <CarbonAuditSentimentIcon :score="column.value" size="2em"/>
+                      <div v-if="column.value != null" class="q-ml-xs">{{ column.value }}</div>
                     </div>
                   </template>
                 </q-item-section>
@@ -57,6 +57,7 @@ import {QTableProps} from "quasar";
 import {useAuthStore} from "../../auth/auth-store.ts";
 import {UserRole} from "../../user/user.ts";
 import {useRouter} from "vue-router";
+import CarbonAuditSentimentIcon from "../carbon-audit/components/CarbonAuditSentimentIcon.vue";
 
 const authStore = useAuthStore();
 const businessStore = useBusinessStore();
@@ -104,26 +105,7 @@ const prepareColumns = (): QTableProps['columns'] => {
     {
       name: Columns.SCORE,
       label: 'Carbon Audit Score',
-      field: (row: Business) => auditStore.all.items.find(audit => audit.business_id === row.id)?.score,
-      format: (score: number | null): { score: number | null, icon: string, color: string } => {
-        const strategy = adStrategyStore.data.strategy;
-        let icon: string
-        let color: string
-        if (score == null) {
-          icon = 'question_mark'
-          color = 'grey'
-        } else if (score >= strategy!.rating_high_min_score) {
-          icon = 'sentiment_satisfied'
-          color = 'green'
-        } else if (score >= strategy!.rating_medium_min_score) {
-          icon = 'sentiment_neutral'
-          color = 'amber'
-        } else {
-          icon = 'sentiment_dissatisfied'
-          color = 'red'
-        }
-        return {score, icon, color}
-      }
+      field: (row: Business) => auditStore.all.items.find(audit => audit.business_id === row.id)?.score ?? null,
     },
     {
       name: Columns.ALLOWANCE,
