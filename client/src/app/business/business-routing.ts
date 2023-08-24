@@ -2,7 +2,6 @@ import BusinessesPage from "./BusinessesPage.vue";
 import {UserRole} from "../../user/user.ts";
 import {RouteRecordRaw} from "vue-router";
 import BusinessFormPage from "./form/BusinessFormPage.vue";
-import UserPage from "../../user/management/UserPage.vue";
 
 const BUSINESS_ROUTES: RouteRecordRaw[] = [
     {

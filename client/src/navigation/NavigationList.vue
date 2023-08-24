@@ -12,14 +12,7 @@
   </q-list>
 </template>
 <script setup lang="ts">
-import {
-  _RouteLocationBase,
-  RouteLocationNormalizedLoaded,
-  RouteRecordName,
-  RouteRecordRaw,
-  useRoute,
-  useRouter
-} from "vue-router";
+import {RouteRecordName, RouteRecordRaw, useRoute, useRouter} from "vue-router";
 import {computed} from "vue";
 import {useRoutingStore} from "./routing-store.ts";
 

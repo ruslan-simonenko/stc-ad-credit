@@ -9,7 +9,7 @@ import {computed} from "vue";
 
 const strategyStore = useAdStrategyStore();
 const props = defineProps({
-  score: Number,
+  score: Number | null,
   size: String,
 });
 
@@ -17,7 +17,7 @@ enum Rating {
   PENDING, BEIGE, RED, AMBER, GREEN
 }
 
-const RatingData: {[rating: Rating]: {color: string, icon: string}} = {
+const RatingData: {[rating in Rating]: {color: string, icon: string}} = {
   [Rating.BEIGE]: {color: 'beige', icon: 'sentiment_dissatisfied'},
   [Rating.RED]:  {color: 'red', icon: 'sentiment_neutral'},
   [Rating.AMBER]:  {color: 'amber', icon: 'sentiment_satisfied'},

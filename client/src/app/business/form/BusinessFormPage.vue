@@ -1,15 +1,21 @@
 <template>
   <q-page padding>
-    <BusinessForm :id="$route.params.id != null ? parseInt($route.params.id) : undefined"
-                  @submit="returnToPreviousPage"/>
+    <BusinessForm :id="businessID" @submit="returnToPreviousPage"/>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import BusinessForm from "./BusinessForm.vue";
+import {computed} from "vue";
 
 const router = useRouter();
+const route = useRoute();
+
+const businessID = computed(() => {
+  const id = route.params.id as string | undefined
+  return id !== undefined ? parseInt(id) : id
+});
 
 const returnToPreviousPage = () => router.go(-1)
 </script>

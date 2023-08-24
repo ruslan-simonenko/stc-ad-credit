@@ -32,7 +32,7 @@
         <q-card bordered flat>
           <q-card-section horizontal>
             <q-list class="col" dense>
-              <q-item v-for="column in props.cols.filter(column => column.name != Columns.ACTIONS)" :key="column.name">
+              <q-item v-for="column in props.cols.filter(column_ => column_.name != Columns.ACTIONS)" :key="column.name">
                 <q-item-section>
                   <q-item-label caption>{{ column.label }}</q-item-label>
                   <q-item-label v-if="column.name != Columns.SCORE">{{ column.value }}</q-item-label>
@@ -73,7 +73,7 @@ import {AdAllowance} from "../ad/allowance/ad-allowance-types.ts";
 import {useAdStrategyStore} from "../ad/strategy/ad-strategy-store.ts";
 import {QTableProps} from "quasar";
 import {useAuthStore} from "../../auth/auth-store.ts";
-import {User, UserRole} from "../../user/user.ts";
+import {UserRole} from "../../user/user.ts";
 import {useRouter} from "vue-router";
 import CarbonAuditSentimentIcon from "../carbon-audit/components/CarbonAuditSentimentIcon.vue";
 
