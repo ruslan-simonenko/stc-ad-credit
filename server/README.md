@@ -19,8 +19,8 @@
       2. `export APP_ENV=dev && alembic upgrade head`
    5. Afterwards:
       1. To stop database: `docker stop stc-mysql`
-      2. To restart database: `docker start stc-mysql`
-5. Run Flask Server: `export APP_ENV=dev && flask --debug run`
+      2. To start database: `docker start stc-mysql`
+5. Run Flask Server: `docker start stc-mysql && export APP_ENV=dev && flask --debug run`
 ## Hosting deployment
 1. Go to [hosting](https://krystal.uk/client/clientarea.php)
 2. Launch cPanel
