@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from src.business.business_service import BusinessService
 from src.business.business_types import BusinessRegistrationType
@@ -35,9 +36,19 @@ class TestBusinessService(DatabaseTest, AutoAppContextFixture, UserFixtures):
         assert datetime.utcnow() - business.created_at < timedelta(minutes=1)
 
     def test_add_business_duplicate_name(self, users):
-        BusinessTestUtils.add_business(users.business_manager, name='test business')
-        with pytest.raises(ValueError, match='Business name is already in use'):
-            BusinessTestUtils.add_business(users.business_manager, name='test business')
+        name = 'test business'
+        BusinessTestUtils.add_business(users.business_manager, name=name)
+        with pytest.raises(IntegrityError):
+            BusinessTestUtils.add_business(users.business_manager, name=name)
+
+    def test_add_business_duplicate_registration(self, users):
+        reg_type = BusinessRegistrationType.NI
+        reg_number = 'GB123456789'
+        BusinessTestUtils.add_business(users.business_manager, registration_type=reg_type,
+                                       registration_number=reg_number)
+        with pytest.raises(IntegrityError):
+            BusinessTestUtils.add_business(users.business_manager, registration_type=reg_type,
+                                           registration_number=reg_number)
 
     def test_get_all_businesses(self, users):
         expected_businesses = {BusinessTestUtils.add_business(users.business_manager) for _ in range(3)}
