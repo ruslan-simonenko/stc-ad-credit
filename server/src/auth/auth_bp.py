@@ -1,11 +1,10 @@
 import asyncio
 import os
-from dataclasses import dataclass
 from datetime import timedelta
 from functools import wraps
-from typing import Dict, Any
+from typing import Dict
 
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify
 from flask.blueprints import BlueprintSetupState
 from flask_jwt_extended import JWTManager, verify_jwt_in_request
 # noinspection PyPackageRequirements
@@ -14,14 +13,15 @@ from google.auth.exceptions import GoogleAuthError
 from google.auth.transport import requests
 # noinspection PyPackageRequirements
 from google.oauth2 import id_token
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
-from src.auth.auth_dto import LoginAsRequest
+from src.auth.auth_dto import LoginAsRequest, LoginRequest, LoginResponse
 from src.auth.auth_service import AuthService
 from src.config import EnvironmentConstantsKeys
 from src.user.user_dto import UserInfoDTO
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
+from src.utils.dto import ErrorResponse
 
 
 def setup_auth_with_jwt(state: BlueprintSetupState):
@@ -34,54 +34,27 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 auth_bp.record_once(setup_auth_with_jwt)
 
 
-@dataclass
-class LoginRequest:
-    credential: str
-
-
-class LoginResponse(BaseModel):
-    user: UserInfoDTO
-    access_token: str
-
-    def __hash__(self) -> int:
-        return self.user.__hash__()
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, LoginResponse):
-            return False
-        return (self.user == other.user and
-                self.access_token == other.access_token)
-
-
-@dataclass
-class LoginError:
-    message: str
-
-
 @auth_bp.route('/login', methods=['POST'])
 def login():
     try:
-        login_request = LoginRequest(**(request.get_json()))
-    except (TypeError, ValueError) as e:
-        return jsonify(LoginError(f'Invalid request: {str(e)}')), 400
-    try:
-        google_client_id = os.environ[EnvironmentConstantsKeys.GOOGLE_LOGIN_CLIENT_ID]
-    except KeyError as e:
-        return jsonify(LoginError(f'Invalid configuration: environment variable {e.args[0]} is not set')), 500
+        login_request = LoginRequest.model_validate(request.get_json())
+    except ValidationError as e:
+        return jsonify(ErrorResponse(message=f'Invalid request: {str(e)}')), 400
+    google_client_id = os.environ[EnvironmentConstantsKeys.GOOGLE_LOGIN_CLIENT_ID]
     try:
         id_info: Dict[str, any] = id_token.verify_oauth2_token(login_request.credential, requests.Request(),
                                                                google_client_id, clock_skew_in_seconds=10)
     except (GoogleAuthError, ValueError) as e:
-        return jsonify(LoginError(f'Token verification failed: {str(e)}')), 400
+        return jsonify(ErrorResponse(message=f'Token verification failed: {str(e)}')), 400
     email = id_info['email']
     user = UserService.get_user(email)
     if not user:
-        return jsonify(LoginError(f'Not a known user: {email}')), 403
+        return jsonify(ErrorResponse(message=f'Not a known user: {email}')), 403
     try:
         google_picture = id_info['picture']
         google_name = id_info['name']
     except KeyError as e:
-        return jsonify(LoginError(f'User profile not accessible, field not found: {str(e)}')), 400
+        return jsonify(ErrorResponse(message=f'User profile not accessible, field not found: {str(e)}')), 400
     if user.avatar_url != google_picture or user.name != google_name:
         user = UserService.update_user(user.id, avatar_url=google_picture, name=google_name)
     access_token = AuthService.create_access_token(user.id)
@@ -130,7 +103,7 @@ def login_as():
     login_request = LoginAsRequest.model_validate(request.get_json())
     user = UserService.get_user_by_id(login_request.user_id)
     if not user:
-        return jsonify(LoginError(f'User not found: {login_request.user_id}')), 400
+        return jsonify(ErrorResponse(message=f'User not found: {login_request.user_id}')), 400
     access_token = AuthService.create_access_token(user.id)
     return jsonify(LoginResponse(
         user=UserInfoDTO.from_entity(user),
