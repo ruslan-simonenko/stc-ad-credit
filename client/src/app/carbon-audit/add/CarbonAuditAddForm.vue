@@ -1,5 +1,5 @@
 <template>
-  <q-form @submit="onSubmit" class="q-gutter-md form">
+  <q-form class="q-gutter-md form" ref="form" @submit="onSubmit" @reset="onReset">
     <BusinessSelector v-model="business"/>
     <q-input label="Score [0-100]" v-model.number="score" type="number" :rules="scoreValidators"/>
     <q-input label="Date" v-model="reportDate" type="date" :rules="reportDateValidators"/>
@@ -14,9 +14,11 @@ import {Business} from "../../business/business-types.ts";
 import {useCarbonAuditStore} from "../carbon-audit-store.ts";
 import BusinessSelector from "../../business/components/BusinessSelector.vue";
 import {fieldRequiredValidator} from "../../../utils/form-validators.ts";
+import {QForm} from "quasar";
 
 const carbonAuditStore = useCarbonAuditStore();
 
+const form = ref<QForm>();
 const emit = defineEmits(['added']);
 
 const business = ref<Business | null>(null)
@@ -42,6 +44,14 @@ const onSubmit = async () => {
     report_date: new Date(reportDate.value!),
     report_url: reportUrl.value!,
   })
+  form.value!.reset();
   emit('added');
+}
+
+const onReset = () => {
+  business.value = null;
+  score.value = null;
+  reportDate.value = null;
+  reportUrl.value = null;
 }
 </script>
