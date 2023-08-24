@@ -2,7 +2,7 @@ import {defineStore} from "pinia";
 import {reactive, watch} from "vue";
 import {
     Business,
-    BusinessAddFormDTO,
+    BusinessFormDTO,
     BusinessDTOPublicSchema,
     BusinessDTOSchema,
     Businesses,
@@ -44,7 +44,7 @@ export const useBusinessStore = defineStore("business", () => {
         }
     }
 
-    const add = async (newBusiness: BusinessAddFormDTO) => {
+    const add = async (newBusiness: BusinessFormDTO) => {
         try {
             await apiClient.post('/businesses/', newBusiness)
         } finally {

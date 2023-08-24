@@ -2,11 +2,11 @@
   <q-form @submit="onSubmit" class="q-gutter-md">
     <q-input type="text" v-model="data.name" label="Name"/>
     <div class="row">
-      <q-select v-model="data.registrationType" :options="registrationTypes"/>
-      <q-input type="text" v-model="data.registrationNumber" label="Registration #" class="q-ml-md col-grow"/>
+      <q-select v-model="data.registration_type" :options="registrationTypes"/>
+      <q-input type="text" v-model="data.registration_number" label="Registration #" class="q-ml-md col-grow"/>
     </div>
     <q-input type="email" v-model="data.email" label="Contact Email"/>
-    <q-input type="url" v-model="data.facebookLink" label="Facebook Link"/>
+    <q-input type="url" v-model="data.facebook_url" label="Facebook Link"/>
     <q-btn label="Add Business" type="submit" color="primary"/>
   </q-form>
 </template>
@@ -14,23 +14,14 @@
 <script setup lang="ts">
 import {computed, shallowReactive, watch} from "vue";
 import {useBusinessStore} from "../business-store.ts";
-import {Business, BusinessRegistrationType} from "../business-types.ts";
-import {z} from "zod";
+import {Business, BusinessFormDTO, BusinessFormDTOSchema, BusinessRegistrationType} from "../business-types.ts";
 
-const DataSchema = z.object({
-  name: z.string(),
-  registrationType: z.nativeEnum(BusinessRegistrationType),
-  registrationNumber: z.string(),
-  email: z.string().nullable(),
-  facebookLink: z.string().nullable(),
-});
-type Data = z.TypeOf<typeof DataSchema>;
-const EMPTY_DATA: Data = {
+const EMPTY_DATA: BusinessFormDTO = {
   name: '',
-  registrationType: BusinessRegistrationType.NI,
-  registrationNumber: '',
+  registration_type: BusinessRegistrationType.NI,
+  registration_number: '',
   email: null,
-  facebookLink: null
+  facebook_url: null
 };
 
 const props = defineProps({
@@ -43,22 +34,22 @@ const businessStore = useBusinessStore();
 const business = computed<Business | null>(
     () => props.id == null ? null : businessStore.all.items.find((business) => business.id == props.id) ?? null)
 
-const data = shallowReactive<Data>(DataSchema.parse(EMPTY_DATA));
-const updateData = (newData: Data) => {
-  const newDataCopy = DataSchema.parse(newData);
+const data = shallowReactive<BusinessFormDTO>(BusinessFormDTOSchema.parse(EMPTY_DATA));
+const updateData = (newData: BusinessFormDTO) => {
+  const newDataCopy = BusinessFormDTOSchema.parse(newData);
   data.name = newDataCopy.name;
-  data.registrationType = newDataCopy.registrationType;
-  data.registrationNumber = newDataCopy.registrationNumber;
+  data.registration_type = newDataCopy.registration_type;
+  data.registration_number = newDataCopy.registration_number;
   data.email = newDataCopy.email;
-  data.facebookLink = newDataCopy.facebookLink;
+  data.facebook_url = newDataCopy.facebook_url;
 }
 watch(() => business.value, (business: Business|null) => {
   updateData(business == null ? EMPTY_DATA : {
     name: business.name,
-    registrationType: business.sensitive!.registration_type,
-    registrationNumber: business.sensitive!.registration_number,
+    registration_type: business.sensitive!.registration_type,
+    registration_number: business.sensitive!.registration_number,
     email: business.sensitive!.email,
-    facebookLink: business.facebook_url,
+    facebook_url: business.facebook_url,
   })
 })
 
@@ -67,10 +58,10 @@ const registrationTypes = Object.values(BusinessRegistrationType)
 const onSubmit = async () => {
   const business = {
     name: data.name,
-    registration_type: data.registrationType,
-    registration_number: data.registrationNumber,
+    registration_type: data.registration_type,
+    registration_number: data.registration_number,
     email: data.email,
-    facebook_url: data.facebookLink,
+    facebook_url: data.facebook_url,
   };
   if (props.id == null) {
     await businessStore.add(business);

@@ -35,7 +35,7 @@ export type Business = {
     }
 }
 
-export const BusinessAddFormDTOSchema = z.object({
+export const BusinessFormDTOSchema = z.object({
     name: z.string(),
     registration_type: z.nativeEnum(BusinessRegistrationType),
     registration_number: z.string(),
@@ -43,7 +43,7 @@ export const BusinessAddFormDTOSchema = z.object({
     facebook_url: z.string().nullable(),
 })
 
-export type BusinessAddFormDTO = z.TypeOf<typeof BusinessAddFormDTOSchema>
+export type BusinessFormDTO = z.TypeOf<typeof BusinessFormDTOSchema>
 
 export interface Businesses {
     items: Business[],
