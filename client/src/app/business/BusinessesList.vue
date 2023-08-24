@@ -32,7 +32,8 @@
         <q-card bordered flat>
           <q-card-section horizontal>
             <q-list class="col" dense>
-              <q-item v-for="column in props.cols.filter(column_ => column_.name != Columns.ACTIONS)" :key="column.name">
+              <q-item v-for="column in props.cols.filter((column_: any) => column_.name != Columns.ACTIONS)"
+                      :key="column.name">
                 <q-item-section>
                   <q-item-label caption>{{ column.label }}</q-item-label>
                   <q-item-label v-if="column.name != Columns.SCORE">{{ column.value }}</q-item-label>
