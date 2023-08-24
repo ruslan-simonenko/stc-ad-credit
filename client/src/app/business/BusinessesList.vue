@@ -20,12 +20,19 @@
         </div>
       </q-td>
     </template>
+    <template v-if="authStore.hasRole(UserRole.BUSINESS_MANAGER)" v-slot:body-cell-actions="props">
+      <q-td :props="props">
+        <div class="row inline">
+          <q-btn @click="edit(props.value)">Edit</q-btn>
+        </div>
+      </q-td>
+    </template>
     <template v-slot:item="props">
       <div class="q-pa-xs col-xs-12 col-sm-6">
         <q-card bordered flat>
           <q-card-section horizontal>
             <q-list class="col" dense>
-              <q-item v-for="column in props.cols" :key="column.name">
+              <q-item v-for="column in props.cols.filter(column => column.name != Columns.ACTIONS)" :key="column.name">
                 <q-item-section>
                   <q-item-label caption>{{ column.label }}</q-item-label>
                   <q-item-label v-if="column.name != Columns.SCORE">{{ column.value }}</q-item-label>
@@ -38,6 +45,17 @@
                 </q-item-section>
               </q-item>
             </q-list>
+            <q-card-actions v-if="authStore.hasRole(UserRole.BUSINESS_MANAGER)" vertical>
+              <q-btn round flat icon="more_vert">
+                <q-menu auto-close anchor="bottom end" self="top end">
+                  <q-list>
+                    <q-item clickable @click="edit(props.row!)">
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </q-card-actions>
           </q-card-section>
         </q-card>
       </div>
@@ -55,7 +73,7 @@ import {AdAllowance} from "../ad/allowance/ad-allowance-types.ts";
 import {useAdStrategyStore} from "../ad/strategy/ad-strategy-store.ts";
 import {QTableProps} from "quasar";
 import {useAuthStore} from "../../auth/auth-store.ts";
-import {UserRole} from "../../user/user.ts";
+import {User, UserRole} from "../../user/user.ts";
 import {useRouter} from "vue-router";
 import CarbonAuditSentimentIcon from "../carbon-audit/components/CarbonAuditSentimentIcon.vue";
 
@@ -78,9 +96,10 @@ enum Columns {
   SCORE = 'score',
   ALLOWANCE = 'allowance',
   FACEBOOK_URL = 'facebook_url',
+  ACTIONS = 'actions',
 }
 
-const ColumnsOrder: Array<string> = [Columns.NAME, Columns.FACEBOOK_URL, Columns.SCORE, Columns.ALLOWANCE, Columns.REGISTRATION, Columns.EMAIL];
+const ColumnsOrder: Array<string> = [Columns.NAME, Columns.FACEBOOK_URL, Columns.SCORE, Columns.ALLOWANCE, Columns.REGISTRATION, Columns.EMAIL, Columns.ACTIONS];
 
 const prepareColumns = (): QTableProps['columns'] => {
 
@@ -99,6 +118,12 @@ const prepareColumns = (): QTableProps['columns'] => {
       field: (row: Business) => row.sensitive,
       format: (sensitiveData: Business['sensitive']) => sensitiveData!.email
     },
+    {
+      name: Columns.ACTIONS,
+      label: 'Actions',
+      align: 'left',
+      field: (row: Business) => row,
+    }
   ] : [];
 
   const adminColumns: QTableProps['columns'] = authStore.hasRole(UserRole.ADMIN) ? [
@@ -134,6 +159,8 @@ const prepareColumns = (): QTableProps['columns'] => {
 }
 
 const columns: QTableProps['columns'] = prepareColumns();
+
+const edit = async (business: Business) => await router.push({name: "BusinessEdit", params: {id: business.id}});
 
 onMounted(() => {
   businessStore.fetch()

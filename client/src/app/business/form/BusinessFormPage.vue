@@ -1,6 +1,7 @@
 <template>
   <q-page padding>
-    <BusinessForm @submit="returnToPreviousPage"/>
+    <BusinessForm :id="$route.params.id != null ? parseInt($route.params.id) : undefined"
+                  @submit="returnToPreviousPage"/>
   </q-page>
 </template>
 

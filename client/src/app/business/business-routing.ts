@@ -2,6 +2,7 @@ import BusinessesPage from "./BusinessesPage.vue";
 import {UserRole} from "../../user/user.ts";
 import {RouteRecordRaw} from "vue-router";
 import BusinessFormPage from "./form/BusinessFormPage.vue";
+import UserPage from "../../user/management/UserPage.vue";
 
 const BUSINESS_ROUTES: RouteRecordRaw[] = [
     {
@@ -15,6 +16,15 @@ const BUSINESS_ROUTES: RouteRecordRaw[] = [
     },
     {
         name: 'BusinessAdd', path: '/businesses/add', component: BusinessFormPage, meta: {
+            auth: {
+                required: true,
+                authorizedRoles: [UserRole.BUSINESS_MANAGER]
+            },
+            navigationMenu: {type: 'linked', routeName: 'Businesses'}
+        }
+    },
+    {
+        name: 'BusinessEdit', path: '/businesses/:id/edit', component: BusinessFormPage, meta: {
             auth: {
                 required: true,
                 authorizedRoles: [UserRole.BUSINESS_MANAGER]
