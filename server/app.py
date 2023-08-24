@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from dotenv import load_dotenv
@@ -17,6 +18,7 @@ from src.persistence.database import database_bp
 from src.persistence.schema import db
 from src.user.user_bp import user_bp
 from src.user.user_service import UserService
+from src.utils.email import normalize_email
 
 env = os.environ.get(EnvironmentConstantsKeys.APP_ENV)
 load_dotenv(f'.env.{env}')
@@ -24,11 +26,13 @@ if env != 'test':
     load_dotenv('.env.local')
 
 
-def setup_admin():
+async def setup_admin():
     with app.app_context():
         admin_email = os.environ.get(EnvironmentConstantsKeys.SETUP_ADMIN_WITH_EMAIL)
-        if admin_email:
-            UserService.setup_admin(admin_email)
+        if not admin_email:
+            return
+        admin_email = await normalize_email(admin_email)
+        UserService.setup_admin(admin_email)
 
 
 class PydanticJSONProvider(DefaultJSONProvider):
@@ -88,7 +92,7 @@ app = Flask(__name__)
 configure_app(app)
 if env == 'prod':
     prevent_db_connection_reuse_in_forked_processes()
-setup_admin()
+asyncio.run(setup_admin())
 
 
 @app.route("/")
