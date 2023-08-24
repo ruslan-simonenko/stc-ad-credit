@@ -22,6 +22,7 @@ from src.user.user_dto import UserInfoDTO
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
 from src.utils.dto import ErrorResponse
+from src.utils.email import normalize_email
 
 
 def setup_auth_with_jwt(state: BlueprintSetupState):
@@ -35,7 +36,7 @@ auth_bp.record_once(setup_auth_with_jwt)
 
 
 @auth_bp.route('/login', methods=['POST'])
-def login():
+async def login():
     try:
         login_request = LoginRequest.model_validate(request.get_json())
     except ValidationError as e:
@@ -46,7 +47,7 @@ def login():
                                                                google_client_id, clock_skew_in_seconds=10)
     except (GoogleAuthError, ValueError) as e:
         return jsonify(ErrorResponse(message=f'Token verification failed: {str(e)}')), 400
-    email = id_info['email']
+    email = await normalize_email(id_info['email'])
     user = UserService.get_user(email)
     if not user:
         return jsonify(ErrorResponse(message=f'Not a known user: {email}')), 403

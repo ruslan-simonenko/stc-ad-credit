@@ -13,6 +13,7 @@ from google.auth.exceptions import GoogleAuthError
 from google.oauth2 import id_token
 
 from app import app, configure_app
+from src.auth import auth_bp
 from src.auth.auth_bp import LoginRequest, LoginResponse, auth_role
 from src.auth.auth_dto import LoginAsRequest
 from src.auth.auth_service import AuthService
@@ -49,11 +50,15 @@ class TestLogin(DatabaseTest):
         def mock_create_access_token(identity) -> str:
             return self.MOCK_ACCESS_TOKEN
 
+        async def mock_normalize_email(email):
+            return email
+
         with app.app_context():
             UserService.add_user(self.MOCK_GOOGLE_RESPONSE['email'], [UserRole.ADMIN])
         monkeypatch.setenv(EnvironmentConstantsKeys.GOOGLE_LOGIN_CLIENT_ID, self.MOCK_GOOGLE_CLIENT_ID)
         self.mock_google_auth_token_verifier(monkeypatch)
         monkeypatch.setattr(AuthService, 'create_access_token', mock_create_access_token)
+        monkeypatch.setattr(auth_bp, 'normalize_email', mock_normalize_email)
 
     def test_successful_login(self, monkeypatch: MonkeyPatch, client: FlaskClient):
         response = client.post('/auth/login', json=LoginRequest(credential=self.MOCK_GOOGLE_TOKEN))
