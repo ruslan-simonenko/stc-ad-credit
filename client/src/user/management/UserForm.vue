@@ -34,7 +34,7 @@ const emit = defineEmits(['submit']);
 
 const user = computed(() => userStore.all.items.find(user => user.id == props.id));
 
-const data = shallowReactive<Data>({});
+const data = shallowReactive<Data>(DataSchema.parse(EMPTY_DATA));
 const updateData = (newData: Data) => {
   const newDataCopy = DataSchema.parse(newData);
   data.email = newDataCopy.email;
@@ -42,7 +42,7 @@ const updateData = (newData: Data) => {
 }
 watch(
     () => user.value,
-    (user: User | null) => updateData(user ?? EMPTY_DATA),
+    (user: User | undefined) => updateData(user ?? EMPTY_DATA),
     {immediate: true});
 
 const roleOptions = Object.values(UserRole).map(role => ({label: role, value: role}))
@@ -62,7 +62,7 @@ const resetForm = () => updateData(EMPTY_DATA);
 
 onMounted(() => {
   userStore.fetch();
-})
+});
 </script>
 
 <style scoped>
