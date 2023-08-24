@@ -1,7 +1,7 @@
 import BusinessesPage from "./BusinessesPage.vue";
 import {UserRole} from "../../user/user.ts";
 import {RouteRecordRaw} from "vue-router";
-import BusinessAddPage from "./add/BusinessAddPage.vue";
+import BusinessFormPage from "./form/BusinessFormPage.vue";
 
 const BUSINESS_ROUTES: RouteRecordRaw[] = [
     {
@@ -14,7 +14,7 @@ const BUSINESS_ROUTES: RouteRecordRaw[] = [
         }
     },
     {
-        name: 'BusinessAdd', path: '/businesses/add', component: BusinessAddPage, meta: {
+        name: 'BusinessAdd', path: '/businesses/add', component: BusinessFormPage, meta: {
             auth: {
                 required: true,
                 authorizedRoles: [UserRole.BUSINESS_MANAGER]

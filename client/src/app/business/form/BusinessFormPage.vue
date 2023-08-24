@@ -1,12 +1,12 @@
 <template>
   <q-page padding>
-    <BusinessAddForm @added="returnToPreviousPage"/>
+    <BusinessForm @added="returnToPreviousPage"/>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import BusinessAddForm from "./BusinessAddForm.vue";
 import {useRouter} from "vue-router";
+import BusinessForm from "./BusinessForm.vue";
 
 const router = useRouter();
 
