@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <BusinessForm @added="returnToPreviousPage"/>
+    <BusinessForm @submit="returnToPreviousPage"/>
   </q-page>
 </template>
 

@@ -97,7 +97,7 @@ const prepareColumns = (): QTableProps['columns'] => {
       label: 'Contact Email',
       align: 'left',
       field: (row: Business) => row.sensitive,
-      format: (sensitiveData: Business['sensitive']) => `${sensitiveData!.email}`
+      format: (sensitiveData: Business['sensitive']) => sensitiveData!.email
     },
   ] : [];
 

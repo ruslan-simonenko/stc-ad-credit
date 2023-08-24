@@ -39,8 +39,8 @@ export const BusinessAddFormDTOSchema = z.object({
     name: z.string(),
     registration_type: z.nativeEnum(BusinessRegistrationType),
     registration_number: z.string(),
-    email: z.string(),
-    facebook_url: z.string(),
+    email: z.string().nullable(),
+    facebook_url: z.string().nullable(),
 })
 
 export type BusinessAddFormDTO = z.TypeOf<typeof BusinessAddFormDTOSchema>
