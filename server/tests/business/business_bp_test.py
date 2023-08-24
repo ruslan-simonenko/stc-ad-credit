@@ -4,7 +4,7 @@ import pytest
 from flask.testing import FlaskClient
 from pydantic import ValidationError
 
-from src.business.business_dto import BusinessAddForm, BusinessDTO, BusinessDTOPublic
+from src.business.business_dto import BusinessAddForm, BusinessDTO, BusinessDTOPublic, BusinessUpdateForm
 from src.business.business_types import BusinessRegistrationType
 from src.persistence.schema.business import Business
 from src.utils.dto import ResponseWithObject, ResponseWithObjects
@@ -25,6 +25,30 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
                                email='pastries@gmail.com',
                                facebook_url='https://facebook.com/best-pastries')
         response = client.post('/businesses', json=form, headers=access_headers_for(users.business_manager))
+
+        assert response.status_code == 200
+        with patched_dto_for_comparison(BusinessDTO):
+            created_business = ResponseWithObject[BusinessDTO].model_validate(response.json).object
+            expected_business = BusinessDTO(
+                id=0,
+                name=form.name,
+                registration_type=form.registration_type,
+                registration_number=form.registration_number,
+                email=form.email,
+                facebook_url=form.facebook_url
+            )
+            assert created_business == expected_business
+
+    def test_update(self, client: FlaskClient, users, access_headers_for, monkeypatch):
+        business = BusinessTestUtils.add_business(users.business_manager)
+
+        form = BusinessUpdateForm(
+            name='Fabulous Pastries',
+            registration_type=BusinessRegistrationType.VAT,
+            registration_number='GB123456789',
+            email='pastries@gmail.com',
+            facebook_url='https://facebook.com/best-pastries')
+        response = client.put(f'/businesses/{business.id}', json=form, headers=access_headers_for(users.business_manager))
 
         assert response.status_code == 200
         with patched_dto_for_comparison(BusinessDTO):

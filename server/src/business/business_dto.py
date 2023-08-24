@@ -76,3 +76,11 @@ class BusinessAddForm(BaseModel):
     registration_number: str
     email: Optional[str]
     facebook_url: Optional[str]
+
+
+class BusinessUpdateForm(BaseModel):
+    name: str
+    registration_type: BusinessRegistrationType
+    registration_number: str
+    email: Optional[str]
+    facebook_url: Optional[str]

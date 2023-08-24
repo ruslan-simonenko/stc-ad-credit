@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from src.auth.auth_bp import auth_role
 from src.auth.auth_service import AuthService
-from src.business.business_dto import BusinessDTO, BusinessAddForm, BusinessDTOPublic
+from src.business.business_dto import BusinessDTO, BusinessAddForm, BusinessDTOPublic, BusinessUpdateForm
 from src.business.business_service import BusinessService
 from src.business.profile.business_profile_bp import business_profile_bp
 from src.user.user_types import UserRole
@@ -34,4 +34,18 @@ def add():
         email=form.email,
         facebook_url=form.facebook_url,
         creator_id=AuthService.get_current_user_id_or_throw())
+    return jsonify(ResponseWithObject[BusinessDTO](object=BusinessDTO.from_entity(business)))
+
+
+@business_bp.route('/<int:business_id>', methods=['put'])
+@auth_role(UserRole.BUSINESS_MANAGER)
+def update(business_id: int):
+    form = BusinessUpdateForm.model_validate(request.get_json())
+    business = BusinessService.update(
+        business_id=business_id,
+        name=form.name,
+        registration_type=form.registration_type,
+        registration_number=form.registration_number,
+        email=form.email,
+        facebook_url=form.facebook_url)
     return jsonify(ResponseWithObject[BusinessDTO](object=BusinessDTO.from_entity(business)))
