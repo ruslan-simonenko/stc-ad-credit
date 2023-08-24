@@ -5,11 +5,11 @@
 
 <script setup lang="ts">
 import {useAdStrategyStore} from "../../ad/strategy/ad-strategy-store.ts";
-import {computed} from "vue";
+import {computed, PropType} from "vue";
 
 const strategyStore = useAdStrategyStore();
 const props = defineProps({
-  score: Number,
+  score: [Number, null] as PropType<number | null>,
   size: String,
 });
 
