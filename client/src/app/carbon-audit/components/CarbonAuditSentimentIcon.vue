@@ -1,6 +1,6 @@
 <template>
   <q-skeleton v-if="rating == Rating.PENDING" type="circle" :size="props.size"/>
-  <q-icon v-else :name="RatingData[rating].icon" :color="RatingData[rating].color" :size="props.size"/>
+  <q-icon v-else :name="RatingData[rating]!.icon" :color="RatingData[rating]!.color" :size="props.size"/>
 </template>
 
 <script setup lang="ts">
@@ -9,7 +9,7 @@ import {computed} from "vue";
 
 const strategyStore = useAdStrategyStore();
 const props = defineProps({
-  score: Number | null,
+  score: [Number, null],
   size: String,
 });
 
@@ -17,7 +17,7 @@ enum Rating {
   PENDING, BEIGE, RED, AMBER, GREEN
 }
 
-const RatingData: {[rating in Rating]: {color: string, icon: string}} = {
+const RatingData: {[rating in Rating]?: {color: string, icon: string}} = {
   [Rating.BEIGE]: {color: 'beige', icon: 'sentiment_dissatisfied'},
   [Rating.RED]:  {color: 'red', icon: 'sentiment_neutral'},
   [Rating.AMBER]:  {color: 'amber', icon: 'sentiment_satisfied'},
