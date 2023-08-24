@@ -34,6 +34,28 @@ class BusinessService:
         return business
 
     @staticmethod
+    def update(business_id: int,
+               name: Optional[str] = None,
+               registration_type: Optional[BusinessRegistrationType] = None,
+               registration_number: Optional[str] = None,
+               email: Optional[str] = None,
+               facebook_url: Optional[str] = None):
+        with db.session.begin_nested():
+            business = BusinessService.get_by_id_or_throw(business_id)
+            if name is not None:
+                business.name = name
+            if registration_type is not None:
+                business.registration_type = registration_type
+            if registration_number is not None:
+                business.registration_number = registration_number
+            if email is not None:
+                business.email = email
+            if facebook_url is not None:
+                business.facebook_url = facebook_url
+        db.session.refresh(business)
+        return business
+
+    @staticmethod
     def get_all() -> List[Business]:
         return db.session.execute(select(Business)).scalars().all()
 

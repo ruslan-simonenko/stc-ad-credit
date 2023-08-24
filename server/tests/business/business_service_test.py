@@ -4,6 +4,7 @@ import pytest
 
 from src.business.business_service import BusinessService
 from src.business.business_types import BusinessRegistrationType
+from src.persistence.schema.business import Business
 from tests.app_fixtures import AutoAppContextFixture
 from tests.business.business_test_utils import BusinessTestUtils
 from tests.persistence.db_test import DatabaseTest
@@ -42,3 +43,44 @@ class TestBusinessService(DatabaseTest, AutoAppContextFixture, UserFixtures):
         expected_businesses = {BusinessTestUtils.add_business(users.business_manager) for _ in range(3)}
         actual_businesses = BusinessService.get_all()
         assert set(actual_businesses) == expected_businesses
+
+    class TestUpdate:
+        NEW_NAME = 'updated_business'
+        NEW_REG_TYPE = BusinessRegistrationType.NI
+        NEW_REG_NUMBER = 'GB123456789'
+        NEW_EMAIL = 'new-email@gmail.com'
+        NEW_FACEBOOK_URL = 'https://facebook.com/updated-business'
+
+        def test_update_business(self, users):
+            def assert_business_updated(business: Business):
+                assert business.name == self.NEW_NAME
+                assert business.registration_type == self.NEW_REG_TYPE
+                assert business.registration_number == self.NEW_REG_NUMBER
+                assert business.email == self.NEW_EMAIL
+                assert business.facebook_url == self.NEW_FACEBOOK_URL
+
+            original_business = BusinessTestUtils.add_business(users.business_manager)
+
+            updated_business = BusinessService.update(
+                business_id=original_business.id, name=self.NEW_NAME, registration_type=self.NEW_REG_TYPE,
+                registration_number=self.NEW_REG_NUMBER, email=self.NEW_EMAIL, facebook_url=self.NEW_FACEBOOK_URL)
+            assert_business_updated(updated_business)
+            post_update_business = BusinessService.get_by_id_or_throw(business_id=original_business.id)
+            assert_business_updated(post_update_business)
+
+        def test_update_business_partially(self, users):
+            original_business = BusinessTestUtils.add_business(users.business_manager)
+
+            def assert_business_updated(business: Business):
+                assert business.name == original_business.name
+                assert business.registration_type == self.NEW_REG_TYPE
+                assert business.registration_number == self.NEW_REG_NUMBER
+                assert business.email == original_business.email
+                assert business.facebook_url == self.NEW_FACEBOOK_URL
+
+            updated_business = BusinessService.update(
+                business_id=original_business.id, registration_type=self.NEW_REG_TYPE,
+                registration_number=self.NEW_REG_NUMBER, facebook_url=self.NEW_FACEBOOK_URL)
+            assert_business_updated(updated_business)
+            post_update_business = BusinessService.get_by_id_or_throw(business_id=original_business.id)
+            assert_business_updated(post_update_business)
