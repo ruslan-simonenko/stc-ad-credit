@@ -44,9 +44,17 @@ export const useBusinessStore = defineStore("business", () => {
         }
     }
 
-    const add = async (newBusiness: BusinessFormDTO) => {
+    const add = async (form: BusinessFormDTO) => {
         try {
-            await apiClient.post('/businesses/', newBusiness)
+            await apiClient.post('/businesses/', form)
+        } finally {
+            await fetch()
+        }
+    }
+
+    const update = async (id: number, form: BusinessFormDTO) => {
+        try {
+            await apiClient.put(`/businesses/${id}`, form)
         } finally {
             await fetch()
         }
@@ -56,6 +64,7 @@ export const useBusinessStore = defineStore("business", () => {
         all,
         fetch,
         add,
+        update,
     }
 })
 

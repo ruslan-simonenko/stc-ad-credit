@@ -7,12 +7,12 @@
     </div>
     <q-input type="email" v-model="data.email" label="Contact Email"/>
     <q-input type="url" v-model="data.facebook_url" label="Facebook Link"/>
-    <q-btn label="Add Business" type="submit" color="primary"/>
+    <q-btn :label="props.id == null ? 'Add Business' : 'Update Business'" type="submit" color="primary"/>
   </q-form>
 </template>
 
 <script setup lang="ts">
-import {computed, shallowReactive, watch} from "vue";
+import {computed, onMounted, shallowReactive, watch} from "vue";
 import {useBusinessStore} from "../business-store.ts";
 import {Business, BusinessFormDTO, BusinessFormDTOSchema, BusinessRegistrationType} from "../business-types.ts";
 
@@ -43,7 +43,7 @@ const updateData = (newData: BusinessFormDTO) => {
   data.email = newDataCopy.email;
   data.facebook_url = newDataCopy.facebook_url;
 }
-watch(() => business.value, (business: Business|null) => {
+watch(() => business.value, (business: Business | null) => {
   updateData(business == null ? EMPTY_DATA : {
     name: business.name,
     registration_type: business.sensitive!.registration_type,
@@ -66,13 +66,17 @@ const onSubmit = async () => {
   if (props.id == null) {
     await businessStore.add(business);
   } else {
-    console.log('update', props.id, business);
+    await businessStore.update(props.id, business);
   }
   resetForm();
   emit('submit');
 }
 
 const resetForm = () => updateData(EMPTY_DATA);
+
+onMounted(() => {
+  businessStore.fetch();
+});
 </script>
 
 <style scoped>
