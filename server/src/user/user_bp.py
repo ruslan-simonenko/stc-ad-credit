@@ -1,4 +1,3 @@
-import email_normalize
 from flask import Blueprint, jsonify, request
 
 from src.auth.auth_bp import auth_role
@@ -6,6 +5,7 @@ from src.user.user_dto import UserInfoDTO, UserAddForm, UserUpdateForm
 from src.user.user_service import UserService
 from src.user.user_types import UserRole
 from src.utils.dto import ResponseWithObjects, ErrorResponse, ResponseWithObject
+from src.utils.email import normalize_email, EmailNormalizationError
 
 user_bp = Blueprint('user', __name__, url_prefix='/users')
 
@@ -44,14 +44,3 @@ async def update_user(user_id):
     return jsonify(ResponseWithObject[UserInfoDTO](object=UserInfoDTO.from_entity(user)))
 
 
-async def normalize_email(email: str) -> str:
-    result = await email_normalize.Normalizer().normalize(email.strip())
-    if not result.mx_records:
-        # see https://email-normalize.readthedocs.io/en/stable/result.html
-        raise EmailNormalizationError('Failed to fetch MX records for this email address')
-    return result.normalized_address
-
-
-class EmailNormalizationError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
