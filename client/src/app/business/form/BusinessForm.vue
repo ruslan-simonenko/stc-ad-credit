@@ -101,6 +101,12 @@ watch(() => business.value, (business: Business | null) => {
   }
   updateData(newData);
 });
+watch(() => data.registration_tier, (newRegistrationTier) => {
+  if (newRegistrationTier === RegistrationTier.REGISTERED && data.registration_type === BusinessRegistrationType.KNOWN) {
+    data.registration_type = BusinessRegistrationType.VAT;
+    data.registration_number = '';
+  }
+});
 
 const registrationTypes = Object.values(BusinessRegistrationType).filter(registrationType => registrationType != BusinessRegistrationType.KNOWN);
 const registrationTiers = [
