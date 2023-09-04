@@ -5,3 +5,4 @@ class BusinessRegistrationType(str, Enum):
     CRN = "CRN"
     VAT = "VAT"
     NI = "NI"
+    KNOWN = "KNOWN"

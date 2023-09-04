@@ -1,11 +1,18 @@
 <template>
   <q-form @submit="onSubmit" class="q-gutter-md">
     <q-input type="text" v-model="data.name" label="Name"/>
-    <div class="row">
-      <q-select v-model="data.registration_type" :options="registrationTypes"/>
-      <q-input type="text" v-model="data.registration_number" label="Registration #" class="q-ml-md col-grow"/>
-    </div>
-    <q-input type="email" v-model="data.email" label="Contact Email"/>
+    <q-option-group
+        v-model="data.registration_tier"
+        :options="registrationTiers"
+        color="primary"
+    />
+    <template v-if="data.registration_tier === RegistrationTier.REGISTERED">
+      <div class="row">
+        <q-select v-model="data.registration_type" :options="registrationTypes"/>
+        <q-input type="text" v-model="data.registration_number" label="Registration #" class="q-ml-md col-grow"/>
+      </div>
+      <q-input type="email" v-model="data.email" label="Contact Email"/>
+    </template>
     <q-input type="url" v-model="data.facebook_url" label="Facebook Link"/>
     <q-btn :label="props.id == null ? 'Add Business' : 'Update Business'" type="submit" color="primary"/>
   </q-form>
@@ -14,10 +21,28 @@
 <script setup lang="ts">
 import {computed, onMounted, shallowReactive, watch} from "vue";
 import {useBusinessStore} from "../business-store.ts";
-import {Business, BusinessFormDTO, BusinessFormDTOSchema, BusinessRegistrationType} from "../business-types.ts";
+import {Business, BusinessRegistrationType} from "../business-types.ts";
+import {v4 as uuidv4} from 'uuid';
+import {z} from "zod";
 
-const EMPTY_DATA: BusinessFormDTO = {
+enum RegistrationTier {
+  KNOWN = 'Known',
+  REGISTERED = 'Registered',
+}
+
+const DataSchema = z.object({
+  name: z.string(),
+  registration_tier: z.nativeEnum(RegistrationTier),
+  registration_type: z.nativeEnum(BusinessRegistrationType),
+  registration_number: z.string(),
+  email: z.string().nullable(),
+  facebook_url: z.string().nullable(),
+});
+type Data = z.TypeOf<typeof DataSchema>;
+
+const EMPTY_DATA: Data = {
   name: '',
+  registration_tier: RegistrationTier.REGISTERED,
   registration_type: BusinessRegistrationType.NI,
   registration_number: '',
   email: null,
@@ -34,10 +59,12 @@ const businessStore = useBusinessStore();
 const business = computed<Business | null>(
     () => props.id == null ? null : businessStore.all.items.find((business) => business.id == props.id) ?? null)
 
-const data = shallowReactive<BusinessFormDTO>(BusinessFormDTOSchema.parse(EMPTY_DATA));
-const updateData = (newData: BusinessFormDTO) => {
-  const newDataCopy = BusinessFormDTOSchema.parse(newData);
+const data = shallowReactive<Data>(DataSchema.parse(EMPTY_DATA));
+
+const updateData = (newData: Data) => {
+  const newDataCopy = DataSchema.parse(newData);
   data.name = newDataCopy.name;
+  data.registration_tier = newDataCopy.registration_tier;
   data.registration_type = newDataCopy.registration_type;
   data.registration_number = newDataCopy.registration_number;
   data.email = newDataCopy.email;
@@ -46,6 +73,7 @@ const updateData = (newData: BusinessFormDTO) => {
 watch(() => business.value, (business: Business | null) => {
   updateData(business == null ? EMPTY_DATA : {
     name: business.name,
+    registration_tier: business.sensitive!.registration_type === BusinessRegistrationType.KNOWN ? RegistrationTier.KNOWN : RegistrationTier.REGISTERED,
     registration_type: business.sensitive!.registration_type,
     registration_number: business.sensitive!.registration_number,
     email: business.sensitive!.email,
@@ -53,14 +81,25 @@ watch(() => business.value, (business: Business | null) => {
   })
 })
 
-const registrationTypes = Object.values(BusinessRegistrationType)
+const registrationTypes = Object.values(BusinessRegistrationType).filter(registrationType => registrationType != BusinessRegistrationType.KNOWN);
+const registrationTiers = [
+  {
+    value: RegistrationTier.REGISTERED,
+    label: 'Registered - participates in STC pilot'
+  },
+  {
+    value: RegistrationTier.KNOWN,
+    label: 'Known - utilizes ads on STC notice boards'
+  }];
+
 
 const onSubmit = async () => {
+  const isRegistered = data.registration_tier == RegistrationTier.REGISTERED;
   const business = {
     name: data.name,
-    registration_type: data.registration_type,
-    registration_number: data.registration_number,
-    email: data.email,
+    registration_type: isRegistered ? data.registration_type : BusinessRegistrationType.KNOWN,
+    registration_number: isRegistered ? data.registration_number : uuidv4(),
+    email: isRegistered ? data.email : null,
     facebook_url: data.facebook_url,
   };
   if (props.id == null) {

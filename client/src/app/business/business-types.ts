@@ -2,7 +2,7 @@ import {z} from "zod";
 
 
 export enum BusinessRegistrationType {
-    CRN = "CRN", VAT = "VAT", NI = "NI"
+    CRN = "CRN", VAT = "VAT", NI = "NI", KNOWN = "KNOWN"
 }
 
 export const BusinessDTOSchema = z.object({
