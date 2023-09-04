@@ -2,6 +2,7 @@
   <q-form @submit="onSubmit" class="q-gutter-md">
     <q-input type="text" v-model="data.name" label="Name"/>
     <q-option-group
+        v-if="canAddRegistered"
         v-model="data.registration_tier"
         :options="registrationTiers"
         color="primary"
@@ -24,6 +25,8 @@ import {useBusinessStore} from "../business-store.ts";
 import {Business, BusinessRegistrationType} from "../business-types.ts";
 import {v4 as uuidv4} from 'uuid';
 import {z} from "zod";
+import {useAuthStore} from "../../../auth/auth-store.ts";
+import {UserRole} from "../../../user/user.ts";
 
 enum RegistrationTier {
   KNOWN = 'Known',
@@ -40,26 +43,28 @@ const DataSchema = z.object({
 });
 type Data = z.TypeOf<typeof DataSchema>;
 
-const EMPTY_DATA: Data = {
-  name: '',
-  registration_tier: RegistrationTier.REGISTERED,
-  registration_type: BusinessRegistrationType.NI,
-  registration_number: '',
-  email: null,
-  facebook_url: null
-};
-
 const props = defineProps({
   id: Number,
 });
 const emit = defineEmits(['submit']);
 
 const businessStore = useBusinessStore();
+const authStore = useAuthStore();
+
+const canAddRegistered = computed<boolean>(() => authStore.hasRole(UserRole.BUSINESS_MANAGER));
 
 const business = computed<Business | null>(
     () => props.id == null ? null : businessStore.all.items.find((business) => business.id == props.id) ?? null)
 
-const data = shallowReactive<Data>(DataSchema.parse(EMPTY_DATA));
+const emptyData = computed<Data>(() => ({
+  name: '',
+  registration_tier: canAddRegistered.value ? RegistrationTier.REGISTERED : RegistrationTier.KNOWN,
+  registration_type: BusinessRegistrationType.NI,
+  registration_number: '',
+  email: null,
+  facebook_url: null
+}));
+const data = shallowReactive<Data>(DataSchema.parse(emptyData.value));
 
 const updateData = (newData: Data) => {
   const newDataCopy = DataSchema.parse(newData);
@@ -71,7 +76,7 @@ const updateData = (newData: Data) => {
   data.facebook_url = newDataCopy.facebook_url;
 }
 watch(() => business.value, (business: Business | null) => {
-  updateData(business == null ? EMPTY_DATA : {
+  updateData(business == null ? emptyData.value : {
     name: business.name,
     registration_tier: business.sensitive!.registration_type === BusinessRegistrationType.KNOWN ? RegistrationTier.KNOWN : RegistrationTier.REGISTERED,
     registration_type: business.sensitive!.registration_type,
@@ -111,7 +116,7 @@ const onSubmit = async () => {
   emit('submit');
 }
 
-const resetForm = () => updateData(EMPTY_DATA);
+const resetForm = () => updateData(emptyData.value);
 
 onMounted(() => {
   businessStore.fetch();

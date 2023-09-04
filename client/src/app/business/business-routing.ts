@@ -8,7 +8,7 @@ const BUSINESS_ROUTES: RouteRecordRaw[] = [
         name: 'Businesses', path: '/businesses', component: BusinessesPage, meta: {
             auth: {
                 required: true,
-                authorizedRoles: [UserRole.ADMIN, UserRole.BUSINESS_MANAGER],
+                authorizedRoles: [UserRole.ADMIN, UserRole.BUSINESS_MANAGER, UserRole.AD_MANAGER],
             },
             navigationMenu: {type:'entry', entry: {icon: 'storefront', label: 'Businesses'}}
         }
@@ -17,7 +17,7 @@ const BUSINESS_ROUTES: RouteRecordRaw[] = [
         name: 'BusinessAdd', path: '/businesses/add', component: BusinessFormPage, meta: {
             auth: {
                 required: true,
-                authorizedRoles: [UserRole.BUSINESS_MANAGER]
+                authorizedRoles: [UserRole.BUSINESS_MANAGER, UserRole.AD_MANAGER]
             },
             navigationMenu: {type: 'linked', routeName: 'Businesses'}
         }

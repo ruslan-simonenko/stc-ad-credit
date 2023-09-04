@@ -8,7 +8,7 @@
       row-key="id">
     <template v-slot:top>
       <div class="text-h6">Businesses</div>
-      <q-btn label="Add" v-if="authStore.hasRole(UserRole.BUSINESS_MANAGER)" :disable="loading"
+      <q-btn label="Add" v-if="canAdd" :disable="loading"
              color="primary" class="q-ml-sm"
              @click="goToBusinessAddPage"/>
     </template>
@@ -20,7 +20,7 @@
         </div>
       </q-td>
     </template>
-    <template v-if="authStore.hasRole(UserRole.BUSINESS_MANAGER)" v-slot:body-cell-actions="props">
+    <template v-if="canEdit" v-slot:body-cell-actions="props">
       <q-td :props="props">
         <div class="row inline">
           <q-btn @click="edit(props.value)">Edit</q-btn>
@@ -46,7 +46,7 @@
                 </q-item-section>
               </q-item>
             </q-list>
-            <q-card-actions v-if="authStore.hasRole(UserRole.BUSINESS_MANAGER)" vertical>
+            <q-card-actions v-if="canEdit" vertical>
               <q-btn round flat icon="more_vert">
                 <q-menu auto-close anchor="bottom end" self="top end">
                   <q-list>
@@ -89,6 +89,9 @@ const router = useRouter();
 const goToBusinessAddPage = () => router.push({name: 'BusinessAdd'});
 
 const loading = computed<boolean>(() => businessStore.all.fetching || auditStore.all.fetching || adAllowanceStore.data.fetching || adStrategyStore.data.fetching)
+
+const canAdd = computed<boolean>(() => authStore.hasRole(UserRole.BUSINESS_MANAGER) || authStore.hasRole(UserRole.AD_MANAGER));
+const canEdit = computed<boolean>(() => authStore.hasRole(UserRole.BUSINESS_MANAGER));
 
 enum Columns {
   NAME = 'name',
