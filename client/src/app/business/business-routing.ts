@@ -26,7 +26,7 @@ const BUSINESS_ROUTES: RouteRecordRaw[] = [
         name: 'BusinessEdit', path: '/businesses/:id/edit', component: BusinessFormPage, meta: {
             auth: {
                 required: true,
-                authorizedRoles: [UserRole.BUSINESS_MANAGER]
+                authorizedRoles: [UserRole.BUSINESS_MANAGER, UserRole.AD_MANAGER]
             },
             navigationMenu: {type: 'linked', routeName: 'Businesses'}
         }

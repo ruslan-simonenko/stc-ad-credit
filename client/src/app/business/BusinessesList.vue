@@ -91,7 +91,7 @@ const goToBusinessAddPage = () => router.push({name: 'BusinessAdd'});
 const loading = computed<boolean>(() => businessStore.all.fetching || auditStore.all.fetching || adAllowanceStore.data.fetching || adStrategyStore.data.fetching)
 
 const canAdd = computed<boolean>(() => authStore.hasRole(UserRole.BUSINESS_MANAGER) || authStore.hasRole(UserRole.AD_MANAGER));
-const canEdit = computed<boolean>(() => authStore.hasRole(UserRole.BUSINESS_MANAGER));
+const canEdit = computed<boolean>(() => authStore.hasRole(UserRole.BUSINESS_MANAGER) || authStore.hasRole(UserRole.AD_MANAGER));
 
 enum Columns {
   NAME = 'name',
@@ -106,6 +106,12 @@ enum Columns {
 const ColumnsOrder: Array<string> = [Columns.NAME, Columns.FACEBOOK_URL, Columns.SCORE, Columns.ALLOWANCE, Columns.REGISTRATION, Columns.EMAIL, Columns.ACTIONS];
 
 const prepareColumns = (): QTableProps['columns'] => {
+  const COLUMN_ACTIONS: QTableProps['columns'] = [{
+    name: Columns.ACTIONS,
+    label: 'Actions',
+    align: 'left',
+    field: (row: Business) => row,
+  }];
 
   const businessManagerColumns: QTableProps['columns'] = authStore.hasRole(UserRole.BUSINESS_MANAGER) ? [
     {
@@ -122,12 +128,11 @@ const prepareColumns = (): QTableProps['columns'] => {
       field: (row: Business) => row.sensitive,
       format: (sensitiveData: Business['sensitive']) => sensitiveData!.email
     },
-    {
-      name: Columns.ACTIONS,
-      label: 'Actions',
-      align: 'left',
-      field: (row: Business) => row,
-    }
+    ...COLUMN_ACTIONS,
+  ] : [];
+
+  const adManagerColumns: QTableProps['columns'] = authStore.hasRole(UserRole.AD_MANAGER) ? [
+    ...COLUMN_ACTIONS,
   ] : [];
 
   const adminColumns: QTableProps['columns'] = authStore.hasRole(UserRole.ADMIN) ? [
@@ -156,7 +161,8 @@ const prepareColumns = (): QTableProps['columns'] => {
       field: (row: Business) => row.facebook_url,
     },
     ...adminColumns,
-    ...businessManagerColumns
+    ...adManagerColumns,
+    ...businessManagerColumns,
   ];
   columns.sort((colA, colB) => ColumnsOrder.indexOf(colA.name) - ColumnsOrder.indexOf(colB.name))
   return columns;

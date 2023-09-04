@@ -52,6 +52,7 @@ const businessStore = useBusinessStore();
 const authStore = useAuthStore();
 
 const canAddRegistered = computed<boolean>(() => authStore.hasRole(UserRole.BUSINESS_MANAGER));
+const canSeeSensitiveInfo = computed<boolean>(() => authStore.hasRole(UserRole.BUSINESS_MANAGER));
 
 const business = computed<Business | null>(
     () => props.id == null ? null : businessStore.all.items.find((business) => business.id == props.id) ?? null)
@@ -76,15 +77,30 @@ const updateData = (newData: Data) => {
   data.facebook_url = newDataCopy.facebook_url;
 }
 watch(() => business.value, (business: Business | null) => {
-  updateData(business == null ? emptyData.value : {
-    name: business.name,
-    registration_tier: business.sensitive!.registration_type === BusinessRegistrationType.KNOWN ? RegistrationTier.KNOWN : RegistrationTier.REGISTERED,
-    registration_type: business.sensitive!.registration_type,
-    registration_number: business.sensitive!.registration_number,
-    email: business.sensitive!.email,
-    facebook_url: business.facebook_url,
-  })
-})
+  let newData: Data;
+  if (business == null) {
+    newData = emptyData.value;
+  } else if (canSeeSensitiveInfo.value) {
+    newData = {
+      name: business.name,
+      registration_tier: business.sensitive!.registration_type === BusinessRegistrationType.KNOWN ? RegistrationTier.KNOWN : RegistrationTier.REGISTERED,
+      registration_type: business.sensitive!.registration_type,
+      registration_number: business.sensitive!.registration_number,
+      email: business.sensitive!.email,
+      facebook_url: business.facebook_url,
+    };
+  } else {
+    newData = {
+      name: business.name,
+      registration_tier: RegistrationTier.KNOWN,
+      registration_type: BusinessRegistrationType.KNOWN,
+      registration_number: '',
+      email: null,
+      facebook_url: business.facebook_url,
+    };
+  }
+  updateData(newData);
+});
 
 const registrationTypes = Object.values(BusinessRegistrationType).filter(registrationType => registrationType != BusinessRegistrationType.KNOWN);
 const registrationTiers = [
