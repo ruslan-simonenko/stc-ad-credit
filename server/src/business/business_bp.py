@@ -42,9 +42,17 @@ def add():
 
 
 @business_bp.route('/<int:business_id>', methods=['put'])
-@auth_role(UserRole.BUSINESS_MANAGER)
+@auth_role(UserRole.BUSINESS_MANAGER, UserRole.AD_MANAGER)
 def update(business_id: int):
     form = BusinessUpdateForm.model_validate(request.get_json())
+
+    roles = AuthService.get_roles_from_claims()
+    business = BusinessService.get_by_id_or_throw(business_id)
+    if UserRole.BUSINESS_MANAGER not in roles:
+        if business.registration_type != BusinessRegistrationType.KNOWN:
+            abort(403)
+        if form.registration_type != BusinessRegistrationType.KNOWN:
+            abort(403)
     business = BusinessService.update(
         business_id=business_id,
         name=form.name,
