@@ -2,7 +2,8 @@ from flask import Blueprint, jsonify, request, abort
 
 from src.auth.auth_bp import auth_role
 from src.auth.auth_service import AuthService
-from src.business.business_dto import BusinessDTO, BusinessAddForm, BusinessDTOPublic, BusinessUpdateForm
+from src.business.business_dto import BusinessDTO, BusinessAddForm, BusinessDTOPublic, BusinessUpdateForm, \
+    BusinessUpdateKnownForm
 from src.business.business_service import BusinessService
 from src.business.business_types import BusinessRegistrationType
 from src.business.profile.business_profile_bp import business_profile_bp
@@ -44,20 +45,22 @@ def add():
 @business_bp.route('/<int:business_id>', methods=['put'])
 @auth_role(UserRole.BUSINESS_MANAGER, UserRole.AD_MANAGER)
 def update(business_id: int):
-    form = BusinessUpdateForm.model_validate(request.get_json())
-
     roles = AuthService.get_roles_from_claims()
-    business = BusinessService.get_by_id_or_throw(business_id)
-    if UserRole.BUSINESS_MANAGER not in roles:
-        if business.registration_type != BusinessRegistrationType.KNOWN:
-            abort(403)
-        if form.registration_type != BusinessRegistrationType.KNOWN:
-            abort(403)
-    business = BusinessService.update(
-        business_id=business_id,
-        name=form.name,
-        registration_type=form.registration_type,
-        registration_number=form.registration_number,
-        email=form.email,
-        facebook_url=form.facebook_url)
-    return jsonify(ResponseWithObject[BusinessDTO](object=BusinessDTO.from_entity(business)))
+    if UserRole.BUSINESS_MANAGER in roles:
+        form = BusinessUpdateForm.model_validate(request.get_json())
+        business = BusinessService.update(
+            business_id=business_id,
+            name=form.name,
+            registration_type=form.registration_type,
+            registration_number=form.registration_number,
+            email=form.email,
+            facebook_url=form.facebook_url)
+        dto_type = BusinessDTO
+    else:
+        form = BusinessUpdateKnownForm.model_validate(request.get_json())
+        business = BusinessService.update(
+            business_id=business_id,
+            name=form.name,
+            facebook_url=form.facebook_url)
+        dto_type = BusinessDTOPublic
+    return jsonify(ResponseWithObject[dto_type](object=dto_type.from_entity(business)))

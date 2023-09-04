@@ -5,6 +5,7 @@ from flask.testing import FlaskClient
 from pydantic import ValidationError
 
 from src.business.business_dto import BusinessAddForm, BusinessDTO, BusinessDTOPublic, BusinessUpdateForm
+from src.business.business_service import BusinessService
 from src.business.business_types import BusinessRegistrationType
 from src.persistence.schema.business import Business
 from src.utils.dto import ResponseWithObject, ResponseWithObjects
@@ -98,9 +99,8 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
                 )
                 assert created_business == expected_business
 
-        def test_update_ad_manager_known_allowed(self, client: FlaskClient, users, access_headers_for):
-            business = BusinessTestUtils.add_business(users.business_manager,
-                                                      registration_type=BusinessRegistrationType.KNOWN)
+        def test_update_ad_manager(self, client: FlaskClient, users, access_headers_for):
+            business = BusinessTestUtils.add_business(users.business_manager)
 
             form = BusinessUpdateForm(
                 name='Fabulous Pastries',
@@ -111,71 +111,23 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
             response = client.put(f'/businesses/{business.id}', json=form, headers=access_headers_for(users.ad_manager))
 
             assert response.status_code == 200
-            with patched_dto_for_comparison(BusinessDTO):
-                created_business = ResponseWithObject[BusinessDTO].model_validate(response.json).object
-                expected_business = BusinessDTO(
+            # No sensitive data is returned
+            with pytest.raises(ValidationError, match='3 validation errors'):
+                ResponseWithObject[BusinessDTO].model_validate(response.json)
+            # Updated model is returned
+            with patched_dto_for_comparison(BusinessDTOPublic):
+                created_business = ResponseWithObject[BusinessDTOPublic].model_validate(response.json).object
+                expected_business = BusinessDTOPublic(
                     id=0,
                     name=form.name,
-                    registration_type=form.registration_type,
-                    registration_number=form.registration_number,
-                    email=form.email,
                     facebook_url=form.facebook_url
                 )
                 assert created_business == expected_business
-
-        def test_update_ad_manager_known_forbidden__business(self, client: FlaskClient, users, access_headers_for):
-            business = BusinessTestUtils.add_business(users.business_manager,
-                                                      registration_type=BusinessRegistrationType.VAT)
-
-            form = BusinessUpdateForm(
-                name='Fabulous Pastries',
-                registration_type=BusinessRegistrationType.KNOWN,
-                registration_number='random-string',
-                email='pastries@gmail.com',
-                facebook_url='https://facebook.com/best-pastries')
-            response = client.put(f'/businesses/{business.id}', json=form, headers=access_headers_for(users.ad_manager))
-
-            assert response.status_code == 403
-
-        def test_update_ad_manager_known_forbidden___change(self, client: FlaskClient, users, access_headers_for):
-            business = BusinessTestUtils.add_business(users.business_manager,
-                                                      registration_type=BusinessRegistrationType.KNOWN)
-
-            form = BusinessUpdateForm(
-                name='Fabulous Pastries',
-                registration_type=BusinessRegistrationType.VAT,
-                registration_number='GB91239213',
-                email='pastries@gmail.com',
-                facebook_url='https://facebook.com/best-pastries')
-            response = client.put(f'/businesses/{business.id}', json=form, headers=access_headers_for(users.ad_manager))
-
-            assert response.status_code == 403
-
-    def test_update_ad_manager_registered(self, client: FlaskClient, users, access_headers_for):
-        business = BusinessTestUtils.add_business(users.business_manager,
-                                                  registration_type=BusinessRegistrationType.KNOWN)
-
-        form = BusinessUpdateForm(
-            name='Fabulous Pastries',
-            registration_type=BusinessRegistrationType.VAT,
-            registration_number='GB123456789',
-            email='pastries@gmail.com',
-            facebook_url='https://facebook.com/best-pastries')
-        response = client.put(f'/businesses/{business.id}', json=form,
-                              headers=access_headers_for(users.business_manager))
-
-        assert response.status_code == 200
-        with patched_dto_for_comparison(BusinessDTO):
-            created_business = ResponseWithObject[BusinessDTO].model_validate(response.json).object
-            expected_business = BusinessDTO(
-                id=0,
-                name=form.name,
-                registration_type=form.registration_type,
-                registration_number=form.registration_number,
-                email=form.email,
-                facebook_url=form.facebook_url
-            )
-            assert created_business == expected_business
+            # Sensitive fields are not updated
+            updated_business = BusinessService.get_by_id_or_throw(business.id)
+            assert updated_business.registration_type == business.registration_type
+            assert updated_business.registration_number == business.registration_number
+            assert updated_business.email == business.email
 
     class TestGetAll:
         @pytest.fixture

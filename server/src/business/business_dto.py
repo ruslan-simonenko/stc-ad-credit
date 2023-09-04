@@ -84,3 +84,8 @@ class BusinessUpdateForm(BaseModel):
     registration_number: str
     email: Optional[str]
     facebook_url: Optional[str]
+
+
+class BusinessUpdateKnownForm(BaseModel):
+    name: str
+    facebook_url: Optional[str]
