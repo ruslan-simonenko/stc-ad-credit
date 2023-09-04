@@ -18,26 +18,59 @@ from tests.utils.dto_comparison_utils import patched_dto_for_comparison
 
 class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppContextFixture):
 
-    def test_add(self, client: FlaskClient, users, access_headers_for, monkeypatch):
-        form = BusinessAddForm(name='Fabulous Pastries',
-                               registration_type=BusinessRegistrationType.VAT,
-                               registration_number='GB123456789',
-                               email='pastries@gmail.com',
-                               facebook_url='https://facebook.com/best-pastries')
-        response = client.post('/businesses', json=form, headers=access_headers_for(users.business_manager))
+    class TestAdd:
 
-        assert response.status_code == 200
-        with patched_dto_for_comparison(BusinessDTO):
-            created_business = ResponseWithObject[BusinessDTO].model_validate(response.json).object
-            expected_business = BusinessDTO(
-                id=0,
-                name=form.name,
-                registration_type=form.registration_type,
-                registration_number=form.registration_number,
-                email=form.email,
-                facebook_url=form.facebook_url
-            )
-            assert created_business == expected_business
+        def test_add_ad_manager__known(self, client: FlaskClient, users, access_headers_for):
+            form = BusinessAddForm(name='Fabulous Pastries',
+                                   registration_type=BusinessRegistrationType.KNOWN,
+                                   registration_number='random-meaninglessness',
+                                   email=None,
+                                   facebook_url='https://facebook.com/best-pastries')
+            response = client.post('/businesses', json=form, headers=access_headers_for(users.ad_manager))
+
+            assert response.status_code == 200
+            with patched_dto_for_comparison(BusinessDTO):
+                created_business = ResponseWithObject[BusinessDTO].model_validate(response.json).object
+                expected_business = BusinessDTO(
+                    id=0,
+                    name=form.name,
+                    registration_type=form.registration_type,
+                    registration_number=form.registration_number,
+                    email=form.email,
+                    facebook_url=form.facebook_url
+                )
+                assert created_business == expected_business
+
+        def test_add_ad_manager__registered(self, client: FlaskClient, users, access_headers_for):
+            form = BusinessAddForm(name='Fabulous Pastries',
+                                   registration_type=BusinessRegistrationType.VAT,
+                                   registration_number='GB123456789',
+                                   email=None,
+                                   facebook_url='https://facebook.com/best-pastries')
+            response = client.post('/businesses', json=form, headers=access_headers_for(users.ad_manager))
+
+            assert response.status_code == 403
+
+        def test_add_business_manager(self, client: FlaskClient, users, access_headers_for):
+            form = BusinessAddForm(name='Fabulous Pastries',
+                                   registration_type=BusinessRegistrationType.VAT,
+                                   registration_number='GB123456789',
+                                   email='pastries@gmail.com',
+                                   facebook_url='https://facebook.com/best-pastries')
+            response = client.post('/businesses', json=form, headers=access_headers_for(users.business_manager))
+
+            assert response.status_code == 200
+            with patched_dto_for_comparison(BusinessDTO):
+                created_business = ResponseWithObject[BusinessDTO].model_validate(response.json).object
+                expected_business = BusinessDTO(
+                    id=0,
+                    name=form.name,
+                    registration_type=form.registration_type,
+                    registration_number=form.registration_number,
+                    email=form.email,
+                    facebook_url=form.facebook_url
+                )
+                assert created_business == expected_business
 
     def test_update(self, client: FlaskClient, users, access_headers_for, monkeypatch):
         business = BusinessTestUtils.add_business(users.business_manager)

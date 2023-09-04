@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, abort
 
 from src.auth.auth_bp import auth_role
 from src.auth.auth_service import AuthService
 from src.business.business_dto import BusinessDTO, BusinessAddForm, BusinessDTOPublic, BusinessUpdateForm
 from src.business.business_service import BusinessService
+from src.business.business_types import BusinessRegistrationType
 from src.business.profile.business_profile_bp import business_profile_bp
 from src.user.user_types import UserRole
 from src.utils.dto import ResponseWithObjects, ResponseWithObject
@@ -24,9 +25,12 @@ def get_all():
 
 
 @business_bp.route('/', methods=['post'])
-@auth_role(UserRole.BUSINESS_MANAGER)
+@auth_role(UserRole.BUSINESS_MANAGER, UserRole.AD_MANAGER)
 def add():
     form = BusinessAddForm.model_validate(request.get_json())
+    roles = AuthService.get_roles_from_claims()
+    if (UserRole.BUSINESS_MANAGER not in roles) and (form.registration_type != BusinessRegistrationType.KNOWN):
+        abort(403)
     business = BusinessService.add(
         name=form.name,
         registration_type=form.registration_type,
