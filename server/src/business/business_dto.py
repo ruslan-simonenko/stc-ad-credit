@@ -47,6 +47,7 @@ class BusinessDTOPublic(BaseModel, DTODataComparable):
     id: int
     name: str
     facebook_url: Optional[str]
+    registered: bool
 
     def __hash__(self) -> int:
         return self.id.__hash__()
@@ -61,13 +62,15 @@ class BusinessDTOPublic(BaseModel, DTODataComparable):
         if not isinstance(other, BusinessDTOPublic):
             return False
         return (self.name == other.name and
-                self.facebook_url == other.facebook_url)
+                self.facebook_url == other.facebook_url and
+                self.registered == other.registered)
 
     @classmethod
     def from_entity(cls, entity: Business) -> "BusinessDTOPublic":
         return cls(id=entity.id,
                    name=entity.name,
-                   facebook_url=entity.facebook_url)
+                   facebook_url=entity.facebook_url,
+                   registered=entity.registration_type != BusinessRegistrationType.KNOWN)
 
 
 class BusinessAddForm(BaseModel):

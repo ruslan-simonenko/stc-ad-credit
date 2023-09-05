@@ -100,7 +100,8 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
                 assert created_business == expected_business
 
         def test_update_ad_manager(self, client: FlaskClient, users, access_headers_for):
-            business = BusinessTestUtils.add_business(users.business_manager)
+            business = BusinessTestUtils.add_business(users.business_manager,
+                                                      registration_type=BusinessRegistrationType.VAT)
 
             form = BusinessUpdateForm(
                 name='Fabulous Pastries',
@@ -120,7 +121,8 @@ class TestBusinessEndpoint(DatabaseTest, AuthFixtures, UserFixtures, AutoAppCont
                 expected_business = BusinessDTOPublic(
                     id=0,
                     name=form.name,
-                    facebook_url=form.facebook_url
+                    facebook_url=form.facebook_url,
+                    registered=True,
                 )
                 assert created_business == expected_business
             # Sensitive fields are not updated
