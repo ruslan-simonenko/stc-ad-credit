@@ -9,6 +9,7 @@ import {computed, PropType} from "vue";
 
 const strategyStore = useAdStrategyStore();
 const props = defineProps({
+  businessRegistered: Boolean,
   score: [Number, null] as PropType<number | null>,
   size: String,
 });
@@ -30,7 +31,7 @@ const rating = computed(() => {
   }
   const strategy = strategyStore.data.strategy;
   if (props.score == null) {
-    return Rating.BEIGE;
+    return props.businessRegistered ? Rating.RED : Rating.BEIGE;
   } else if (props.score >= strategy!.rating_high_min_score) {
     return Rating.GREEN;
   } else if (props.score >= strategy!.rating_medium_min_score) {

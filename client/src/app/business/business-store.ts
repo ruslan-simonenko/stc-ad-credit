@@ -2,10 +2,11 @@ import {defineStore} from "pinia";
 import {reactive, watch} from "vue";
 import {
     Business,
-    BusinessFormDTO,
     BusinessDTOPublicSchema,
     BusinessDTOSchema,
     Businesses,
+    BusinessFormDTO,
+    BusinessRegistrationType,
 } from "./business-types.ts";
 import {useApiClientAxios} from "../../api/api-client-axios.ts";
 import {useAuthStore} from "../../auth/auth-store.ts";
@@ -77,10 +78,11 @@ const _parseDTO = (business: any): Business => {
         registration_number,
         registration_type
     } = BusinessDTOSchema.parse(business)
-    return {id, name, facebook_url, sensitive: {registration_type, registration_number, email}}
+    const registered = registration_type != BusinessRegistrationType.KNOWN;
+    return {id, name, facebook_url, registered, sensitive: {registration_type, registration_number, email}}
 }
 
 const _parseDTOPublic = (business: any): Business => {
-    const {facebook_url, id, name} = BusinessDTOPublicSchema.parse(business)
-    return {id, name, facebook_url}
+    const {facebook_url, id, name, registered} = BusinessDTOPublicSchema.parse(business)
+    return {id, name, facebook_url, registered}
 }

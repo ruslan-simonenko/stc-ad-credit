@@ -16,7 +16,7 @@
       <q-td :props="props">
         <div class="row inline items-end">
           <div v-if="props.value != null" style="margin-right: .5em">{{ props.value }}</div>
-          <CarbonAuditSentimentIcon :score="props.value" size="2em"/>
+          <CarbonAuditSentimentIcon :business-registered="props.row.registered" :score="props.value" size="2em"/>
         </div>
       </q-td>
     </template>

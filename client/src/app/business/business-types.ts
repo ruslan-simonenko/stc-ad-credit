@@ -18,6 +18,8 @@ export const BusinessDTOPublicSchema = BusinessDTOSchema.omit({
     registration_type: true,
     registration_number: true,
     email: true
+}).extend({
+    registered: z.boolean(),
 })
 
 export type BusinessDTO = z.TypeOf<typeof BusinessDTOSchema>
@@ -28,6 +30,7 @@ export type Business = {
     id: number,
     name: string,
     facebook_url: string | null,
+    registered: boolean,
     sensitive?: {
         registration_type: BusinessRegistrationType,
         registration_number: string,

@@ -15,7 +15,7 @@
           <tbody>
           <tr v-for="row in rows">
             <td class="text-left">
-              <CarbonAuditSentimentIcon :score="row.minScore" size="4em"/>
+              <CarbonAuditSentimentIcon :business-registered="false" :score="row.minScore" size="4em"/>
             </td>
             <td class="text-right">
               {{ row.minScore }}
