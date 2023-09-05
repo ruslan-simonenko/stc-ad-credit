@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from src.ad.allowance.ad_allowance_types import AdAllowance
 from src.ad.record.ad_record_service import AdRecordService
@@ -6,6 +6,8 @@ from src.ad.strategy.ad_strategy import AD_ALLOWANCE, AD_RATE_LIMIT_WINDOW_DURAT
 from src.business.business_service import BusinessService
 from src.carbon_audit.carbon_audit_service import CarbonAuditService
 from src.carbon_audit.rating.carbon_audit_rating_service import CarbonAuditRatingService
+from src.persistence.schema.business import Business
+from src.persistence.schema.carbon_audit import CarbonAudit
 from src.utils.clock import Clock
 
 
@@ -35,6 +37,15 @@ class AdAllowanceService:
             full=business_id_to_allowance.get(business_id),
             used=business_id_to_used_allowance.get(business_id, 0)
         ) for business_id in all_business_ids}
+
+    @staticmethod
+    def _get_rate_limit_window_start_NEW(business: Business, latest_audit: Optional[CarbonAudit]):
+        if latest_audit is None:
+            initial_window_start = business.created_at
+        else:
+            initial_window_start = latest_audit.report_date
+        full_windows_passed = (Clock.now() - initial_window_start) // AD_RATE_LIMIT_WINDOW_DURATION
+        return initial_window_start + full_windows_passed * AD_RATE_LIMIT_WINDOW_DURATION
 
     @staticmethod
     def _get_rate_limit_window_start():
