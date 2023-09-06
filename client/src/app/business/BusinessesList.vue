@@ -106,13 +106,6 @@ enum Columns {
 const ColumnsOrder: Array<string> = [Columns.NAME, Columns.FACEBOOK_URL, Columns.SCORE, Columns.ALLOWANCE, Columns.REGISTRATION, Columns.EMAIL, Columns.ACTIONS];
 
 const prepareColumns = (): QTableProps['columns'] => {
-  const COLUMN_ACTIONS: QTableProps['columns'] = [{
-    name: Columns.ACTIONS,
-    label: 'Actions',
-    align: 'left',
-    field: (row: Business) => row,
-  }];
-
   const businessManagerColumns: QTableProps['columns'] = authStore.hasRole(UserRole.BUSINESS_MANAGER) ? [
     {
       name: Columns.REGISTRATION,
@@ -128,12 +121,14 @@ const prepareColumns = (): QTableProps['columns'] => {
       field: (row: Business) => row.sensitive,
       format: (sensitiveData: Business['sensitive']) => sensitiveData!.email
     },
-    ...COLUMN_ACTIONS,
   ] : [];
 
-  const adManagerColumns: QTableProps['columns'] = authStore.hasRole(UserRole.AD_MANAGER) ? [
-    ...COLUMN_ACTIONS,
-  ] : [];
+  const actionColumns: QTableProps['columns'] = (authStore.hasRole(UserRole.AD_MANAGER) || authStore.hasRole(UserRole.BUSINESS_MANAGER) ? [{
+    name: Columns.ACTIONS,
+    label: 'Actions',
+    align: 'left',
+    field: (row: Business) => row,
+  }] : []);
 
   const adminColumns: QTableProps['columns'] = authStore.hasRole(UserRole.ADMIN) ? [
     {
@@ -146,7 +141,8 @@ const prepareColumns = (): QTableProps['columns'] => {
       label: 'Ads Used',
       field: (row: Business) => adAllowanceStore.data.indexed[row.id],
       format: (value: AdAllowance | null): string => value != null ? `${value.used_allowance} / ${value.allowance}` : ''
-    }] : [];
+    },
+  ] : [];
   const columns: QTableProps['columns'] = [
     {
       name: Columns.NAME,
@@ -161,7 +157,7 @@ const prepareColumns = (): QTableProps['columns'] => {
       field: (row: Business) => row.facebook_url,
     },
     ...adminColumns,
-    ...adManagerColumns,
+    ...actionColumns,
     ...businessManagerColumns,
   ];
   columns.sort((colA, colB) => ColumnsOrder.indexOf(colA.name) - ColumnsOrder.indexOf(colB.name))
