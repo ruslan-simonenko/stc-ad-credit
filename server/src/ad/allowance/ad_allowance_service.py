@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, Optional
 
 from src.ad.allowance.ad_allowance_types import AdAllowance
@@ -52,6 +53,6 @@ class AdAllowanceService:
         if latest_audit is None:
             initial_window_start = business.created_at
         else:
-            initial_window_start = latest_audit.report_date
+            initial_window_start = datetime.combine(latest_audit.report_date, datetime.min.time())
         full_windows_passed = (Clock.now() - initial_window_start) // AD_RATE_LIMIT_WINDOW_DURATION
         return initial_window_start + full_windows_passed * AD_RATE_LIMIT_WINDOW_DURATION

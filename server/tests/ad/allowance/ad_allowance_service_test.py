@@ -77,14 +77,14 @@ class TestAdAllowanceService:
             audit = None
         else:
             audit = Mock()
-            audit.report_date = current_time - timedelta(days=audit_made_days_ago)
+            audit.report_date = current_time.date() - timedelta(days=audit_made_days_ago)
 
         monkeypatch.setattr(ad_allowance_service, 'AD_RATE_LIMIT_WINDOW_DURATION', timedelta(days=10))
         monkeypatch.setattr(Clock, 'now', lambda: current_time)
 
         actual_window_start = AdAllowanceService._get_rate_limit_window_start(business, audit)
         expected_window_start = current_time - timedelta(days=expected_window_start_days_ago)
-        assert abs(actual_window_start - expected_window_start) < timedelta(hours=1)
+        assert abs(actual_window_start - expected_window_start) < timedelta(hours=24)
 
 
 def carbon_audit_mock(business_id: int = None, score: int = None) -> CarbonAudit:
