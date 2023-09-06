@@ -132,3 +132,21 @@ class TestAdRecordService(DatabaseTest, AutoAppContextFixture, BusinessFixtures,
             assert result == {businesses.apple.id: 2,
                               businesses.banana.id: 3,
                               businesses.pear.id: 1}
+
+        def test_get_count_since_dates(self, businesses, users, monkeypatch: MonkeyPatch):
+            now = datetime.utcnow()
+            for business_id, records_days_ago in {businesses.apple.id: [45, 30, 15, 10],
+                                                  businesses.banana.id: [50, 7, 5, 1],
+                                                  businesses.pear.id: [100, 80, 12]}.items():
+                for days_ago in records_days_ago:
+                    monkeypatch.setattr(Clock, 'now', lambda: now - timedelta(days=days_ago))
+                    AdRecordService.add(business_id, ad_post_url=AD_POST_URL, creator_id=users.ad_manager.id)
+
+            result = AdRecordService.get_count_for_all_businesses_since_dates({
+                businesses.apple.id: now - timedelta(days=15),
+                businesses.banana.id: now - timedelta(days=4),
+                businesses.pear.id: now - timedelta(days=130),
+            })
+            assert result == {businesses.apple.id: 2,
+                              businesses.banana.id: 1,
+                              businesses.pear.id: 3}

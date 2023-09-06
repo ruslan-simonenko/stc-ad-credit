@@ -1,7 +1,9 @@
 from datetime import datetime, date
 from typing import List, Dict
 
-from sqlalchemy import select, and_, join
+import sqlalchemy
+from sqlalchemy import select, and_, join, cast, literal, union, union_all, literal_column
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql.functions import count
 
 from src.persistence.schema import db
@@ -47,5 +49,31 @@ class AdRecordService:
             .select_from(join_) \
             .group_by(Business.id)
 
+        result = db.session.execute(query).all()
+        return {business_id: num_records for business_id, num_records in result}
+
+    @staticmethod
+    def get_count_for_all_businesses_since_dates(business_id_to_since: Dict[int, datetime]) -> Dict[int, int]:
+        since_temp_table = union_all(*[
+            select(
+                literal(business_id).label('business_id'),
+                literal(since).label('since'),
+            ) if index == 0 else select(literal(business_id), literal(since))
+            for index, (business_id, since) in enumerate(business_id_to_since.items())
+        ]).cte(name='temp_since_dates')
+
+        query = (
+            select(Business.id, count(AdRecord.id))
+            .select_from(Business)
+            .outerjoin(since_temp_table, Business.id == since_temp_table.c.business_id)
+            .outerjoin(
+                AdRecord,
+                and_(
+                    Business.id == AdRecord.business_id,
+                    AdRecord.created_at >= since_temp_table.c.since
+                )
+            )
+            .group_by(Business.id)
+        )
         result = db.session.execute(query).all()
         return {business_id: num_records for business_id, num_records in result}
