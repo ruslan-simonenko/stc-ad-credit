@@ -99,11 +99,12 @@ enum Columns {
   EMAIL = 'email',
   SCORE = 'score',
   ALLOWANCE = 'allowance',
+  ALLOWANCE_WINDOW = 'allowance_window',
   FACEBOOK_URL = 'facebook_url',
   ACTIONS = 'actions',
 }
 
-const ColumnsOrder: Array<string> = [Columns.NAME, Columns.FACEBOOK_URL, Columns.SCORE, Columns.ALLOWANCE, Columns.REGISTRATION, Columns.EMAIL, Columns.ACTIONS];
+const ColumnsOrder: Array<string> = [Columns.NAME, Columns.FACEBOOK_URL, Columns.SCORE, Columns.ALLOWANCE, Columns.ALLOWANCE_WINDOW, Columns.REGISTRATION, Columns.EMAIL, Columns.ACTIONS];
 
 const prepareColumns = (): QTableProps['columns'] => {
   const businessManagerColumns: QTableProps['columns'] = authStore.hasRole(UserRole.BUSINESS_MANAGER) ? [
@@ -142,6 +143,12 @@ const prepareColumns = (): QTableProps['columns'] => {
       field: (row: Business) => adAllowanceStore.data.indexed[row.id],
       format: (value: AdAllowance | null): string => value != null ? `${value.used_allowance} / ${value.allowance}` : ''
     },
+    {
+      name: Columns.ALLOWANCE_WINDOW,
+      label: 'Ad Accounting Period',
+      field: (row: Business) => adAllowanceStore.data.indexed[row.id],
+      format: (value: AdAllowance | null): string => value != null ? `${value.window_start.toLocaleDateString()} - ${value.window_end.toLocaleDateString()}` : ''
+    }
   ] : [];
   const columns: QTableProps['columns'] = [
     {
