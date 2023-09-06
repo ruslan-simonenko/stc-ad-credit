@@ -6,6 +6,7 @@ from flask.testing import FlaskClient
 from src.ad.allowance.ad_allowance_dto import AdAllowanceDTO
 from src.ad.allowance.ad_allowance_service import AdAllowanceService
 from src.ad.allowance.ad_allowance_types import AdAllowance
+from src.utils.clock import Clock
 from src.utils.dto import ResponseWithObjects
 from tests.app_fixtures import AutoAppContextFixture
 from tests.auth.auth_fixtures import AuthFixtures
@@ -21,9 +22,9 @@ class TestAdAllowanceEndpoint(DatabaseTest, AutoAppContextFixture, AuthFixtures,
                      access_headers_for,
                      monkeypatch: MonkeyPatch):
         monkeypatch.setattr(AdAllowanceService, 'get_for_all_businesses', lambda: {
-            1: AdAllowance(full=10, used=5),
-            2: AdAllowance(full=50, used=50),
-            3: AdAllowance(full=1, used=0)
+            1: AdAllowance(window_start=Clock.now(), full=10, used=5),
+            2: AdAllowance(window_start=Clock.now(), full=50, used=50),
+            3: AdAllowance(window_start=Clock.now(), full=1, used=0)
         })
 
         response = client.get('/ad-allowances/', headers=access_headers_for(users.ad_manager))

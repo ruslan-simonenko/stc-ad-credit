@@ -15,11 +15,13 @@ class AdAllowanceService:
 
     @staticmethod
     def get_for_business(business_id) -> AdAllowance:
-        full = AD_ALLOWANCE[CarbonAuditRatingService.get_for_business(business_id)]
-        used = AdRecordService.get_count_for_business_since_date(
-            business_id,
-            since=AdAllowanceService._get_rate_limit_window_start())
-        return AdAllowance(full=full, used=used)
+        business = BusinessService.get_by_id_or_throw(business_id)
+        latest_audit = CarbonAuditService.get_latest_for_business(business_id)
+
+        window_start = AdAllowanceService._get_rate_limit_window_start(business, latest_audit)
+        full = AD_ALLOWANCE[CarbonAuditRatingService.get_for_business_and_audit(business, latest_audit)]
+        used = AdRecordService.get_count_for_business_since_date(business_id, since=window_start)
+        return AdAllowance(window_start=window_start, full=full, used=used)
 
     @staticmethod
     def get_for_all_businesses() -> Dict[int, AdAllowance]:
@@ -31,22 +33,25 @@ class AdAllowanceService:
                 businesses[business_id], business_id_to_latest_audit.get(business_id, None)
             )]
             for business_id in all_business_ids}
-        business_id_to_used_allowance = AdRecordService.get_count_for_all_businesses_since_date(
-            AdAllowanceService._get_rate_limit_window_start())
+        business_id_to_window_start = {
+            business_id: AdAllowanceService._get_rate_limit_window_start(
+                businesses[business_id], business_id_to_latest_audit.get(business_id, None)
+            )
+            for business_id in all_business_ids
+        }
+        business_id_to_used_allowance = AdRecordService.get_count_for_all_businesses_since_dates(
+            business_id_to_window_start)
         return {business_id: AdAllowance(
+            window_start=business_id_to_window_start.get(business_id),
             full=business_id_to_allowance.get(business_id),
-            used=business_id_to_used_allowance.get(business_id, 0)
+            used=business_id_to_used_allowance.get(business_id)
         ) for business_id in all_business_ids}
 
     @staticmethod
-    def _get_rate_limit_window_start_NEW(business: Business, latest_audit: Optional[CarbonAudit]):
+    def _get_rate_limit_window_start(business: Business, latest_audit: Optional[CarbonAudit]):
         if latest_audit is None:
             initial_window_start = business.created_at
         else:
             initial_window_start = latest_audit.report_date
         full_windows_passed = (Clock.now() - initial_window_start) // AD_RATE_LIMIT_WINDOW_DURATION
         return initial_window_start + full_windows_passed * AD_RATE_LIMIT_WINDOW_DURATION
-
-    @staticmethod
-    def _get_rate_limit_window_start():
-        return Clock.now() - AD_RATE_LIMIT_WINDOW_DURATION

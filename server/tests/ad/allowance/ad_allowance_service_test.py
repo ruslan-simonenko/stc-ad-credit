@@ -25,6 +25,8 @@ BUSINESS_ID = 10
 class TestAdAllowanceService:
 
     def test_get_for_all_businesses(self, monkeypatch: MonkeyPatch):
+        current_time = Clock.now()
+        monkeypatch.setattr(Clock, 'now', lambda: current_time)
         monkeypatch.setattr(BusinessService, 'get_all', lambda: [
             business_mock(business_id=1, reg_type=BusinessRegistrationType.VAT),
             business_mock(business_id=2, reg_type=BusinessRegistrationType.CRN),
@@ -37,7 +39,7 @@ class TestAdAllowanceService:
             carbon_audit_mock(business_id=2, score=CARBON_RATING_MIN_SCORE[CarbonAuditRating.MEDIUM]),
             carbon_audit_mock(business_id=3, score=0),
         ])
-        monkeypatch.setattr(AdRecordService, 'get_count_for_all_businesses_since_date', lambda since: {
+        monkeypatch.setattr(AdRecordService, 'get_count_for_all_businesses_since_dates', lambda since: {
             1: 6,
             2: 7,
             3: 2,
@@ -45,11 +47,11 @@ class TestAdAllowanceService:
             5: 0})
         actual_result = AdAllowanceService.get_for_all_businesses()
         assert actual_result == {
-            1: AdAllowance(full=AD_ALLOWANCE[CarbonAuditRating.HIGH], used=6),
-            2: AdAllowance(full=AD_ALLOWANCE[CarbonAuditRating.MEDIUM], used=7),
-            3: AdAllowance(full=AD_ALLOWANCE[CarbonAuditRating.LOW], used=2),
-            4: AdAllowance(full=AD_ALLOWANCE[CarbonAuditRating.LOW], used=1),
-            5: AdAllowance(full=AD_ALLOWANCE[CarbonAuditRating.UNKNOWN], used=0),
+            1: AdAllowance(window_start=current_time, full=AD_ALLOWANCE[CarbonAuditRating.HIGH], used=6),
+            2: AdAllowance(window_start=current_time, full=AD_ALLOWANCE[CarbonAuditRating.MEDIUM], used=7),
+            3: AdAllowance(window_start=current_time, full=AD_ALLOWANCE[CarbonAuditRating.LOW], used=2),
+            4: AdAllowance(window_start=current_time, full=AD_ALLOWANCE[CarbonAuditRating.LOW], used=1),
+            5: AdAllowance(window_start=current_time, full=AD_ALLOWANCE[CarbonAuditRating.UNKNOWN], used=0),
         }
 
     @pytest.mark.parametrize('biz_created_days_ago, audit_made_days_ago, expected_window_start_days_ago', [
@@ -62,10 +64,10 @@ class TestAdAllowanceService:
         (57, 55, 5),
         (1399, 350, 0),
     ])
-    def test_get_rate_limit_window_start_NEW(self, monkeypatch: MonkeyPatch,
-                                             biz_created_days_ago,
-                                             audit_made_days_ago: Optional[int],
-                                             expected_window_start_days_ago: int):
+    def test_get_rate_limit_window_start(self, monkeypatch: MonkeyPatch,
+                                         biz_created_days_ago,
+                                         audit_made_days_ago: Optional[int],
+                                         expected_window_start_days_ago: int):
         current_time = datetime.utcnow()
 
         business = Mock()
@@ -80,7 +82,7 @@ class TestAdAllowanceService:
         monkeypatch.setattr(ad_allowance_service, 'AD_RATE_LIMIT_WINDOW_DURATION', timedelta(days=10))
         monkeypatch.setattr(Clock, 'now', lambda: current_time)
 
-        actual_window_start = AdAllowanceService._get_rate_limit_window_start_NEW(business, audit)
+        actual_window_start = AdAllowanceService._get_rate_limit_window_start(business, audit)
         expected_window_start = current_time - timedelta(days=expected_window_start_days_ago)
         assert abs(actual_window_start - expected_window_start) < timedelta(hours=1)
 
@@ -89,11 +91,13 @@ def carbon_audit_mock(business_id: int = None, score: int = None) -> CarbonAudit
     audit = Mock()
     audit.business_id = business_id
     audit.score = score
+    audit.report_date = Clock.now()
     return audit
 
 
 def business_mock(business_id: int, reg_type: BusinessRegistrationType) -> Business:
     business = Mock()
     business.id = business_id
+    business.created_at = Clock.now()
     business.registration_type = reg_type
     return business
