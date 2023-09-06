@@ -1,9 +1,9 @@
 from datetime import timedelta
-from typing import Dict
 
 from _pytest.monkeypatch import MonkeyPatch
 from flask.testing import FlaskClient
 
+from src.ad.allowance import ad_allowance_bp
 from src.ad.allowance.ad_allowance_dto import AdAllowanceDTO
 from src.ad.allowance.ad_allowance_service import AdAllowanceService
 from src.ad.allowance.ad_allowance_types import AdAllowance
@@ -23,6 +23,7 @@ class TestAdAllowanceEndpoint(DatabaseTest, AutoAppContextFixture, AuthFixtures,
                      access_headers_for,
                      monkeypatch: MonkeyPatch):
         current_time = Clock.now()
+        monkeypatch.setattr(ad_allowance_bp, 'AD_RATE_LIMIT_WINDOW_DURATION', timedelta(days=100))
         monkeypatch.setattr(AdAllowanceService, 'get_for_all_businesses', lambda: {
             1: AdAllowance(window_start=current_time - timedelta(days=120), full=10, used=5),
             2: AdAllowance(window_start=current_time - timedelta(days=200), full=50, used=50),
@@ -36,15 +37,18 @@ class TestAdAllowanceEndpoint(DatabaseTest, AutoAppContextFixture, AuthFixtures,
         expected_data = ResponseWithObjects[AdAllowanceDTO](
             objects=frozenset([
                 AdAllowanceDTO(business_id=1,
-                               window_start=current_time - timedelta(days=120),
+                               window_start=(current_time - timedelta(days=120)).date(),
+                               window_end=(current_time - timedelta(days=120 - 100)).date(),
                                allowance=10,
                                used_allowance=5),
                 AdAllowanceDTO(business_id=2,
-                               window_start=current_time - timedelta(days=200),
+                               window_start=(current_time - timedelta(days=200)).date(),
+                               window_end=(current_time - timedelta(days=200 - 100)).date(),
                                allowance=50,
                                used_allowance=50),
                 AdAllowanceDTO(business_id=3,
-                               window_start=current_time - timedelta(days=30),
+                               window_start=(current_time - timedelta(days=30)).date(),
+                               window_end=(current_time - timedelta(days=30 - 100)).date(),
                                allowance=1,
                                used_allowance=0)
             ]))
