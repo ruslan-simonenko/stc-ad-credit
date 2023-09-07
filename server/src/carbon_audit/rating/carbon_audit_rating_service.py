@@ -30,6 +30,6 @@ class CarbonAuditRatingService:
 
 
 CARBON_RATING_MIN_SCORE: Dict[CarbonAuditRating, int] = {
-    CarbonAuditRating.MEDIUM: 50,
+    CarbonAuditRating.MEDIUM: 30,
     CarbonAuditRating.HIGH: 70,
 }
